@@ -1,57 +1,63 @@
 package sptech.school.crud_imagem;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Base64;
 
 @RestController
 @RequestMapping("/pet")
-public class PetController  {
+public class PetController {
 
     @Autowired
     private PetRepository repository;
 
     @PostMapping
-    public ResponseEntity<Pet> cadastrarPet(@RequestBody Pet pet) {
+    public ResponseEntity<Pet> cadastrarPet(@RequestBody PetDTO dto) {
 
-        if (pet.getNome() == null || pet.getNome().trim().isEmpty()) {
-            return ResponseEntity.status(400).build();
+        // Validações simples
+        if (dto.getNome() == null || dto.getNome().trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
-        if (pet.getIdade() < 0) {
-            return ResponseEntity.status(400).build();
+        if (dto.getIdade() == null || dto.getIdade() < 0) {
+            return ResponseEntity.badRequest().build();
         }
-        if (pet.getPeso() <= 0) {
-            return ResponseEntity.status(400).build();
+        if (dto.getPeso() == null || dto.getPeso() <= 0) {
+            return ResponseEntity.badRequest().build();
         }
-        if (pet.getAltura() <= 0) {
-            return ResponseEntity.status(400).build();
+        if (dto.getAltura() == null || dto.getAltura() <= 0) {
+            return ResponseEntity.badRequest().build();
         }
 
+        // Monta a entidade Pet
         Pet petNovo = new Pet();
-        petNovo.setNome(pet.getNome());
-        petNovo.setIdade(pet.getIdade());
-        petNovo.setPeso(pet.getPeso());
-        petNovo.setAltura(pet.getAltura());
+        petNovo.setNome(dto.getNome());
+        petNovo.setIdade(dto.getIdade());
+        petNovo.setPeso(dto.getPeso());
+        petNovo.setAltura(dto.getAltura());
 
-        if (pet.getImagem() != null && !pet.getImagem().isEmpty()) {
+        // Decodifica a imagem Base64 se existir
+        if (dto.getImagemBase64() != null && !dto.getImagemBase64().isEmpty()) {
             try {
-                byte[] imagemBytes = Base64.getDecoder().decode(pet.getImagem());
-                petNovo.setImagem(new String(imagemBytes));
+                byte[] imagemBytes = Base64.getDecoder().decode(dto.getImagemBase64());
+                petNovo.setImagem(imagemBytes);
             } catch (IllegalArgumentException e) {
-                return ResponseEntity.status(400).build();
+                // Caso a string Base64 seja inválida
+                return ResponseEntity.badRequest().build();
             }
         }
 
+        // Salva no banco
         Pet petCadastrado = repository.save(petNovo);
-        return ResponseEntity.status(201).body(petCadastrado);
+
+        // Retorna o Pet cadastrado
+        return ResponseEntity.status(HttpStatus.CREATED).body(petCadastrado);
     }
 
+    // Endpoint para retornar a imagem em binário
     @GetMapping("/{id}/imagem")
     public ResponseEntity<byte[]> getImagem(@PathVariable Integer id) {
         Pet pet = repository.findById(id).orElse(null);
@@ -59,10 +65,9 @@ public class PetController  {
             return ResponseEntity.notFound().build();
         }
 
-        byte[] imageBytes = Base64.getDecoder().decode(pet.getImagem());
-
+        // Ajuste o MediaType conforme o tipo real da imagem (PNG, JPEG, etc.)
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(imageBytes);
+                .contentType(MediaType.IMAGE_PNG)
+                .body(pet.getImagem());
     }
 }

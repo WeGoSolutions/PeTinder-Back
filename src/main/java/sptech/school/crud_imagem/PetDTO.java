@@ -1,31 +1,13 @@
 package sptech.school.crud_imagem;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+public class PetDTO {
 
-@Entity
-public class Pet {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
     private String nome;
     private Integer idade;
     private Double peso;
     private Double altura;
+    private String imagemBase64;
 
-    @Lob
-    private byte[] imagem; // Armazena a imagem como bytes (BLOB)
-
-    public Integer getId() {
-        return id;
-    }
-    public void setId(Integer id) {
-        this.id = id;
-    }
     public String getNome() {
         return nome;
     }
@@ -50,10 +32,10 @@ public class Pet {
     public void setAltura(Double altura) {
         this.altura = altura;
     }
-    public byte[] getImagem() {
-        return imagem;
+    public String getImagemBase64() {
+        return imagemBase64;
     }
-    public void setImagem(byte[] imagem) {
-        this.imagem = imagem;
+    public void setImagemBase64(String imagemBase64) {
+        this.imagemBase64 = imagemBase64;
     }
 }
