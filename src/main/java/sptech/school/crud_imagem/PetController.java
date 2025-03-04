@@ -1,12 +1,11 @@
 package sptech.school.crud_imagem;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Base64;
+import java.util.List;
 
 @RestController
 @RequestMapping("/pet")
@@ -42,7 +41,7 @@ public class PetController {
                 byte[] imagemBytes = Base64.getDecoder().decode(dto.getImagemBase64());
                 petNovo.setImagem(imagemBytes);
             } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().build();
+                return ResponseEntity.status(400).build();
             }
         }
 
@@ -59,7 +58,56 @@ public class PetController {
         }
 
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG) // QUEM TA DANDO APROVE, TEM QUE VALIDAR SE TODAS AS IMAGENS VAO SER .PNG
+                .contentType(MediaType.IMAGE_PNG)//QUEM TA DANDO APROVE, TEM QUE VALIDAR SE TODAS AS IMAGENS VAO SER .PNG
                 .body(pet.getImagem());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Pet>> listarGeral(){
+        List<Pet> all = repository.findAll();
+
+        if (all.isEmpty()){
+            return ResponseEntity.status(204).build();
+        }
+        return ResponseEntity.status(200).body(all);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Pet> atualizar(@PathVariable Integer id, @RequestBody PetDTO dto){
+
+        if (repository.existsById(id)){
+            Pet petParaAlterar = repository.findById(id).orElse(null);
+            if (petParaAlterar == null) {
+                return ResponseEntity.status(404).build();
+            }
+
+            petParaAlterar.setNome(dto.getNome());
+            petParaAlterar.setIdade(dto.getIdade());
+            petParaAlterar.setPeso(dto.getPeso());
+            petParaAlterar.setAltura(dto.getAltura());
+
+            if (dto.getImagemBase64() != null && !dto.getImagemBase64().isEmpty()) {
+                try {
+                    byte[] imagemBytes = Base64.getDecoder().decode(dto.getImagemBase64());
+                    petParaAlterar.setImagem(imagemBytes);
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.status(400).build();
+                }
+            }
+
+            Pet petAlterado = repository.save(petParaAlterar);
+            return ResponseEntity.status(202).body(petAlterado);
+        }
+        return ResponseEntity.status(404).build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Pet> deletarPet(@PathVariable Integer id){
+        if (repository.existsById(id)){
+            repository.deleteById(id);
+            return ResponseEntity.status(205).build();
+        }else {
+            return ResponseEntity.status(404).build();
+        }
     }
 }
