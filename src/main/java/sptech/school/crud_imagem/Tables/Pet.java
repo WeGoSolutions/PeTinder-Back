@@ -1,4 +1,4 @@
-package sptech.school.crud_imagem;
+package sptech.school.crud_imagem.Tables;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -1,9 +1,13 @@
-package sptech.school.crud_imagem;
+package sptech.school.crud_imagem.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sptech.school.crud_imagem.Tables.Pet;
+import sptech.school.crud_imagem.DTOs.PetDTO;
+import sptech.school.crud_imagem.Repositorys.PetRepository;
+
 import java.util.Base64;
 import java.util.List;
 
@@ -58,7 +62,7 @@ public class PetController {
         }
 
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)//QUEM TA DANDO APROVE, TEM QUE VALIDAR SE TODAS AS IMAGENS VAO SER .PNG
+                .contentType(MediaType.IMAGE_PNG)
                 .body(pet.getImagem());
     }
 
