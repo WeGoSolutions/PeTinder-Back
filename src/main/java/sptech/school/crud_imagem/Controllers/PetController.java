@@ -77,7 +77,14 @@ public class PetController {
     @GetMapping("/{id}/imagens")
     public ResponseEntity<List<String>> listarUrlsImagens(HttpServletRequest request, @PathVariable Integer id) {
         Pet pet = repository.findById(id).orElse(null);
-        if (pet == null || pet.getImagem() == null || pet.getImagem().isEmpty()) {
+        if (pet == null) {
+            System.out.println("Pet com id " + id + " não encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        List<byte[]> imagens = pet.getImagem();
+        if (imagens == null || imagens.isEmpty()) {
+            System.out.println("Nenhuma imagem encontrada para o pet com id " + id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
@@ -87,7 +94,7 @@ public class PetController {
                 .toUriString();
 
         List<String> urls = new ArrayList<>();
-        for (int i = 0; i < pet.getImagem().size(); i++) {
+        for (int i = 0; i < imagens.size(); i++) {
             String url = baseUrl + "/pets/" + id + "/imagens/" + i;
             urls.add(url);
         }
@@ -97,16 +104,28 @@ public class PetController {
     @GetMapping("/{id}/imagens/{indice}")
     public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer id, @PathVariable int indice) {
         Pet pet = repository.findById(id).orElse(null);
-        if (pet == null || pet.getImagem() == null || pet.getImagem().isEmpty() || indice < 0 || indice >= pet.getImagem().size()) {
-            return ResponseEntity.status(404).build();
+        if (pet == null) {
+            System.out.println("Pet com id " + id + " não encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        byte[] imagem = pet.getImagem().get(indice);
+        List<byte[]> imagens = pet.getImagem();
+        if (imagens == null || imagens.isEmpty()) {
+            System.out.println("Nenhuma imagem para o pet com id " + id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
+        if (indice < 0 || indice >= imagens.size()) {
+            System.out.println("Índice " + indice + " inválido para o pet com id " + id + ". Total de imagens: " + imagens.size());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        byte[] imagem = imagens.get(indice);
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)
+                .contentType(MediaType.IMAGE_JPEG) // Altere para o tipo correto se não for JPEG
                 .body(imagem);
     }
+
 
     @GetMapping
     public ResponseEntity<List<Pet>> listarGeral(){
