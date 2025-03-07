@@ -1,10 +1,13 @@
 package sptech.school.crud_imagem.Tables;
 
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+
+import java.util.List;
 
 @Entity
 public class Pet {
@@ -13,12 +16,15 @@ public class Pet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String nome;
-    private Integer idade;
+    private Double idade;
     private Double peso;
     private Double altura;
+    private Integer curtidas;
+    private List<String> tags;
 
+    @ElementCollection
     @Lob
-    private byte[] imagem; // Armazena a imagem como bytes (BLOB)
+    private List<byte[]> imagem; // Armazena as imagens como bytes (BLOB)
 
     public Integer getId() {
         return id;
@@ -32,10 +38,10 @@ public class Pet {
     public void setNome(String nome) {
         this.nome = nome;
     }
-    public Integer getIdade() {
+    public Double getIdade() {
         return idade;
     }
-    public void setIdade(Integer idade) {
+    public void setIdade(Double idade) {
         this.idade = idade;
     }
     public Double getPeso() {
@@ -50,10 +56,22 @@ public class Pet {
     public void setAltura(Double altura) {
         this.altura = altura;
     }
-    public byte[] getImagem() {
+    public Integer getCurtidas() {
+        return curtidas;
+    }
+    public void setCurtidas(Integer curtidas) {
+        this.curtidas = curtidas;
+    }
+    public List<String> getTags() {
+        return tags;
+    }
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+    public List<byte[]> getImagem() {
         return imagem;
     }
-    public void setImagem(byte[] imagem) {
-        this.imagem = imagem;
+    public void setImagem(List<byte[]> imagens) {
+        this.imagem = imagens;
     }
 }

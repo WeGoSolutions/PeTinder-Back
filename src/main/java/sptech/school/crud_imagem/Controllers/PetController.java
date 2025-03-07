@@ -1,15 +1,22 @@
 package sptech.school.crud_imagem.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import sptech.school.crud_imagem.Tables.Pet;
 import sptech.school.crud_imagem.DTOs.PetDTO;
 import sptech.school.crud_imagem.Repositorys.PetRepository;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/pet")
@@ -33,20 +40,32 @@ public class PetController {
         if (dto.getAltura() == null || dto.getAltura() <= 0) {
             return ResponseEntity.status(400).build();
         }
+        if (dto.getCurtidas() == null || dto.getCurtidas() < 0) {
+            return ResponseEntity.status(400).build();
+        }
+        if (dto.getTags() == null || dto.getTags().isEmpty()) {
+            return ResponseEntity.status(400).build();
+        }
 
         Pet petNovo = new Pet();
         petNovo.setNome(dto.getNome());
         petNovo.setIdade(dto.getIdade());
         petNovo.setPeso(dto.getPeso());
         petNovo.setAltura(dto.getAltura());
+        petNovo.setCurtidas(dto.getCurtidas());
+        petNovo.setTags(dto.getTags());
 
         if (dto.getImagemBase64() != null && !dto.getImagemBase64().isEmpty()) {
-            try {
-                byte[] imagemBytes = Base64.getDecoder().decode(dto.getImagemBase64());
-                petNovo.setImagem(imagemBytes);
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.status(400).build();
+            List<byte[]> imagensBytes = new ArrayList<>();
+            for (String imagemBase64 : dto.getImagemBase64()) {
+                try {
+                    byte[] imagemBytes = Base64.getDecoder().decode(imagemBase64);
+                    imagensBytes.add(imagemBytes);
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.status(400).build();
+                }
             }
+            petNovo.setImagem(imagensBytes);
         }
 
         Pet petCadastrado = repository.save(petNovo);
@@ -54,16 +73,24 @@ public class PetController {
         return ResponseEntity.status(201).body(petCadastrado);
     }
 
-    @GetMapping("/{id}/imagem")
-    public ResponseEntity<byte[]> getImagem(@PathVariable Integer id) {
+    @GetMapping("/{id}/imagens")
+    public ResponseEntity<List<String>> listarUrlsImagens(@PathVariable Integer id) {
         Pet pet = repository.findById(id).orElse(null);
-        if (pet == null || pet.getImagem() == null) {
-            return ResponseEntity.status(404).build();
+        if (pet == null || pet.getImagem() == null || pet.getImagem().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)
-                .body(pet.getImagem());
+        List<String> urls = new ArrayList<>();
+        for (int i = 0; i < pet.getImagem().size(); i++) {
+            String url = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/pets/")
+                    .path(id.toString())
+                    .path("/imagens/")
+                    .path(String.valueOf(i))
+                    .toUriString();
+            urls.add(url);
+        }
+        return ResponseEntity.ok(urls);
     }
 
     @GetMapping
@@ -89,14 +116,20 @@ public class PetController {
             petParaAlterar.setIdade(dto.getIdade());
             petParaAlterar.setPeso(dto.getPeso());
             petParaAlterar.setAltura(dto.getAltura());
+            petParaAlterar.setCurtidas(dto.getCurtidas());
+            petParaAlterar.setTags(dto.getTags());
 
             if (dto.getImagemBase64() != null && !dto.getImagemBase64().isEmpty()) {
-                try {
-                    byte[] imagemBytes = Base64.getDecoder().decode(dto.getImagemBase64());
-                    petParaAlterar.setImagem(imagemBytes);
-                } catch (IllegalArgumentException e) {
-                    return ResponseEntity.status(400).build();
+                List<byte[]> imagensBytes = new ArrayList<>();
+                for (String imagemBase64 : dto.getImagemBase64()) {
+                    try {
+                        byte[] imagemBytes = Base64.getDecoder().decode(imagemBase64);
+                        imagensBytes.add(imagemBytes);
+                    } catch (IllegalArgumentException e) {
+                        return ResponseEntity.status(400).build();
+                    }
                 }
+                petParaAlterar.setImagem(imagensBytes);
             }
 
             Pet petAlterado = repository.save(petParaAlterar);
