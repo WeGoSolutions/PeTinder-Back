@@ -11,13 +11,9 @@ import sptech.school.crud_imagem.Tables.Pet;
 import sptech.school.crud_imagem.DTOs.PetDTO;
 import sptech.school.crud_imagem.Repositorys.PetRepository;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/pet")

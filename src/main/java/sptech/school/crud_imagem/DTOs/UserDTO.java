@@ -1,37 +1,19 @@
-package sptech.school.crud_imagem.Tables;
-
-import jakarta.persistence.*;
+package sptech.school.crud_imagem.DTOs;
 
 import java.util.Date;
 
-@Entity
-@Table(name = "tb_user")
-public class User {
+public class UserDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
     private String nome;
     private String email;
     private String senha;
-
-    @Temporal(TemporalType.DATE)
     private Date dataAniversario;
-
     private String cpf;
     private String cep;
     private String rua;
     private Integer numero;
     private String cidade;
     private String uf;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public String getNome() {
         return nome;
@@ -112,4 +94,5 @@ public class User {
     public void setUf(String uf) {
         this.uf = uf;
     }
+
 }
