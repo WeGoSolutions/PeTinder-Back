@@ -1,5 +1,6 @@
 package sptech.school.crud_imagem.Controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -74,23 +75,37 @@ public class PetController {
     }
 
     @GetMapping("/{id}/imagens")
-    public ResponseEntity<List<String>> listarUrlsImagens(@PathVariable Integer id) {
+    public ResponseEntity<List<String>> listarUrlsImagens(HttpServletRequest request, @PathVariable Integer id) {
         Pet pet = repository.findById(id).orElse(null);
         if (pet == null || pet.getImagem() == null || pet.getImagem().isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath(null)
+                .build()
+                .toUriString();
+
         List<String> urls = new ArrayList<>();
         for (int i = 0; i < pet.getImagem().size(); i++) {
-            String url = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/pets/")
-                    .path(id.toString())
-                    .path("/imagens/")
-                    .path(String.valueOf(i))
-                    .toUriString();
+            String url = baseUrl + "/pets/" + id + "/imagens/" + i;
             urls.add(url);
         }
         return ResponseEntity.ok(urls);
+    }
+
+    @GetMapping("/{id}/imagens/{indice}")
+    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer id, @PathVariable int indice) {
+        Pet pet = repository.findById(id).orElse(null);
+        if (pet == null || pet.getImagem() == null || pet.getImagem().isEmpty() || indice < 0 || indice >= pet.getImagem().size()) {
+            return ResponseEntity.status(404).build();
+        }
+
+        byte[] imagem = pet.getImagem().get(indice);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(imagem);
     }
 
     @GetMapping
