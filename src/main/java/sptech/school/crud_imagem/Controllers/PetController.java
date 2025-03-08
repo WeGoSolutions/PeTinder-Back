@@ -75,13 +75,13 @@ public class PetController {
         Pet pet = repository.findById(id).orElse(null);
         if (pet == null) {
             System.out.println("Pet com id " + id + " não encontrado.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
 
         List<byte[]> imagens = pet.getImagem();
         if (imagens == null || imagens.isEmpty()) {
             System.out.println("Nenhuma imagem encontrada para o pet com id " + id);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
 
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
@@ -102,18 +102,18 @@ public class PetController {
         Pet pet = repository.findById(id).orElse(null);
         if (pet == null) {
             System.out.println("Pet com id " + id + " não encontrado.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
 
         List<byte[]> imagens = pet.getImagem();
         if (imagens == null || imagens.isEmpty()) {
             System.out.println("Nenhuma imagem para o pet com id " + id);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
 
         if (indice < 0 || indice >= imagens.size()) {
             System.out.println("Índice " + indice + " inválido para o pet com id " + id + ". Total de imagens: " + imagens.size());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
 
         byte[] imagem = imagens.get(indice);
