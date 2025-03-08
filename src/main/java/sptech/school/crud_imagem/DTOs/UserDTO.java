@@ -7,7 +7,7 @@ public class UserDTO {
     private String nome;
     private String email;
     private String senha;
-    private Date dataAniversario;
+    private Date dataNasc;
     private String cpf;
     private String cep;
     private String rua;
@@ -39,12 +39,12 @@ public class UserDTO {
         this.senha = senha;
     }
 
-    public Date getDataAniversario() {
-        return dataAniversario;
+    public Date getDataNasc() {
+        return dataNasc;
     }
 
-    public void setDataAniversario(Date dataAniversario) {
-        this.dataAniversario = dataAniversario;
+    public void setDataNasc(Date dataNasc) {
+        this.dataNasc = dataNasc;
     }
 
     public String getCpf() {

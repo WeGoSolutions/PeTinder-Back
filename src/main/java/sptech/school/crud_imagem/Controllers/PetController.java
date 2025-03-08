@@ -16,7 +16,7 @@ import java.util.Base64;
 import java.util.List;
 
 @RestController
-@RequestMapping("/pet")
+@RequestMapping("/pets")
 public class PetController {
 
     @Autowired

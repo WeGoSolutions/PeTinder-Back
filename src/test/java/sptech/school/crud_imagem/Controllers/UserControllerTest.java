@@ -36,7 +36,7 @@ public class UserControllerTest {
         dto.setNome("Teste");
         dto.setEmail("teste@exemplo.com");
         dto.setSenha("123456");
-        dto.setDataAniversario(new Date());
+        dto.setDataNasc(new Date());
         dto.setCpf("12345678900");
         dto.setCep("00000000");
         dto.setRua("Rua Teste");
@@ -66,7 +66,7 @@ public class UserControllerTest {
         dto.setNome("UsuarioId");
         dto.setEmail("usuarioid@exemplo.com");
         dto.setSenha("senha");
-        dto.setDataAniversario(new Date());
+        dto.setDataNasc(new Date());
         dto.setCpf("11122233344");
         dto.setCep("11111111");
         dto.setRua("Rua Id");
@@ -95,7 +95,7 @@ public class UserControllerTest {
         dto.setNome("Atualizar");
         dto.setEmail("atualizar@exemplo.com");
         dto.setSenha("123");
-        dto.setDataAniversario(new Date());
+        dto.setDataNasc(new Date());
         dto.setCpf("22233344455");
         dto.setCep("22222222");
         dto.setRua("Rua Atual");
@@ -128,7 +128,7 @@ public class UserControllerTest {
         dto.setNome("Excluir");
         dto.setEmail("excluir@exemplo.com");
         dto.setSenha("123");
-        dto.setDataAniversario(new Date());
+        dto.setDataNasc(new Date());
         dto.setCpf("33344455566");
         dto.setCep("33333333");
         dto.setRua("Rua Excluir");

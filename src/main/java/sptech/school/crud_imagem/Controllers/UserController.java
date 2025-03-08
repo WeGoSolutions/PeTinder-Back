@@ -2,7 +2,6 @@
 package sptech.school.crud_imagem.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sptech.school.crud_imagem.DTOs.UserDTO;
@@ -13,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
@@ -55,7 +54,7 @@ public class UserController {
         userToUpdate.setNome(userDTO.getNome());
         userToUpdate.setEmail(userDTO.getEmail());
         userToUpdate.setSenha(userDTO.getSenha());
-        userToUpdate.setDataAniversario(userDTO.getDataAniversario());
+        userToUpdate.setDataNasc(userDTO.getDataNasc());
         userToUpdate.setCpf(userDTO.getCpf());
         userToUpdate.setCep(userDTO.getCep());
         userToUpdate.setRua(userDTO.getRua());
@@ -81,7 +80,7 @@ public class UserController {
         user.setNome(dto.getNome());
         user.setEmail(dto.getEmail());
         user.setSenha(dto.getSenha());
-        user.setDataAniversario(dto.getDataAniversario());
+        user.setDataNasc(dto.getDataNasc());
         user.setCpf(dto.getCpf());
         user.setCep(dto.getCep());
         user.setRua(dto.getRua());
