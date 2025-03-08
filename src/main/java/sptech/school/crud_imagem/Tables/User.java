@@ -16,7 +16,7 @@ public class User {
     private String senha;
 
     @Temporal(TemporalType.DATE)
-    private Date dataAniversario;
+    private Date dataNasc;
 
     private String cpf;
     private String cep;
@@ -57,12 +57,12 @@ public class User {
         this.senha = senha;
     }
 
-    public Date getDataAniversario() {
-        return dataAniversario;
+    public Date getDataNasc() {
+        return dataNasc;
     }
 
-    public void setDataAniversario(Date dataAniversario) {
-        this.dataAniversario = dataAniversario;
+    public void setDataNasc(Date dataNasc) {
+        this.dataNasc = dataNasc;
     }
 
     public String getCpf() {
