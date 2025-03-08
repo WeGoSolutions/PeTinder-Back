@@ -22,18 +22,18 @@ public class UserController {
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) {
         if (userDTO.getNome() == null || userDTO.getEmail() == null || userDTO.getSenha() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(400).build();
         }
         User user = convertDTOToEntity(userDTO);
         User savedUser = repository.save(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        return ResponseEntity.status(201).body(savedUser);
     }
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = repository.findAll();
         if (users.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            return ResponseEntity.status(204).build();
         }
         return ResponseEntity.status(201).body(users);
     }
@@ -49,7 +49,7 @@ public class UserController {
     public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody UserDTO userDTO) {
         Optional<User> userOpt = repository.findById(id);
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
         User userToUpdate = userOpt.get();
         userToUpdate.setNome(userDTO.getNome());
@@ -63,17 +63,17 @@ public class UserController {
         userToUpdate.setCidade(userDTO.getCidade());
         userToUpdate.setUf(userDTO.getUf());
         User updatedUser = repository.save(userToUpdate);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(updatedUser);
+        return ResponseEntity.status(202).body(updatedUser);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
         Optional<User> userOpt = repository.findById(id);
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
         repository.deleteById(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(204).build();
     }
 
     private User convertDTOToEntity(UserDTO dto) {
