@@ -1,15 +1,14 @@
-package sptech.school.crud_imagem.Controllers;
+package cruds.Controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import sptech.school.crud_imagem.Tables.Pet;
-import sptech.school.crud_imagem.DTOs.PetDTO;
-import sptech.school.crud_imagem.Repositorys.PetRepository;
+import cruds.Pets.Tables.Pet;
+import cruds.Pets.DTOs.PetDTO;
+import cruds.Pets.Repositorys.PetRepository;
 
 import java.util.ArrayList;
 import java.util.Base64;

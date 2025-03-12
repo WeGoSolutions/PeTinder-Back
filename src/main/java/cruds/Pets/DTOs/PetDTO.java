@@ -1,4 +1,4 @@
-package sptech.school.crud_imagem.DTOs;
+package cruds.Pets.DTOs;
 
 import java.util.List;
 

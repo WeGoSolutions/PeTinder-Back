@@ -1,7 +1,7 @@
-package sptech.school.crud_imagem.Repositorys;
+package cruds.Pets.Repositorys;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import sptech.school.crud_imagem.Tables.Pet;
+import cruds.Pets.Tables.Pet;
 
 public interface PetRepository extends JpaRepository<Pet, Integer> {
 }

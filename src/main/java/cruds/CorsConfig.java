@@ -1,4 +1,4 @@
-package sptech.school.crud_imagem;
+package cruds;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

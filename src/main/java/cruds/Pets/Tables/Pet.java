@@ -1,4 +1,4 @@
-package sptech.school.crud_imagem.Tables;
+package cruds.Pets.Tables;
 
 import jakarta.persistence.*;
 
