@@ -1,4 +1,4 @@
-package sptech.school.crud_imagem;
+package cruds;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

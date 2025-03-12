@@ -1,7 +1,7 @@
-package sptech.school.crud_imagem.Repositorys;
+package cruds.Users.Repositorys;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import sptech.school.crud_imagem.Tables.User;
+import cruds.Users.Tables.User;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 }

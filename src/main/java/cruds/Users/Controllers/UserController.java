@@ -1,12 +1,12 @@
 // Arquivo: UserController.java
-package sptech.school.crud_imagem.Controllers;
+package cruds.Users.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sptech.school.crud_imagem.DTOs.UserDTO;
-import sptech.school.crud_imagem.Tables.User;
-import sptech.school.crud_imagem.Repositorys.UserRepository;
+import cruds.Users.DTOs.UserDTO;
+import cruds.Users.Tables.User;
+import cruds.Users.Repositorys.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
