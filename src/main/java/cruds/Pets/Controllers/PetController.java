@@ -1,4 +1,4 @@
-package cruds.Controllers;
+package cruds.Pets.Controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
