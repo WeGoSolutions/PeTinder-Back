@@ -50,6 +50,7 @@ public class UserController {
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(404).build();
         }
+
         User userToUpdate = userOpt.get();
         userToUpdate.setNome(userDTO.getNome());
         userToUpdate.setEmail(userDTO.getEmail());
