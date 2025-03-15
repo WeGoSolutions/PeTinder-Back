@@ -1,30 +1,56 @@
-// Arquivo: UserController.java
+// Arquivo: src/main/java/cruds/Users/Controllers/UserController.java
 package cruds.Users.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import cruds.Users.DTOs.UserDTO;
 import cruds.Users.Tables.User;
 import cruds.Users.Repositorys.UserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 
+import jakarta.validation.Valid;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
+@Validated
 public class UserController {
 
     @Autowired
     private UserRepository repository;
 
+    /*@Autowired
+    private EmailVerificationService emailVerificationService;*/
+
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) {
-        if (userDTO.getNome() == null || userDTO.getEmail() == null || userDTO.getSenha() == null) {
-            return ResponseEntity.status(400).build();
-        }
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
         User user = convertDTOToEntity(userDTO);
+
+        List<User> emailValidation = repository.findByEmail(user.getEmail());
+        List<User> cpfValidation = repository.findByCpf(user.getCpf());
+        
+        if (!emailValidation.isEmpty()) {
+            return ResponseEntity.status(226).body("Email já cadastrado");
+        } else if (!cpfValidation.isEmpty()) {
+            return ResponseEntity.status(226).body("CPF já cadastrado");
+        }
+
+        ResponseEntity<String> validationResponse = validateAccount(userDTO);
+        if (!validationResponse.getStatusCode().is2xxSuccessful()) {
+            return ResponseEntity.status(validationResponse.getStatusCode()).body(validationResponse.getBody());
+        }
+
         User savedUser = repository.save(user);
+        LocalDate dataNascimento = userDTO.getDataNasc().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        if (dataNascimento.isAfter(LocalDate.now().minusYears(21))) {
+            return ResponseEntity.status(206).body(savedUser);
+        }
         return ResponseEntity.status(201).body(savedUser);
     }
 
@@ -34,7 +60,7 @@ public class UserController {
         if (users.isEmpty()) {
             return ResponseEntity.status(204).build();
         }
-        return ResponseEntity.status(201).body(users);
+        return ResponseEntity.status(200).body(users);
     }
 
     @GetMapping("/{id}")
@@ -45,24 +71,12 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<User> updateUser(@PathVariable Integer id, @Valid @RequestBody UserDTO userDTO) {
         Optional<User> userOpt = repository.findById(id);
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(404).build();
         }
-
-        User userToUpdate = userOpt.get();
-        userToUpdate.setNome(userDTO.getNome());
-        userToUpdate.setEmail(userDTO.getEmail());
-        userToUpdate.setSenha(userDTO.getSenha());
-        userToUpdate.setDataNasc(userDTO.getDataNasc());
-        userToUpdate.setCpf(userDTO.getCpf());
-        userToUpdate.setCep(userDTO.getCep());
-        userToUpdate.setRua(userDTO.getRua());
-        userToUpdate.setNumero(userDTO.getNumero());
-        userToUpdate.setCidade(userDTO.getCidade());
-        userToUpdate.setUf(userDTO.getUf());
-        User updatedUser = repository.save(userToUpdate);
+        User updatedUser = repository.save(updateSystem(userOpt, userDTO));
         return ResponseEntity.status(202).body(updatedUser);
     }
 
@@ -89,5 +103,51 @@ public class UserController {
         user.setCidade(dto.getCidade());
         user.setUf(dto.getUf());
         return user;
+    }
+
+    private User updateSystem(Optional<User> userOpt, UserDTO userDTO) {
+        User userToUpdate = userOpt.get();
+        userToUpdate.setNome(userDTO.getNome());
+        userToUpdate.setEmail(userDTO.getEmail());
+        userToUpdate.setSenha(userDTO.getSenha());
+        userToUpdate.setDataNasc(userDTO.getDataNasc());
+        userToUpdate.setCpf(userDTO.getCpf());
+        userToUpdate.setCep(userDTO.getCep());
+        userToUpdate.setRua(userDTO.getRua());
+        userToUpdate.setNumero(userDTO.getNumero());
+        userToUpdate.setCidade(userDTO.getCidade());
+        userToUpdate.setUf(userDTO.getUf());
+        return userToUpdate;
+    }
+
+    private ResponseEntity<String> validateAccount(UserDTO userDTO){
+        User user = convertDTOToEntity(userDTO);
+
+        if (user.getDataNasc() == null || user.getNome() == null || user.getEmail() == null || user.getSenha() == null || user.getCpf() == null) {
+            return ResponseEntity.status(400).body("Algum campo obrigatório não foi preenchido");
+        }
+
+        if (user.getCpf().length() != 14) {
+            return ResponseEntity.status(411).body("Tamanho CPF inválido");
+        } else if (user.getCpf().toUpperCase().matches(".*[A-Z].*")) {
+            return ResponseEntity.status(401).body("Tem letra no CPF");
+        } else if (!user.getEmail().contains("@") || !user.getEmail().contains(".")) {
+            return ResponseEntity.status(400).body("Formatação do email inválido");
+        }
+
+        LocalDate dataNascimento = userDTO.getDataNasc().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        if (LocalDate.now().isBefore(dataNascimento)) {
+            return ResponseEntity.status(401).body("Data de nascimento no futuro");
+        } else if (user.getSenha().length() <= 6 || !user.getSenha().matches(".*[@#$*!&%].*")) {
+            return ResponseEntity.status(401).body("Senha inválida");
+        }
+
+        if (user.getNome().matches(".*[0-9].*")){
+            return ResponseEntity.status(401).body("Tem numero no nome");
+        } else if (user.getNome().length() < 3) {
+            return ResponseEntity.status(409).body("Nome muito curto");
+        }
+
+        return ResponseEntity.status(200).body("Usuário válido");
     }
 }
