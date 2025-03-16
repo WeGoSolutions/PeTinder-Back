@@ -1,18 +1,26 @@
 package cruds.Users.DTOs;
-
 import java.util.Date;
 
 public class UserDTO {
 
     private String nome;
+
     private String email;
+
     private String senha;
+
     private Date dataNasc;
+
     private String cpf;
+
     private String cep;
+
     private String rua;
+
     private Integer numero;
+
     private String cidade;
+
     private String uf;
 
     public String getNome() {
@@ -94,5 +102,4 @@ public class UserDTO {
     public void setUf(String uf) {
         this.uf = uf;
     }
-
 }
