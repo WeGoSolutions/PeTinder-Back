@@ -36,9 +36,9 @@ public class UserController {
         List<User> cpfValidation = repository.findByCpf(user.getCpf());
         
         if (!emailValidation.isEmpty()) {
-            return ResponseEntity.status(226).body("Email já cadastrado");
+            return ResponseEntity.status(406).body("Email já cadastrado");
         } else if (!cpfValidation.isEmpty()) {
-            return ResponseEntity.status(226).body("CPF já cadastrado");
+            return ResponseEntity.status(406).body("CPF já cadastrado");
         }
 
         ResponseEntity<String> validationResponse = validateAccount(userDTO);
