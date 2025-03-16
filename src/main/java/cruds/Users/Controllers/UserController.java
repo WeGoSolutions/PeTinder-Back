@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import cruds.Users.DTOs.UserDTO;
 import cruds.Users.Tables.User;
 import cruds.Users.Repositorys.UserRepository;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import jakarta.validation.Valid;
 
@@ -32,25 +31,12 @@ public class UserController {
     public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
         User user = convertDTOToEntity(userDTO);
 
-        List<User> emailValidation = repository.findByEmail(user.getEmail());
-        List<User> cpfValidation = repository.findByCpf(user.getCpf());
-        
-        if (!emailValidation.isEmpty()) {
-            return ResponseEntity.status(406).body("Email já cadastrado");
-        } else if (!cpfValidation.isEmpty()) {
-            return ResponseEntity.status(406).body("CPF já cadastrado");
-        }
-
-        ResponseEntity<String> validationResponse = validateAccount(userDTO);
+        ResponseEntity<String> validationResponse = validateAccountCreation(userDTO);
         if (!validationResponse.getStatusCode().is2xxSuccessful()) {
             return ResponseEntity.status(validationResponse.getStatusCode()).body(validationResponse.getBody());
         }
 
         User savedUser = repository.save(user);
-        LocalDate dataNascimento = userDTO.getDataNasc().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        if (dataNascimento.isAfter(LocalDate.now().minusYears(21))) {
-            return ResponseEntity.status(206).body(savedUser);
-        }
         return ResponseEntity.status(201).body(savedUser);
     }
 
@@ -120,31 +106,43 @@ public class UserController {
         return userToUpdate;
     }
 
-    private ResponseEntity<String> validateAccount(UserDTO userDTO){
+    private ResponseEntity<String> validateAccountCreation(UserDTO userDTO){
         User user = convertDTOToEntity(userDTO);
 
-        if (user.getDataNasc() == null || user.getNome() == null || user.getEmail() == null || user.getSenha() == null || user.getCpf() == null) {
+        if (user.getDataNasc() == null || user.getNome().replaceAll("\\s+", "").isEmpty() || user.getEmail().replaceAll("\\s+", "").isEmpty() || user.getSenha().replaceAll("\\s+", "").isEmpty() || user.getCpf().replaceAll("\\s+", "").isEmpty()) {
             return ResponseEntity.status(400).body("Algum campo obrigatório não foi preenchido");
         }
 
-        if (user.getCpf().length() != 14) {
+        List<User> emailValidation = repository.findByEmail(user.getEmail());
+        List<User> cpfValidation = repository.findByCpf(user.getCpf());
+
+        if (!emailValidation.isEmpty()) {
+            return ResponseEntity.status(406).body("Email já cadastrado");
+        } else if (!cpfValidation.isEmpty()) {
+            return ResponseEntity.status(406).body("CPF já cadastrado");
+        } else if (user.getCpf().replaceAll("\\s+", "").length() != 14) {
             return ResponseEntity.status(411).body("Tamanho CPF inválido");
         } else if (user.getCpf().toUpperCase().matches(".*[A-Z].*")) {
             return ResponseEntity.status(401).body("Tem letra no CPF");
-        } else if (!user.getEmail().contains("@") || !user.getEmail().contains(".")) {
+        }
+
+        Integer possicao = user.getEmail().indexOf("@");
+        if (!user.getEmail().contains("@") || !user.getEmail().contains(".") || user.getEmail().indexOf(".", possicao) == -1) {
             return ResponseEntity.status(400).body("Formatação do email inválido");
         }
 
         LocalDate dataNascimento = userDTO.getDataNasc().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         if (LocalDate.now().isBefore(dataNascimento)) {
             return ResponseEntity.status(401).body("Data de nascimento no futuro");
-        } else if (user.getSenha().length() <= 6 || !user.getSenha().matches(".*[@#$*!&%].*")) {
+        } else if (user.getSenha().replaceAll("\\s+", "").length() <= 6 || !user.getSenha().matches(".*[@#$*!&%].*")) {
             return ResponseEntity.status(401).body("Senha inválida");
+        }else if (dataNascimento.isAfter(LocalDate.now().minusYears(21))) {
+            return ResponseEntity.status(409).body("Menor de 21 anos");
         }
 
         if (user.getNome().matches(".*[0-9].*")){
             return ResponseEntity.status(401).body("Tem numero no nome");
-        } else if (user.getNome().length() < 3) {
+        } else if (user.getNome().replaceAll("\\s+", "").length() < 3) {
             return ResponseEntity.status(409).body("Nome muito curto");
         }
 
