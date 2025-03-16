@@ -120,7 +120,7 @@ public class UserController {
             return ResponseEntity.status(406).body("Email já cadastrado");
         } else if (!cpfValidation.isEmpty()) {
             return ResponseEntity.status(406).body("CPF já cadastrado");
-        } else if (user.getCpf().replaceAll("\\s+", "").length() != 14) {
+        } else if (user.getCpf().replaceAll("\\s+", "").length() != 11) {
             return ResponseEntity.status(411).body("Tamanho CPF inválido");
         } else if (user.getCpf().toUpperCase().matches(".*[A-Z].*")) {
             return ResponseEntity.status(401).body("Tem letra no CPF");
