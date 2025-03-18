@@ -109,43 +109,43 @@ public class UserController {
     private ResponseEntity<String> validateAccountCreation(UserDTO userDTO){
         User user = convertDTOToEntity(userDTO);
 
-        if (user.getDataNasc() == null || user.getNome().replaceAll("\\s+", "").isEmpty() || user.getEmail().replaceAll("\\s+", "").isEmpty() || user.getSenha().replaceAll("\\s+", "").isEmpty() || user.getCpf().replaceAll("\\s+", "").isEmpty()) {
-            return ResponseEntity.status(400).body("Algum campo obrigatório não foi preenchido");
-        }
+//        if (user.getDataNasc() == null || user.getNome().replaceAll("\\s+", "").isEmpty() || user.getEmail().replaceAll("\\s+", "").isEmpty() || user.getSenha().replaceAll("\\s+", "").isEmpty() || user.getCpf().replaceAll("\\s+", "").isEmpty()) {
+//            return ResponseEntity.status(400).body("Algum campo obrigatório não foi preenchido");
+//        }
+//
+//        List<User> emailValidation = repository.findByEmail(user.getEmail());
+//        List<User> cpfValidation = repository.findByCpf(user.getCpf());
+//
+//        if (!emailValidation.isEmpty()) {
+//            return ResponseEntity.status(406).body("Email já cadastrado");
+//        } else if (!cpfValidation.isEmpty()) {
+//            return ResponseEntity.status(406).body("CPF já cadastrado");
+//        } else if (user.getCpf().replaceAll("\\s+", "").length() != 11) {
+//            return ResponseEntity.status(411).body("Tamanho CPF inválido");
+//        } else if (user.getCpf().toUpperCase().matches(".*[A-Z].*")) {
+//            return ResponseEntity.status(401).body("Tem letra no CPF");
+//        }
+//
+//        Integer possicao = user.getEmail().indexOf("@");
+//        if (!user.getEmail().contains("@") || !user.getEmail().contains(".") || user.getEmail().indexOf(".", possicao) == -1) {
+//            return ResponseEntity.status(400).body("Formatação do email inválido");
+//        }
+//
+//        LocalDate dataNascimento = userDTO.getDataNasc().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+//        if (LocalDate.now().isBefore(dataNascimento)) {
+//            return ResponseEntity.status(401).body("Data de nascimento no futuro");
+//        } else if (user.getSenha().replaceAll("\\s+", "").length() <= 6 || !user.getSenha().matches(".*[@#$*!&%].*")) {
+//            return ResponseEntity.status(401).body("Senha inválida");
+//        }else if (dataNascimento.isAfter(LocalDate.now().minusYears(21))) {
+//            return ResponseEntity.status(409).body("Menor de 21 anos");
+//        }
+//
+//        if (user.getNome().matches(".*[0-9].*")){
+//            return ResponseEntity.status(401).body("Tem numero no nome");
+//        } else if (user.getNome().replaceAll("\\s+", "").length() < 3) {
+//            return ResponseEntity.status(409).body("Nome muito curto");
+//        }
 
-        List<User> emailValidation = repository.findByEmail(user.getEmail());
-        List<User> cpfValidation = repository.findByCpf(user.getCpf());
-
-        if (!emailValidation.isEmpty()) {
-            return ResponseEntity.status(406).body("Email já cadastrado");
-        } else if (!cpfValidation.isEmpty()) {
-            return ResponseEntity.status(406).body("CPF já cadastrado");
-        } else if (user.getCpf().replaceAll("\\s+", "").length() != 11) {
-            return ResponseEntity.status(411).body("Tamanho CPF inválido");
-        } else if (user.getCpf().toUpperCase().matches(".*[A-Z].*")) {
-            return ResponseEntity.status(401).body("Tem letra no CPF");
-        }
-
-        Integer possicao = user.getEmail().indexOf("@");
-        if (!user.getEmail().contains("@") || !user.getEmail().contains(".") || user.getEmail().indexOf(".", possicao) == -1) {
-            return ResponseEntity.status(400).body("Formatação do email inválido");
-        }
-
-        LocalDate dataNascimento = userDTO.getDataNasc().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        if (LocalDate.now().isBefore(dataNascimento)) {
-            return ResponseEntity.status(401).body("Data de nascimento no futuro");
-        } else if (user.getSenha().replaceAll("\\s+", "").length() <= 6 || !user.getSenha().matches(".*[@#$*!&%].*")) {
-            return ResponseEntity.status(401).body("Senha inválida");
-        }else if (dataNascimento.isAfter(LocalDate.now().minusYears(21))) {
-            return ResponseEntity.status(409).body("Menor de 21 anos");
-        }
-
-        if (user.getNome().matches(".*[0-9].*")){
-            return ResponseEntity.status(401).body("Tem numero no nome");
-        } else if (user.getNome().replaceAll("\\s+", "").length() < 3) {
-            return ResponseEntity.status(409).body("Nome muito curto");
-        }
-
-        return ResponseEntity.status(200).body("Usuário válido");
+        return ResponseEntity.status(201).body("Usuário válido");
     }
 }
