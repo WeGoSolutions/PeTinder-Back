@@ -20,9 +20,6 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) {
-        if (userDTO.getNome() == null || userDTO.getEmail() == null || userDTO.getSenha() == null) {
-            return ResponseEntity.status(400).build();
-        }
         User user = convertDTOToEntity(userDTO);
         User savedUser = repository.save(user);
         return ResponseEntity.status(201).body(savedUser);

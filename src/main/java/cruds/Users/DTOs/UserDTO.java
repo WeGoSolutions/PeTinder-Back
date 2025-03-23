@@ -1,12 +1,25 @@
 package cruds.Users.DTOs;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.PastOrPresent;
+
 import java.util.Date;
 
 public class UserDTO {
 
+    @NotBlank
     private String nome;
+
+    @NotBlank
+    @Email
     private String email;
+
+    @NotBlank
     private String senha;
+
+    @Past
     private Date dataNasc;
     private String cpf;
     private String cep;

@@ -1,15 +1,34 @@
 package cruds.Pets.DTOs;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+
 import java.util.List;
 
 public class PetDTO {
 
+    @NotBlank
     private String nome;
+
+    @PositiveOrZero
     private Double idade;
+
+    @NotBlank
+    @Positive
     private Double peso;
+
+    @NotBlank
+    @Positive
     private Double altura;
+
+    @NotBlank
+    @Positive
     private Integer curtidas;
+
     private List<String> tags;
+
+    @NotBlank
     private List<String> imagemBase64;
 
     public String getNome() {

@@ -24,25 +24,6 @@ public class PetController {
     @PostMapping
     public ResponseEntity<Pet> cadastrarPet(@RequestBody PetDTO dto) {
 
-        if (dto.getNome() == null || dto.getNome().trim().isEmpty()) {
-            return ResponseEntity.status(400).build();
-        }
-        if (dto.getIdade() == null || dto.getIdade() < 0) {
-            return ResponseEntity.status(400).build();
-        }
-        if (dto.getPeso() == null || dto.getPeso() <= 0) {
-            return ResponseEntity.status(400).build();
-        }
-        if (dto.getAltura() == null || dto.getAltura() <= 0) {
-            return ResponseEntity.status(400).build();
-        }
-        if (dto.getCurtidas() == null || dto.getCurtidas() < 0) {
-            return ResponseEntity.status(400).build();
-        }
-        if (dto.getTags() == null || dto.getTags().isEmpty()) {
-            return ResponseEntity.status(400).build();
-        }
-
         Pet petNovo = new Pet();
         petNovo.setNome(dto.getNome());
         petNovo.setIdade(dto.getIdade());
@@ -51,7 +32,6 @@ public class PetController {
         petNovo.setCurtidas(dto.getCurtidas());
         petNovo.setTags(dto.getTags());
 
-        if (dto.getImagemBase64() != null && !dto.getImagemBase64().isEmpty()) {
             List<byte[]> imagensBytes = new ArrayList<>();
             for (String imagemBase64 : dto.getImagemBase64()) {
                 try {
@@ -62,7 +42,6 @@ public class PetController {
                 }
             }
             petNovo.setImagem(imagensBytes);
-        }
 
         Pet petCadastrado = repository.save(petNovo);
 
@@ -105,7 +84,7 @@ public class PetController {
         }
 
         List<byte[]> imagens = pet.getImagem();
-        if (imagens == null || imagens.isEmpty()) {
+        if (imagens.isEmpty()) {
             System.out.println("Nenhuma imagem para o pet com id " + id);
             return ResponseEntity.status(404).build();
         }
@@ -148,7 +127,6 @@ public class PetController {
             petParaAlterar.setCurtidas(dto.getCurtidas());
             petParaAlterar.setTags(dto.getTags());
 
-            if (dto.getImagemBase64() != null && !dto.getImagemBase64().isEmpty()) {
                 List<byte[]> imagensBytes = new ArrayList<>();
                 for (String imagemBase64 : dto.getImagemBase64()) {
                     try {
@@ -159,7 +137,7 @@ public class PetController {
                     }
                 }
                 petParaAlterar.setImagem(imagensBytes);
-            }
+
 
             Pet petAlterado = repository.save(petParaAlterar);
             return ResponseEntity.status(202).body(petAlterado);
