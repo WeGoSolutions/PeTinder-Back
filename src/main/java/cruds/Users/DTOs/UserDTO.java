@@ -1,15 +1,18 @@
 package cruds.Users.DTOs;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.*;
+import org.springframework.cglib.core.Local;
+import org.springframework.format.annotation.NumberFormat;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Date;
 
 public class UserDTO {
 
     @NotBlank
+    @Size(min = 3)
+    @Pattern(regexp = "^[A-Za-zÀ-ÖØ-öø-ÿ ]+$")
     private String nome;
 
     @NotBlank
@@ -17,16 +20,38 @@ public class UserDTO {
     private String email;
 
     @NotBlank
+    @Size(min = 6)
+    @Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\":{}|<>]+$")
     private String senha;
 
     @Past
     private Date dataNasc;
+
+    @Pattern(regexp = "^[0-9]{11}$")
     private String cpf;
+
     private String cep;
+
     private String rua;
+
     private Integer numero;
+
     private String cidade;
+
     private String uf;
+
+    @AssertTrue(message = "A pessoa deve ter mais de 21 anos")
+    public boolean isMaiorDe21() {
+        if (dataNasc == null) {
+            return false; // Garantir que a data de nascimento não seja nula
+        }
+
+        LocalDate dataNascimento = new java.sql.Date(dataNasc.getTime()).toLocalDate();
+        LocalDate hoje = LocalDate.now();
+        Period periodo = Period.between(dataNascimento, hoje);
+
+        return periodo.getYears() >= 21; // Verifica se a idade é 21 ou mais
+    }
 
     public String getNome() {
         return nome;

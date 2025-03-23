@@ -3,23 +3,29 @@ package cruds.Users.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import cruds.Users.DTOs.UserDTO;
 import cruds.Users.Tables.User;
 import cruds.Users.Repositorys.UserRepository;
 
+import jakarta.validation.Valid;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
+@Validated
 public class UserController {
 
     @Autowired
     private UserRepository repository;
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<User> createUser(@Valid @RequestBody UserDTO userDTO) {
         User user = convertDTOToEntity(userDTO);
         User savedUser = repository.save(user);
         return ResponseEntity.status(201).body(savedUser);
@@ -42,23 +48,13 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<User> updateUser(@PathVariable Integer id, @Valid @RequestBody UserDTO userDTO) {
         Optional<User> userOpt = repository.findById(id);
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(404).build();
         }
-        User userToUpdate = userOpt.get();
-        userToUpdate.setNome(userDTO.getNome());
-        userToUpdate.setEmail(userDTO.getEmail());
-        userToUpdate.setSenha(userDTO.getSenha());
-        userToUpdate.setDataNasc(userDTO.getDataNasc());
-        userToUpdate.setCpf(userDTO.getCpf());
-        userToUpdate.setCep(userDTO.getCep());
-        userToUpdate.setRua(userDTO.getRua());
-        userToUpdate.setNumero(userDTO.getNumero());
-        userToUpdate.setCidade(userDTO.getCidade());
-        userToUpdate.setUf(userDTO.getUf());
-        User updatedUser = repository.save(userToUpdate);
+        User user = convertDTOToEntity(userDTO);
+        User updatedUser = repository.save(user);
         return ResponseEntity.status(202).body(updatedUser);
     }
 
@@ -86,4 +82,5 @@ public class UserController {
         user.setUf(dto.getUf());
         return user;
     }
+
 }

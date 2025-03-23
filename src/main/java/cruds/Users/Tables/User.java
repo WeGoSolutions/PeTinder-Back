@@ -12,13 +12,18 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String nome;
+
+    @Column(unique = true)
     private String email;
+
     private String senha;
 
     @Temporal(TemporalType.DATE)
     private Date dataNasc;
 
+    @Column(unique = true)
     private String cpf;
+
     private String cep;
     private String rua;
     private Integer numero;
