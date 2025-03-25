@@ -11,7 +11,7 @@ public class PetDTO {
     @NotBlank
     private String nome;
 
-    @PositiveOrZero
+    @Positive
     private Double idade;
 
     @NotBlank
