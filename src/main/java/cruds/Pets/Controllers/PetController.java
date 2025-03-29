@@ -1,14 +1,16 @@
 package cruds.Pets.Controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import cruds.Pets.Tables.Pet;
-import cruds.Pets.DTOs.PetDTO;
 import cruds.Pets.Repositorys.PetRepository;
+import cruds.Pets.DTOs.PetRequest;
+import cruds.Pets.DTOs.PetResponse;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -22,30 +24,23 @@ public class PetController {
     private PetRepository repository;
 
     @PostMapping
-    public ResponseEntity<Pet> cadastrarPet(@RequestBody PetDTO dto) {
+    public ResponseEntity<PetResponse> cadastrarPet(@Valid @RequestBody PetRequest dto) {
 
-        Pet petNovo = new Pet();
-        petNovo.setNome(dto.getNome());
-        petNovo.setIdade(dto.getIdade());
-        petNovo.setPeso(dto.getPeso());
-        petNovo.setAltura(dto.getAltura());
-        petNovo.setCurtidas(dto.getCurtidas());
-        petNovo.setTags(dto.getTags());
+        Pet petNovo = PetRequest.toEntity(dto);
 
-            List<byte[]> imagensBytes = new ArrayList<>();
-            for (String imagemBase64 : dto.getImagemBase64()) {
-                try {
-                    byte[] imagemBytes = Base64.getDecoder().decode(imagemBase64);
-                    imagensBytes.add(imagemBytes);
-                } catch (IllegalArgumentException e) {
-                    return ResponseEntity.status(400).build();
-                }
+        List<byte[]> imagensBytes = new ArrayList<>();
+        for (String imagemBase64 : dto.getImagemBase64()) {
+            try {
+                byte[] imagemBytes = Base64.getDecoder().decode(imagemBase64);
+                imagensBytes.add(imagemBytes);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(400).build();
             }
-            petNovo.setImagem(imagensBytes);
+        }
+        petNovo.setImagem(imagensBytes);
 
         Pet petCadastrado = repository.save(petNovo);
-
-        return ResponseEntity.status(201).body(petCadastrado);
+        return ResponseEntity.status(201).body(PetResponse.toResponse(petCadastrado));
     }
 
     @GetMapping("/{id}/imagens")
@@ -96,23 +91,28 @@ public class PetController {
 
         byte[] imagem = imagens.get(indice);
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG) // Altere para o tipo correto se não for JPEG
+                .contentType(MediaType.IMAGE_JPEG)
                 .body(imagem);
     }
 
-
     @GetMapping
-    public ResponseEntity<List<Pet>> listarGeral(){
+    public ResponseEntity<List<PetResponse>> listarGeral(){
         List<Pet> all = repository.findAll();
 
         if (all.isEmpty()){
             return ResponseEntity.status(204).build();
         }
-        return ResponseEntity.status(200).body(all);
+
+        List<PetResponse> responseList = new ArrayList<>();
+        for (Pet petDaVez : all) {
+            responseList.add(PetResponse.toResponse(petDaVez));
+        }
+
+        return ResponseEntity.status(200).body(responseList);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Pet> atualizar(@PathVariable Integer id, @RequestBody PetDTO dto){
+    public ResponseEntity<PetResponse> atualizar(@PathVariable Integer id, @RequestBody PetRequest dto){
 
         if (repository.existsById(id)){
             Pet petParaAlterar = repository.findById(id).orElse(null);
@@ -127,26 +127,25 @@ public class PetController {
             petParaAlterar.setCurtidas(dto.getCurtidas());
             petParaAlterar.setTags(dto.getTags());
 
-                List<byte[]> imagensBytes = new ArrayList<>();
-                for (String imagemBase64 : dto.getImagemBase64()) {
-                    try {
-                        byte[] imagemBytes = Base64.getDecoder().decode(imagemBase64);
-                        imagensBytes.add(imagemBytes);
-                    } catch (IllegalArgumentException e) {
-                        return ResponseEntity.status(400).build();
-                    }
+            List<byte[]> imagensBytes = new ArrayList<>();
+            for (String imagemBase64 : dto.getImagemBase64()) {
+                try {
+                    byte[] imagemBytes = Base64.getDecoder().decode(imagemBase64);
+                    imagensBytes.add(imagemBytes);
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.status(400).build();
                 }
-                petParaAlterar.setImagem(imagensBytes);
-
+            }
+            petParaAlterar.setImagem(imagensBytes);
 
             Pet petAlterado = repository.save(petParaAlterar);
-            return ResponseEntity.status(202).body(petAlterado);
+            return ResponseEntity.status(202).body(PetResponse.toResponse(petAlterado));
         }
         return ResponseEntity.status(404).build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Pet> deletarPet(@PathVariable Integer id){
+    public ResponseEntity<Void> deletarPet(@PathVariable Integer id){
         if (repository.existsById(id)){
             repository.deleteById(id);
             return ResponseEntity.status(205).build();

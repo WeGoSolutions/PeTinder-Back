@@ -1,20 +1,20 @@
 // Arquivo: UserController.java
 package cruds.Users.Controllers;
 
+import cruds.Users.DTOs.UserRequest;
+import cruds.Users.DTOs.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import cruds.Users.DTOs.UserDTO;
 import cruds.Users.Tables.User;
 import cruds.Users.Repositorys.UserRepository;
 
 import jakarta.validation.Valid;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -25,37 +25,43 @@ public class UserController {
     private UserRepository repository;
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody UserDTO userDTO) {
-        User user = convertDTOToEntity(userDTO);
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
+        User user = convertRequestToEntity(userRequest);
         User savedUser = repository.save(user);
-        return ResponseEntity.status(201).body(savedUser);
+        UserResponse userResponse = convertEntityToResponse(savedUser);
+        return ResponseEntity.status(201).body(userResponse);
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<User> users = repository.findAll();
         if (users.isEmpty()) {
             return ResponseEntity.status(204).build();
         }
-        return ResponseEntity.status(201).body(users);
+        List<UserResponse> userResponses = users.stream()
+                .map(this::convertEntityToResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.status(200).body(userResponses);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Integer id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Integer id) {
         Optional<User> userOpt = repository.findById(id);
-        return userOpt.map(ResponseEntity::ok)
+        return userOpt.map(user -> ResponseEntity.ok(convertEntityToResponse(user)))
                 .orElseGet(() -> ResponseEntity.status(404).build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Integer id, @Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Integer id, @Valid @RequestBody UserRequest userRequest) {
         Optional<User> userOpt = repository.findById(id);
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(404).build();
         }
-        User user = convertDTOToEntity(userDTO);
+        User user = convertRequestToEntity(userRequest);
+        user.setId(id); // Ensure the ID is set for the update
         User updatedUser = repository.save(user);
-        return ResponseEntity.status(202).body(updatedUser);
+        UserResponse userResponse = convertEntityToResponse(updatedUser);
+        return ResponseEntity.status(202).body(userResponse);
     }
 
     @DeleteMapping("/{id}")
@@ -68,19 +74,19 @@ public class UserController {
         return ResponseEntity.status(204).build();
     }
 
-    private User convertDTOToEntity(UserDTO dto) {
+    private User convertRequestToEntity(UserRequest request) {
         User user = new User();
-        user.setNome(dto.getNome());
-        user.setEmail(dto.getEmail());
-        user.setSenha(dto.getSenha());
-        user.setDataNasc(dto.getDataNasc());
-        user.setCpf(dto.getCpf());
-        user.setCep(dto.getCep());
-        user.setRua(dto.getRua());
-        user.setNumero(dto.getNumero());
-        user.setCidade(dto.getCidade());
-        user.setUf(dto.getUf());
+        user.setNome(request.getNome());
+        user.setEmail(request.getEmail());
+        user.setSenha(request.getSenha());
+        user.setDataNasc(request.getDataNasc());
         return user;
     }
 
+    private UserResponse convertEntityToResponse(User user) {
+        UserResponse response = new UserResponse();
+        response.setNome(user.getNome());
+        response.setEmail(user.getEmail());
+        return response;
+    }
 }
