@@ -6,9 +6,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import cruds.Pets.Tables.Pet;
+import cruds.Pets.Entities.Pet;
 import cruds.Pets.DTOs.PetDTO;
-import cruds.Pets.Repositorys.PetRepository;
+import cruds.Pets.Repositories.PetRepository;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -43,13 +43,15 @@ public class PetController {
             return ResponseEntity.status(400).build();
         }
 
-        Pet petNovo = new Pet();
-        petNovo.setNome(dto.getNome());
-        petNovo.setIdade(dto.getIdade());
-        petNovo.setPeso(dto.getPeso());
-        petNovo.setAltura(dto.getAltura());
-        petNovo.setCurtidas(dto.getCurtidas());
-        petNovo.setTags(dto.getTags());
+        Pet petNovo = Pet.builder()
+                .nome(dto.getNome())
+                .idade(dto.getIdade())
+                .peso(dto.getPeso())
+                .altura(dto.getAltura())
+                .curtidas(dto.getCurtidas())
+                .tags(dto.getTags())
+                .build();
+
 
         if (dto.getImagemBase64() != null && !dto.getImagemBase64().isEmpty()) {
             List<byte[]> imagensBytes = new ArrayList<>();
@@ -141,12 +143,14 @@ public class PetController {
                 return ResponseEntity.status(404).build();
             }
 
-            petParaAlterar.setNome(dto.getNome());
-            petParaAlterar.setIdade(dto.getIdade());
-            petParaAlterar.setPeso(dto.getPeso());
-            petParaAlterar.setAltura(dto.getAltura());
-            petParaAlterar.setCurtidas(dto.getCurtidas());
-            petParaAlterar.setTags(dto.getTags());
+            petParaAlterar = petParaAlterar.toBuilder()
+                    .nome(dto.getNome())
+                    .idade(dto.getIdade())
+                    .peso(dto.getPeso())
+                    .altura(dto.getAltura())
+                    .curtidas(dto.getCurtidas())
+                    .tags(dto.getTags())
+                    .build();
 
             if (dto.getImagemBase64() != null && !dto.getImagemBase64().isEmpty()) {
                 List<byte[]> imagensBytes = new ArrayList<>();

@@ -6,8 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import cruds.Users.DTOs.UserDTO;
-import cruds.Users.Tables.User;
-import cruds.Users.Repositorys.UserRepository;
+import cruds.Users.Entities.User;
+import cruds.Users.Repositories.UserRepository;
 
 import jakarta.validation.Valid;
 
@@ -77,33 +77,33 @@ public class UserController {
     }
 
     private User convertDTOToEntity(UserDTO dto) {
-        User user = new User();
-        user.setNome(dto.getNome());
-        user.setEmail(dto.getEmail());
-        user.setSenha(dto.getSenha());
-        user.setDataNasc(dto.getDataNasc());
-        user.setCpf(dto.getCpf());
-        user.setCep(dto.getCep());
-        user.setRua(dto.getRua());
-        user.setNumero(dto.getNumero());
-        user.setCidade(dto.getCidade());
-        user.setUf(dto.getUf());
-        return user;
+        return User.builder()
+                .nome(dto.getNome())
+                .email(dto.getEmail())
+                .senha(dto.getSenha())
+                .dataNasc(dto.getDataNasc())
+                .cpf(dto.getCpf())
+                .cep(dto.getCep())
+                .rua(dto.getRua())
+                .numero(dto.getNumero())
+                .cidade(dto.getCidade())
+                .uf(dto.getUf())
+                .build();
     }
 
     private User updateSystem(Optional<User> userOpt, UserDTO userDTO) {
-        User userToUpdate = userOpt.get();
-        userToUpdate.setNome(userDTO.getNome());
-        userToUpdate.setEmail(userDTO.getEmail());
-        userToUpdate.setSenha(userDTO.getSenha());
-        userToUpdate.setDataNasc(userDTO.getDataNasc());
-        userToUpdate.setCpf(userDTO.getCpf());
-        userToUpdate.setCep(userDTO.getCep());
-        userToUpdate.setRua(userDTO.getRua());
-        userToUpdate.setNumero(userDTO.getNumero());
-        userToUpdate.setCidade(userDTO.getCidade());
-        userToUpdate.setUf(userDTO.getUf());
-        return userToUpdate;
+        return userOpt.get().toBuilder()
+                .nome(userDTO.getNome())
+                .email(userDTO.getEmail())
+                .senha(userDTO.getSenha())
+                .dataNasc(userDTO.getDataNasc())
+                .cpf(userDTO.getCpf())
+                .cep(userDTO.getCep())
+                .rua(userDTO.getRua())
+                .numero(userDTO.getNumero())
+                .cidade(userDTO.getCidade())
+                .uf(userDTO.getUf())
+                .build();
     }
 
     private ResponseEntity<String> validateAccountCreation(UserDTO userDTO){

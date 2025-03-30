@@ -3,13 +3,9 @@ package cruds.Controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cruds.Users.Controllers.UserController;
-import cruds.Users.Controllers.UserController;
 import cruds.Users.DTOs.UserDTO;
-import cruds.Users.Repositorys.UserRepository;
-import cruds.Users.Tables.User;
-import cruds.Users.DTOs.UserDTO;
-import cruds.Users.Repositorys.UserRepository;
-import cruds.Users.Tables.User;
+import cruds.Users.Repositories.UserRepository;
+import cruds.Users.Entities.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -19,10 +15,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
