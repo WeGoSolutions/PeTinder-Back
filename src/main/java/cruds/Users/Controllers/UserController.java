@@ -58,7 +58,7 @@ public class UserController {
             return ResponseEntity.status(404).build();
         }
         User user = convertRequestToEntity(userRequest);
-        user.setId(id); // Ensure the ID is set for the update
+        user.setId(id);
         User updatedUser = repository.save(user);
         UserResponse userResponse = convertEntityToResponse(updatedUser);
         return ResponseEntity.status(202).body(userResponse);
