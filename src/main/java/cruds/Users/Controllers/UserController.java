@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import cruds.Users.Tables.User;
-import cruds.Users.Repositorys.UserRepository;
+import cruds.Users.Entities.User;
+import cruds.Users.Repositories.UserRepository;
 
 import jakarta.validation.Valid;
 
@@ -75,18 +75,18 @@ public class UserController {
     }
 
     private User convertRequestToEntity(UserRequest request) {
-        User user = new User();
-        user.setNome(request.getNome());
-        user.setEmail(request.getEmail());
-        user.setSenha(request.getSenha());
-        user.setDataNasc(request.getDataNasc());
-        return user;
+        return User.builder()
+                .nome(request.getNome())
+                .email(request.getEmail())
+                .senha(request.getSenha())
+                .dataNasc(request.getDataNasc())
+                .build();
     }
 
     private UserResponse convertEntityToResponse(User user) {
-        UserResponse response = new UserResponse();
-        response.setNome(user.getNome());
-        response.setEmail(user.getEmail());
-        return response;
+        return UserResponse.builder()
+                .nome(user.getNome())
+                .email(user.getEmail())
+                .build();
     }
 }

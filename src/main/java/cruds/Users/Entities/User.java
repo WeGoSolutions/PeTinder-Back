@@ -34,5 +34,6 @@ public class User {
     private Integer numero;
     private String cidade;
     private String uf;
+    private String complemento;
 
 }
