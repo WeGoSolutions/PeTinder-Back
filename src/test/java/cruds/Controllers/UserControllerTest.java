@@ -3,9 +3,8 @@ package cruds.Controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cruds.Users.Controllers.UserController;
-import cruds.Users.DTOs.UserDTO;
-import cruds.Users.Repositories.UserRepository;
-import cruds.Users.Entities.User;
+import cruds.Users.Repositorys.UserRepository;
+import cruds.Users.Tables.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
