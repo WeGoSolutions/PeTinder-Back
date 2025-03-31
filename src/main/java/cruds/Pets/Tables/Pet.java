@@ -1,6 +1,7 @@
 package cruds.Pets.Tables;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class Pet {
 
     @ElementCollection
     @Lob
+    @NotNull
     private List<byte[]> imagem; // Armazena as imagens como bytes (BLOB)
 
     public Integer getId() {
