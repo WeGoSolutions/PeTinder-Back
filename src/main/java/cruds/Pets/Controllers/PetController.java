@@ -7,8 +7,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import cruds.Pets.Tables.Pet;
-import cruds.Pets.Repositorys.PetRepository;
+import cruds.Pets.Entities.Pet;
+import cruds.Pets.Repositories.PetRepository;
 import cruds.Pets.DTOs.PetRequest;
 import cruds.Pets.DTOs.PetResponse;
 
@@ -120,12 +120,14 @@ public class PetController {
                 return ResponseEntity.status(404).build();
             }
 
-            petParaAlterar.setNome(dto.getNome());
-            petParaAlterar.setIdade(dto.getIdade());
-            petParaAlterar.setPeso(dto.getPeso());
-            petParaAlterar.setAltura(dto.getAltura());
-            petParaAlterar.setCurtidas(dto.getCurtidas());
-            petParaAlterar.setTags(dto.getTags());
+            petParaAlterar = petParaAlterar.toBuilder()
+                    .nome(dto.getNome())
+                    .idade(dto.getIdade())
+                    .peso(dto.getPeso())
+                    .altura(dto.getAltura())
+                    .curtidas(dto.getCurtidas())
+                    .tags(dto.getTags())
+                    .build();
 
             List<byte[]> imagensBytes = new ArrayList<>();
             for (String imagemBase64 : dto.getImagemBase64()) {

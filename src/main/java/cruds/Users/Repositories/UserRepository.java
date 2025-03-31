@@ -1,9 +1,8 @@
-package cruds.Users.Repositorys;
+package cruds.Users.Repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import cruds.Users.Tables.User;
+import cruds.Users.Entities.User;
 
-import java.util.Date;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
