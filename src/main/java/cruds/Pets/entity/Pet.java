@@ -1,4 +1,4 @@
-package cruds.Pets.Entities;
+package cruds.Pets.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

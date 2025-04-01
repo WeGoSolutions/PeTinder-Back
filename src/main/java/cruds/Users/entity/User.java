@@ -1,4 +1,4 @@
-package cruds.Users.Entities;
+package cruds.Users.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

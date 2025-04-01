@@ -1,6 +1,6 @@
-package cruds.Users.DTOs;
+package cruds.Users.dto;
 
-import cruds.Users.Entities.User;
+import cruds.Users.entity.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

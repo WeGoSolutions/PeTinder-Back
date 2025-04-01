@@ -1,6 +1,6 @@
-package cruds.Pets.DTOs;
+package cruds.Pets.dto;
 
-import cruds.Pets.Entities.Pet;
+import cruds.Pets.entity.Pet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

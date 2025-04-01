@@ -1,4 +1,4 @@
-package cruds.Pets.Controllers;
+package cruds.Pets.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -7,10 +7,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import cruds.Pets.Entities.Pet;
-import cruds.Pets.Repositories.PetRepository;
-import cruds.Pets.DTOs.PetRequest;
-import cruds.Pets.DTOs.PetResponse;
+import cruds.Pets.entity.Pet;
+import cruds.Pets.repository.PetRepository;
+import cruds.Pets.dto.PetRequest;
+import cruds.Pets.dto.PetResponse;
 
 import java.util.ArrayList;
 import java.util.Base64;

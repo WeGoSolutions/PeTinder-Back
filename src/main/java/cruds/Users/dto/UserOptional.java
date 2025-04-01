@@ -1,4 +1,4 @@
-package cruds.Users.DTOs;
+package cruds.Users.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
