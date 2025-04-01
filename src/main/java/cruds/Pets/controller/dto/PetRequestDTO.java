@@ -1,10 +1,7 @@
-package cruds.Pets.dto;
+package cruds.Pets.controller.dto;
 
 import cruds.Pets.entity.Pet;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PetRequest {
+public class PetRequestDTO {
 
     @NotBlank
     private String nome;
@@ -38,10 +35,11 @@ public class PetRequest {
     @NotEmpty
     private List<String> tags;
 
+    @Max(value = 5)
     @NotBlank
     private List<String> imagemBase64;
 
-    public static Pet toEntity(PetRequest petRequest) {
+    public static Pet toEntity(PetRequestDTO petRequest) {
         return Pet.builder()
                 .nome(petRequest.getNome())
                 .idade(petRequest.getIdade())
@@ -51,5 +49,4 @@ public class PetRequest {
                 .tags(petRequest.getTags())
                 .build();
     }
-
 }

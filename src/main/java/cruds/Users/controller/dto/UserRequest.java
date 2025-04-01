@@ -1,4 +1,4 @@
-package cruds.Users.dto;
+package cruds.Users.controller.dto;
 
 import cruds.Users.entity.User;
 import jakarta.validation.Valid;

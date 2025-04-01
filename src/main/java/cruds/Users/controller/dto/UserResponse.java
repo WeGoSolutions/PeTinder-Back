@@ -1,4 +1,4 @@
-package cruds.Users.dto;
+package cruds.Users.controller.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

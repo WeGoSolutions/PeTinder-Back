@@ -1,4 +1,4 @@
-package cruds.Users.dto;
+package cruds.Users.controller.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserOptional {
+public class UserOptionalDTO {
 
     @Pattern(regexp = "\\d{11}")
     private String cpf;
@@ -35,8 +35,8 @@ public class UserOptional {
     private String uf;
 
 
-    public static UserOptional toOptional(@Valid UserRequest user) {
-        UserOptional dto = new UserOptional();
+    public static UserOptionalDTO toOptional(@Valid UserRequest user) {
+        UserOptionalDTO dto = new UserOptionalDTO();
         dto.setCpf(user.getCpf());
         dto.setCep(user.getCep());
         dto.setRua(user.getRua());

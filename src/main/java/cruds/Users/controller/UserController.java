@@ -1,8 +1,8 @@
 // Arquivo: UserController.java
 package cruds.Users.controller;
 
-import cruds.Users.dto.UserRequest;
-import cruds.Users.dto.UserResponse;
+import cruds.Users.controller.dto.UserRequest;
+import cruds.Users.controller.dto.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

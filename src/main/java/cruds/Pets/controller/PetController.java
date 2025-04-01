@@ -1,5 +1,8 @@
 package cruds.Pets.controller;
 
+import cruds.Pets.exceptions.PetNotFoundException;
+import cruds.Pets.exceptions.PetVazioException;
+import cruds.Pets.service.PetService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import cruds.Pets.entity.Pet;
-import cruds.Pets.repository.PetRepository;
-import cruds.Pets.dto.PetRequest;
-import cruds.Pets.dto.PetResponse;
+import cruds.Pets.controller.dto.PetRequestDTO;
+import cruds.Pets.controller.dto.PetResponseDTO;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -21,62 +23,24 @@ import java.util.List;
 public class PetController {
 
     @Autowired
-    private PetRepository repository;
+    private PetService petService;
 
     @PostMapping
-    public ResponseEntity<PetResponse> cadastrarPet(@Valid @RequestBody PetRequest dto) {
+    public ResponseEntity<PetResponseDTO> cadastrarPet(@Valid @RequestBody PetRequestDTO dto) {
 
-        Pet petNovo = PetRequest.toEntity(dto);
+        var petCadastrado = petService.cadastrarPet(dto);
 
-        List<byte[]> imagensBytes = new ArrayList<>();
-        for (String imagemBase64 : dto.getImagemBase64()) {
-            try {
-                byte[] imagemBytes = Base64.getDecoder().decode(imagemBase64);
-                imagensBytes.add(imagemBytes);
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.status(400).build();
-            }
-        }
-        petNovo.setImagem(imagensBytes);
-
-        Pet petCadastrado = repository.save(petNovo);
-        return ResponseEntity.status(201).body(PetResponse.toResponse(petCadastrado));
+        return ResponseEntity.status(201).body(PetResponseDTO.toResponse(petCadastrado));
     }
 
     @GetMapping("/{id}/imagens")
     public ResponseEntity<List<String>> listarUrlsImagens(HttpServletRequest request, @PathVariable Integer id) {
-        Pet pet = repository.findById(id).orElse(null);
-        if (pet == null) {
-            System.out.println("Pet com id " + id + " não encontrado.");
-            return ResponseEntity.status(404).build();
-        }
-
-        List<byte[]> imagens = pet.getImagem();
-        if (imagens == null || imagens.isEmpty()) {
-            System.out.println("Nenhuma imagem encontrada para o pet com id " + id);
-            return ResponseEntity.status(404).build();
-        }
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-                .replacePath(null)
-                .build()
-                .toUriString();
-
-        List<String> urls = new ArrayList<>();
-        for (int i = 0; i < imagens.size(); i++) {
-            String url = baseUrl + "/pets/" + id + "/imagens/" + i;
-            urls.add(url);
-        }
+        var urls = petService.listarUrlsImagens(request, id);
         return ResponseEntity.ok(urls);
     }
 
     @GetMapping("/{id}/imagens/{indice}")
     public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer id, @PathVariable int indice) {
-        Pet pet = repository.findById(id).orElse(null);
-        if (pet == null) {
-            System.out.println("Pet com id " + id + " não encontrado.");
-            return ResponseEntity.status(404).build();
-        }
 
         List<byte[]> imagens = pet.getImagem();
         if (imagens.isEmpty()) {
@@ -96,23 +60,19 @@ public class PetController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PetResponse>> listarGeral(){
-        List<Pet> all = repository.findAll();
+    public ResponseEntity<List<PetResponseDTO>> listarGeral(){
+       var pets = petService.listarPets();
 
-        if (all.isEmpty()){
-            return ResponseEntity.status(204).build();
-        }
-
-        List<PetResponse> responseList = new ArrayList<>();
-        for (Pet petDaVez : all) {
-            responseList.add(PetResponse.toResponse(petDaVez));
+        List<PetResponseDTO> responseList = new ArrayList<>();
+        for (Pet petDaVez : pets) {
+            responseList.add(PetResponseDTO.toResponse(petDaVez));
         }
 
         return ResponseEntity.status(200).body(responseList);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PetResponse> atualizar(@PathVariable Integer id, @RequestBody PetRequest dto){
+    public ResponseEntity<PetResponseDTO> atualizar(@PathVariable Integer id, @RequestBody PetRequestDTO dto){
 
         if (repository.existsById(id)){
             Pet petParaAlterar = repository.findById(id).orElse(null);
@@ -141,7 +101,7 @@ public class PetController {
             petParaAlterar.setImagem(imagensBytes);
 
             Pet petAlterado = repository.save(petParaAlterar);
-            return ResponseEntity.status(202).body(PetResponse.toResponse(petAlterado));
+            return ResponseEntity.status(202).body(PetResponseDTO.toResponse(petAlterado));
         }
         return ResponseEntity.status(404).build();
     }
