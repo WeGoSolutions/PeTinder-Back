@@ -1,7 +1,9 @@
 package cruds.Pets.service;
 
 import cruds.Pets.controller.dto.PetRequestDTO;
+import cruds.Pets.controller.dto.PetResponseDTO;
 import cruds.Pets.entity.Pet;
+import cruds.Pets.exceptions.PetBadRequest;
 import cruds.Pets.exceptions.PetNotFoundException;
 import cruds.Pets.exceptions.PetVazioException;
 import cruds.Pets.repository.PetRepository;
@@ -26,12 +28,20 @@ public class PetService {
         this.petRepository = petRepository;
     }
 
-    public List<Pet> listarPets() {
+    public List<PetResponseDTO> listarGeral() {
         var pets = petRepository.findAll();
         if (pets.isEmpty()) {
             throw new PetVazioException("Nenhum pet encontrado");
         }
-        return pets;
+        List<PetResponseDTO> responseList = new ArrayList<>();
+        for (Pet petDaVez : pets) {
+            responseList.add(PetResponseDTO.toResponse(petDaVez));
+        }
+        if (responseList.isEmpty()){
+            throw new PetVazioException("Nenhum pet encontrado");
+        }
+
+        return responseList;
     }
 
     public Pet cadastrarPet(PetRequestDTO dto) {
@@ -74,7 +84,7 @@ public class PetService {
         return urls;
     }
 
-    public ResponseEntity<byte[]> getImagemPorIndice(Integer id, int indice) {
+    public byte[] getImagemPorIndice(Integer id, int indice) {
         Pet pet = obterPetPorId(id);
 
         List<byte[]> imagens = pet.getImagem();
@@ -89,6 +99,47 @@ public class PetService {
         byte[] imagem = imagens.get(indice);
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
-                .body(imagem);
+                .body(imagem).getBody();
+    }
+
+    public void deletarPet(Integer id) {
+        if (!petRepository.existsById(id)) {
+            throw new PetNotFoundException("Pet com id: " + id + " não encontrado");
+        }
+        petRepository.deleteById(id);
+    }
+
+    public Pet atualizar(Integer id, PetRequestDTO dto){
+        if (!petRepository.existsById(id)){
+            throw new PetNotFoundException("Pet com id: " + id + " não encontrado");
+        }
+
+        Pet petParaAlterar = petRepository.findById(id).orElse(null);
+        if (petParaAlterar == null) {
+            throw new PetNotFoundException("Pet com id: " + id + " não encontrado");
+        }
+
+        petParaAlterar = petParaAlterar.toBuilder()
+                .nome(dto.getNome())
+                .idade(dto.getIdade())
+                .peso(dto.getPeso())
+                .altura(dto.getAltura())
+                .curtidas(dto.getCurtidas())
+                .tags(dto.getTags())
+                .build();
+
+        List<byte[]> imagensBytes = new ArrayList<>();
+        for (String imagemBase64 : dto.getImagemBase64()) {
+            try {
+                byte[] imagemBytes = Base64.getDecoder().decode(imagemBase64);
+                imagensBytes.add(imagemBytes);
+            } catch (IllegalArgumentException e) {
+                throw new PetBadRequest("Imagem inválida", e);
+            }
+        }
+
+        petParaAlterar.setImagem(imagensBytes);
+
+        return petRepository.save(petParaAlterar);
     }
 }

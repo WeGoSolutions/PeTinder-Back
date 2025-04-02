@@ -13,6 +13,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.controller.dto.PetRequestDTO;
 import cruds.Pets.controller.dto.PetResponseDTO;
+import org.xbill.DNS.dnssec.R;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -27,7 +28,6 @@ public class PetController {
 
     @PostMapping
     public ResponseEntity<PetResponseDTO> cadastrarPet(@Valid @RequestBody PetRequestDTO dto) {
-
         var petCadastrado = petService.cadastrarPet(dto);
 
         return ResponseEntity.status(201).body(PetResponseDTO.toResponse(petCadastrado));
@@ -36,83 +36,32 @@ public class PetController {
     @GetMapping("/{id}/imagens")
     public ResponseEntity<List<String>> listarUrlsImagens(HttpServletRequest request, @PathVariable Integer id) {
         var urls = petService.listarUrlsImagens(request, id);
-        return ResponseEntity.ok(urls);
+        return ResponseEntity.status(200).body(urls);
     }
 
     @GetMapping("/{id}/imagens/{indice}")
     public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer id, @PathVariable int indice) {
-
-        List<byte[]> imagens = pet.getImagem();
-        if (imagens.isEmpty()) {
-            System.out.println("Nenhuma imagem para o pet com id " + id);
-            return ResponseEntity.status(404).build();
-        }
-
-        if (indice < 0 || indice >= imagens.size()) {
-            System.out.println("Índice " + indice + " inválido para o pet com id " + id + ". Total de imagens: " + imagens.size());
-            return ResponseEntity.status(404).build();
-        }
-
-        byte[] imagem = imagens.get(indice);
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(imagem);
+        var imagem = petService.getImagemPorIndice(id, indice);
+        return ResponseEntity.status(200).body(imagem);
     }
 
     @GetMapping
     public ResponseEntity<List<PetResponseDTO>> listarGeral(){
-       var pets = petService.listarPets();
+       var pets = petService.listarGeral();
 
-        List<PetResponseDTO> responseList = new ArrayList<>();
-        for (Pet petDaVez : pets) {
-            responseList.add(PetResponseDTO.toResponse(petDaVez));
-        }
-
-        return ResponseEntity.status(200).body(responseList);
+        return ResponseEntity.status(200).body(pets);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PetResponseDTO> atualizar(@PathVariable Integer id, @RequestBody PetRequestDTO dto){
+            var petAlterado = petService.atualizar(id, dto);
 
-        if (repository.existsById(id)){
-            Pet petParaAlterar = repository.findById(id).orElse(null);
-            if (petParaAlterar == null) {
-                return ResponseEntity.status(404).build();
-            }
-
-            petParaAlterar = petParaAlterar.toBuilder()
-                    .nome(dto.getNome())
-                    .idade(dto.getIdade())
-                    .peso(dto.getPeso())
-                    .altura(dto.getAltura())
-                    .curtidas(dto.getCurtidas())
-                    .tags(dto.getTags())
-                    .build();
-
-            List<byte[]> imagensBytes = new ArrayList<>();
-            for (String imagemBase64 : dto.getImagemBase64()) {
-                try {
-                    byte[] imagemBytes = Base64.getDecoder().decode(imagemBase64);
-                    imagensBytes.add(imagemBytes);
-                } catch (IllegalArgumentException e) {
-                    return ResponseEntity.status(400).build();
-                }
-            }
-            petParaAlterar.setImagem(imagensBytes);
-
-            Pet petAlterado = repository.save(petParaAlterar);
             return ResponseEntity.status(202).body(PetResponseDTO.toResponse(petAlterado));
-        }
-        return ResponseEntity.status(404).build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarPet(@PathVariable Integer id){
-        if (repository.existsById(id)){
-            repository.deleteById(id);
-            return ResponseEntity.status(205).build();
-        }else {
-            return ResponseEntity.status(404).build();
-        }
+        petService.deletarPet(id);
+        return ResponseEntity.status(204).build();
     }
 }
