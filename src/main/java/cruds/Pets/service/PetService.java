@@ -84,24 +84,6 @@ public class PetService {
         return urls;
     }
 
-    public byte[] getImagemPorIndice(Integer id, int indice) {
-        Pet pet = obterPetPorId(id);
-
-        List<byte[]> imagens = pet.getImagem();
-        if (imagens.isEmpty()) {
-            throw new PetNotFoundException("Nenhuma imagem encontrada para o pet com id " + id);
-        }
-
-        if (indice < 0 || indice >= imagens.size()) {
-            throw new PetNotFoundException("Índice da imagem inválido: " + indice);
-        }
-
-        byte[] imagem = imagens.get(indice);
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(imagem).getBody();
-    }
-
     public void deletarPet(Integer id) {
         if (!petRepository.existsById(id)) {
             throw new PetNotFoundException("Pet com id: " + id + " não encontrado");

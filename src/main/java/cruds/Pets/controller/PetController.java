@@ -39,12 +39,6 @@ public class PetController {
         return ResponseEntity.status(200).body(urls);
     }
 
-    @GetMapping("/{id}/imagens/{indice}")
-    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer id, @PathVariable int indice) {
-        var imagem = petService.getImagemPorIndice(id, indice);
-        return ResponseEntity.status(200).body(imagem);
-    }
-
     @GetMapping
     public ResponseEntity<List<PetResponseDTO>> listarGeral(){
        var pets = petService.listarGeral();
