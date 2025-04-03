@@ -1,4 +1,4 @@
-package cruds.Pets.controller.dto;
+package cruds.Pets.controller.dto.response;
 
 import cruds.Pets.entity.Pet;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PetResponseDTO {
+public class PetResponseCriarDTO {
 
     private String nome;
     private Double idade;
@@ -20,8 +20,8 @@ public class PetResponseDTO {
     private String descricao;
     private List<String> tags;
 
-    public static PetResponseDTO toResponse(Pet pet) {
-        return PetResponseDTO.builder()
+    public static PetResponseCriarDTO toResponse(Pet pet) {
+        return PetResponseCriarDTO.builder()
                 .nome(pet.getNome())
                 .idade(pet.getIdade())
                 .curtidas(pet.getCurtidas())

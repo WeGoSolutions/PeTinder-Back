@@ -1,7 +1,7 @@
 package cruds.Pets.controller;
 
-import cruds.Pets.exceptions.PetNotFoundException;
-import cruds.Pets.exceptions.PetVazioException;
+import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
+import cruds.Pets.controller.dto.response.PetResponseCurtirDTO;
 import cruds.Pets.service.PetService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -9,14 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import cruds.Pets.entity.Pet;
-import cruds.Pets.controller.dto.PetRequestDTO;
-import cruds.Pets.controller.dto.PetResponseDTO;
-import org.xbill.DNS.dnssec.R;
+import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
+import cruds.Pets.controller.dto.response.PetResponseCriarDTO;
 
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -27,10 +22,10 @@ public class PetController {
     private PetService petService;
 
     @PostMapping
-    public ResponseEntity<PetResponseDTO> cadastrarPet(@Valid @RequestBody PetRequestDTO dto) {
+    public ResponseEntity<PetResponseCriarDTO> cadastrarPet(@Valid @RequestBody PetRequestCriarDTO dto) {
         var petCadastrado = petService.cadastrarPet(dto);
 
-        return ResponseEntity.status(201).body(PetResponseDTO.toResponse(petCadastrado));
+        return ResponseEntity.status(201).body(PetResponseCriarDTO.toResponse(petCadastrado));
     }
 
     @GetMapping("/{id}/imagens")
@@ -40,17 +35,23 @@ public class PetController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PetResponseDTO>> listarGeral(){
+    public ResponseEntity<List<PetResponseCriarDTO>> listarGeral(){
         var pets = petService.listarGeral();
 
         return ResponseEntity.status(200).body(pets);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PetResponseDTO> atualizar(@PathVariable Integer id, @RequestBody PetRequestDTO dto){
+    public ResponseEntity<PetResponseCriarDTO> atualizar(@PathVariable Integer id, @RequestBody PetRequestCriarDTO dto){
         var petAlterado = petService.atualizar(id, dto);
 
-        return ResponseEntity.status(202).body(PetResponseDTO.toResponse(petAlterado));
+        return ResponseEntity.status(202).body(PetResponseCriarDTO.toResponse(petAlterado));
+    }
+
+    @PutMapping("/curtir/{id}")
+    public ResponseEntity<PetResponseCurtirDTO> curtirPet(@PathVariable Integer id, @RequestBody PetRequestCurtirDTO dto) {
+        var petAlterado = petService.curtirPet(id, dto);
+        return ResponseEntity.status(202).body(PetResponseCurtirDTO.toResponse(petAlterado));
     }
 
     @DeleteMapping("/{id}")

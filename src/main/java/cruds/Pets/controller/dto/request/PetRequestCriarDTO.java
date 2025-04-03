@@ -1,4 +1,4 @@
-package cruds.Pets.controller.dto;
+package cruds.Pets.controller.dto.request;
 
 import cruds.Pets.entity.Pet;
 import jakarta.validation.constraints.*;
@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PetRequestDTO {
+public class PetRequestCriarDTO {
 
     @NotBlank
     private String nome;
@@ -38,13 +38,11 @@ public class PetRequestDTO {
     @NotBlank
     private String descricao;
 
-    private Boolean isLiked;
-
     @Max(value = 5)
     @NotBlank
     private List<String> imagemBase64;
 
-    public static Pet toEntity(PetRequestDTO petRequest) {
+    public static Pet toEntity(PetRequestCriarDTO petRequest) {
         return Pet.builder()
                 .nome(petRequest.getNome())
                 .idade(petRequest.getIdade())
@@ -53,7 +51,6 @@ public class PetRequestDTO {
                 .curtidas(petRequest.getCurtidas())
                 .tags(petRequest.getTags())
                 .descricao(petRequest.getDescricao())
-                .isLiked(petRequest.getIsLiked())
                 .build();
     }
 }

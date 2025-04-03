@@ -1,7 +1,8 @@
 package cruds.Pets.service;
 
-import cruds.Pets.controller.dto.PetRequestDTO;
-import cruds.Pets.controller.dto.PetResponseDTO;
+import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
+import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
+import cruds.Pets.controller.dto.response.PetResponseCriarDTO;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.exceptions.PetBadRequest;
 import cruds.Pets.exceptions.PetNotFoundException;
@@ -13,8 +14,6 @@ import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,14 +27,14 @@ public class PetService {
         this.petRepository = petRepository;
     }
 
-    public List<PetResponseDTO> listarGeral() {
+    public List<PetResponseCriarDTO> listarGeral() {
         var pets = petRepository.findAll();
         if (pets.isEmpty()) {
             throw new PetVazioException("Nenhum pet encontrado");
         }
-        List<PetResponseDTO> responseList = new ArrayList<>();
+        List<PetResponseCriarDTO> responseList = new ArrayList<>();
         for (Pet petDaVez : pets) {
-            responseList.add(PetResponseDTO.toResponse(petDaVez));
+            responseList.add(PetResponseCriarDTO.toResponse(petDaVez));
         }
         if (responseList.isEmpty()){
             throw new PetVazioException("Nenhum pet encontrado");
@@ -44,8 +43,8 @@ public class PetService {
         return responseList;
     }
 
-    public Pet cadastrarPet(PetRequestDTO dto) {
-        Pet pet = PetRequestDTO.toEntity(dto);
+    public Pet cadastrarPet(PetRequestCriarDTO dto) {
+        Pet pet = PetRequestCriarDTO.toEntity(dto);
 
         List<byte[]> imagensBytes = new ArrayList<>();
         for (String imagemBase64 : dto.getImagemBase64()) {
@@ -91,7 +90,7 @@ public class PetService {
         petRepository.deleteById(id);
     }
 
-    public Pet atualizar(Integer id, PetRequestDTO dto){
+    public Pet atualizar(Integer id, PetRequestCriarDTO dto){
         if (!petRepository.existsById(id)){
             throw new PetNotFoundException("Pet com id: " + id + " não encontrado");
         }
@@ -108,6 +107,7 @@ public class PetService {
                 .altura(dto.getAltura())
                 .curtidas(dto.getCurtidas())
                 .tags(dto.getTags())
+                .descricao(dto.getDescricao())
                 .build();
 
         List<byte[]> imagensBytes = new ArrayList<>();
@@ -135,5 +135,13 @@ public class PetService {
             throw new PetNotFoundException("Índice " + indice + " inválido para o pet com id " + id + ". Total de imagens: " + imagens.size());
         }
         return imagens.get(indice);
+    }
+
+    public Pet curtirPet(Integer id, PetRequestCurtirDTO dto) {
+        Pet petParaAlterar = petRepository.findById(id)
+                .orElseThrow(() -> new PetNotFoundException("Pet com id: " + id + " não encontrado"));
+
+        petParaAlterar.setIsLiked(dto.getIsLiked());
+        return petRepository.save(petParaAlterar);
     }
 }
