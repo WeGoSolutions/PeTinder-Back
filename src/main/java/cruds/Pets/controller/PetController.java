@@ -2,6 +2,7 @@ package cruds.Pets.controller;
 
 import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
 import cruds.Pets.controller.dto.response.PetResponseCurtirDTO;
+import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.service.PetService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -35,7 +36,7 @@ public class PetController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PetResponseCriarDTO>> listarGeral(){
+    public ResponseEntity<List<PetResponseGeralDTO>> listarGeral(){
         var pets = petService.listarGeral();
 
         return ResponseEntity.status(200).body(pets);

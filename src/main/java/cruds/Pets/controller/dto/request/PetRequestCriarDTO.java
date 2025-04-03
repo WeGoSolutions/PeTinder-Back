@@ -51,6 +51,7 @@ public class PetRequestCriarDTO {
                 .curtidas(petRequest.getCurtidas())
                 .tags(petRequest.getTags())
                 .descricao(petRequest.getDescricao())
+                .isLiked(false)
                 .build();
     }
 }

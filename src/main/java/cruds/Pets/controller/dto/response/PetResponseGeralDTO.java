@@ -12,17 +12,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PetResponseCriarDTO {
-
+public class PetResponseGeralDTO {
     private String nome;
     private Double idade;
     private Integer curtidas;
     private String descricao;
     private List<String> tags;
-    private Boolean isLiked = false;
+    private Boolean isLiked;
 
-    public static PetResponseCriarDTO toResponse(Pet pet) {
-        return PetResponseCriarDTO.builder()
+    public static PetResponseGeralDTO toResponse(Pet pet) {
+        return PetResponseGeralDTO.builder()
                 .nome(pet.getNome())
                 .idade(pet.getIdade())
                 .curtidas(pet.getCurtidas())

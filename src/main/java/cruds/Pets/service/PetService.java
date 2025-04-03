@@ -3,6 +3,7 @@ package cruds.Pets.service;
 import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
 import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
 import cruds.Pets.controller.dto.response.PetResponseCriarDTO;
+import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.exceptions.PetBadRequest;
 import cruds.Pets.exceptions.PetNotFoundException;
@@ -27,14 +28,14 @@ public class PetService {
         this.petRepository = petRepository;
     }
 
-    public List<PetResponseCriarDTO> listarGeral() {
+    public List<PetResponseGeralDTO> listarGeral() {
         var pets = petRepository.findAll();
         if (pets.isEmpty()) {
             throw new PetVazioException("Nenhum pet encontrado");
         }
-        List<PetResponseCriarDTO> responseList = new ArrayList<>();
+        List<PetResponseGeralDTO> responseList = new ArrayList<>();
         for (Pet petDaVez : pets) {
-            responseList.add(PetResponseCriarDTO.toResponse(petDaVez));
+            responseList.add(PetResponseGeralDTO.toResponse(petDaVez));
         }
         if (responseList.isEmpty()){
             throw new PetVazioException("Nenhum pet encontrado");
