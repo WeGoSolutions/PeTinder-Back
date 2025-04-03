@@ -124,4 +124,16 @@ public class PetService {
 
         return petRepository.save(petParaAlterar);
     }
+
+    public byte[] getImagemPorIndice(Integer id, int indice) {
+        Pet pet = obterPetPorId(id);
+        List<byte[]> imagens = pet.getImagem();
+        if (imagens == null || imagens.isEmpty()) {
+            throw new PetNotFoundException("Nenhuma imagem para o pet com id " + id);
+        }
+        if (indice < 0 || indice >= imagens.size()) {
+            throw new PetNotFoundException("Índice " + indice + " inválido para o pet com id " + id + ". Total de imagens: " + imagens.size());
+        }
+        return imagens.get(indice);
+    }
 }

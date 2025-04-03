@@ -41,21 +41,29 @@ public class PetController {
 
     @GetMapping
     public ResponseEntity<List<PetResponseDTO>> listarGeral(){
-       var pets = petService.listarGeral();
+        var pets = petService.listarGeral();
 
         return ResponseEntity.status(200).body(pets);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PetResponseDTO> atualizar(@PathVariable Integer id, @RequestBody PetRequestDTO dto){
-            var petAlterado = petService.atualizar(id, dto);
+        var petAlterado = petService.atualizar(id, dto);
 
-            return ResponseEntity.status(202).body(PetResponseDTO.toResponse(petAlterado));
+        return ResponseEntity.status(202).body(PetResponseDTO.toResponse(petAlterado));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarPet(@PathVariable Integer id){
         petService.deletarPet(id);
         return ResponseEntity.status(204).build();
+    }
+
+    @GetMapping("/{id}/imagens/{indice}")
+    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer id, @PathVariable int indice) {
+        byte[] imagem = petService.getImagemPorIndice(id, indice);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(imagem);
     }
 }

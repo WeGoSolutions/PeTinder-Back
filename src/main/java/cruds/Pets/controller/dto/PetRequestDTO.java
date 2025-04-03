@@ -35,6 +35,11 @@ public class PetRequestDTO {
     @NotEmpty
     private List<String> tags;
 
+    @NotBlank
+    private String descricao;
+
+    private Boolean isLiked;
+
     @Max(value = 5)
     @NotBlank
     private List<String> imagemBase64;
@@ -47,6 +52,8 @@ public class PetRequestDTO {
                 .altura(petRequest.getAltura())
                 .curtidas(petRequest.getCurtidas())
                 .tags(petRequest.getTags())
+                .descricao(petRequest.getDescricao())
+                .isLiked(petRequest.getIsLiked())
                 .build();
     }
 }

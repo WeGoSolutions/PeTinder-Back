@@ -25,6 +25,8 @@ public class Pet {
     private Double altura;
     private Integer curtidas;
     private List<String> tags;
+    private String descricao;
+    private Boolean isLiked;
 
     @ElementCollection
     @Lob
