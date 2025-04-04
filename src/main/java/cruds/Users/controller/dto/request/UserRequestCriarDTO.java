@@ -1,4 +1,4 @@
-package cruds.Users.controller.dto;
+package cruds.Users.controller.dto.request;
 
 import cruds.Users.entity.User;
 import jakarta.validation.Valid;
@@ -16,7 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserRequest {
+public class UserRequestCriarDTO {
 
     @NotBlank
     @Size(min = 3)
@@ -37,13 +37,13 @@ public class UserRequest {
 
 //    elas podem estar vazias se forem preenchidas depois utiliza UserOptional
 //    é no UserOptional em que as validações são feitas
-    private String cpf;
-    private String cep;
-    private String rua;
-    private Integer numero;
-    private String complemento;
-    private String cidade;
-    private String uf;
+//    private String cpf;
+//    private String cep;
+//    private String rua;
+//    private Integer numero;
+//    private String complemento;
+//    private String cidade;
+//    private String uf;
 
     @AssertTrue(message = "A pessoa deve ter mais de 21 anos")
     public boolean isMaiorDe21() {
@@ -58,19 +58,19 @@ public class UserRequest {
         return periodo.getYears() >= 21;
     }
 
-    public static User toEntity(@Valid UserRequest usuario){
+    public static User toEntity(@Valid UserRequestCriarDTO usuario){
         return User.builder()
                 .nome(usuario.getNome())
                 .email(usuario.getEmail())
                 .senha(usuario.getSenha())
                 .dataNasc(usuario.getDataNasc())
-                .cpf(usuario.getCpf())
-                .cep(usuario.getCep())
-                .rua(usuario.getRua())
-                .numero(usuario.getNumero())
-                .complemento(usuario.getComplemento())
-                .cidade(usuario.getCidade())
-                .uf(usuario.getUf())
+//                .cpf(usuario.getCpf())
+//                .cep(usuario.getCep())
+//                .rua(usuario.getRua())
+//                .numero(usuario.getNumero())
+//                .complemento(usuario.getComplemento())
+//                .cidade(usuario.getCidade())
+//                .uf(usuario.getUf())
                 .build();
     }
 

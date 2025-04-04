@@ -36,4 +36,8 @@ public class User {
     private String uf;
     private String complemento;
 
+    @ElementCollection
+    @Lob
+    private byte[] imagemUsuario;
+
 }

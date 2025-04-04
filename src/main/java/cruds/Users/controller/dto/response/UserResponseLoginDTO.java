@@ -1,5 +1,6 @@
-package cruds.Users.controller.dto;
+package cruds.Users.controller.dto.response;
 
+import cruds.Users.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,16 +10,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResponse {
+public class UserResponseLoginDTO {
 
     private String nome;
     private String email;
 
-    public static UserResponse toResponse(UserRequest user) {
-        return UserResponse.builder()
+    public static UserResponseLoginDTO toResponse(User user) {
+        return UserResponseLoginDTO.builder()
                 .nome(user.getNome())
                 .email(user.getEmail())
                 .build();
     }
-
 }
