@@ -2,7 +2,7 @@
 package cruds.Controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cruds.Users.Controllers.UserController;
+import cruds.Users.controller.UserController;
 import cruds.Users.Repositorys.UserRepository;
 import cruds.Users.Tables.User;
 import org.junit.jupiter.api.BeforeEach;

@@ -2,9 +2,9 @@
 package cruds.Controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cruds.Pets.Controllers.PetController;
+import cruds.Pets.controller.PetController;
 import cruds.Pets.Repositorys.PetRepository;
-import cruds.Pets.Entities.Pet;
+import cruds.Pets.entity.Pet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;

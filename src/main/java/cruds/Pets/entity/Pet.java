@@ -1,4 +1,4 @@
-package cruds.Pets.Entities;
+package cruds.Pets.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder(toBuilder = true) //toBuilder altera no objeto instanciado, mas aqui nada é alterado
+@Builder(toBuilder = true)
 public class Pet {
 
     @Id
@@ -25,8 +25,10 @@ public class Pet {
     private Double altura;
     private Integer curtidas;
     private List<String> tags;
+    private String descricao;
+    private Boolean isLiked = false;
 
     @ElementCollection
     @Lob
-    private List<byte[]> imagem; // Armazena as imagens como bytes (BLOB)
+    private List<byte[]> imagem;
 }

@@ -1,6 +1,6 @@
-package cruds.Users.DTOs;
+package cruds.Users.controller.dto.request;
 
-import cruds.Users.Entities.User;
+import cruds.Users.entity.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserRequest {
+public class UserRequestCriarDTO {
 
     @NotBlank
     @Size(min = 3)
@@ -32,11 +32,9 @@ public class UserRequest {
     @Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\":{}|<>]+$")
     private String senha;
 
-    @Past
+    @Past(message = "A data de nascimento deve ser no passado")
     private Date dataNasc;
 
-//    elas podem estar vazias se forem preenchidas depois utiliza UserOptional
-//    é no UserOptional em que as validações são feitas
     private String cpf;
     private String cep;
     private String rua;
@@ -58,7 +56,7 @@ public class UserRequest {
         return periodo.getYears() >= 21;
     }
 
-    public static User toEntity(@Valid UserRequest usuario){
+    public static User toEntity(@Valid UserRequestCriarDTO usuario){
         return User.builder()
                 .nome(usuario.getNome())
                 .email(usuario.getEmail())
@@ -73,5 +71,4 @@ public class UserRequest {
                 .uf(usuario.getUf())
                 .build();
     }
-
 }

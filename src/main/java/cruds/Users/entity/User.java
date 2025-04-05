@@ -1,4 +1,4 @@
-package cruds.Users.Entities;
+package cruds.Users.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,12 +28,15 @@ public class User {
 
     @Column(unique = true)
     private String cpf;
-
     private String cep;
     private String rua;
     private Integer numero;
     private String cidade;
     private String uf;
     private String complemento;
+
+    @ElementCollection
+    @Lob
+    private byte[] imagemUsuario;
 
 }
