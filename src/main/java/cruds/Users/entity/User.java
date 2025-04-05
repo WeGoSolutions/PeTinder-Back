@@ -28,7 +28,6 @@ public class User {
 
     @Column(unique = true)
     private String cpf;
-
     private String cep;
     private String rua;
     private Integer numero;

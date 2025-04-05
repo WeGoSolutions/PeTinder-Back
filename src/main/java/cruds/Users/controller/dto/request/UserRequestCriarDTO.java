@@ -32,18 +32,16 @@ public class UserRequestCriarDTO {
     @Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\":{}|<>]+$")
     private String senha;
 
-    @Past
+    @Past(message = "A data de nascimento deve ser no passado")
     private Date dataNasc;
 
-//    elas podem estar vazias se forem preenchidas depois utiliza UserOptional
-//    é no UserOptional em que as validações são feitas
-//    private String cpf;
-//    private String cep;
-//    private String rua;
-//    private Integer numero;
-//    private String complemento;
-//    private String cidade;
-//    private String uf;
+    private String cpf;
+    private String cep;
+    private String rua;
+    private Integer numero;
+    private String complemento;
+    private String cidade;
+    private String uf;
 
     @AssertTrue(message = "A pessoa deve ter mais de 21 anos")
     public boolean isMaiorDe21() {
@@ -64,14 +62,13 @@ public class UserRequestCriarDTO {
                 .email(usuario.getEmail())
                 .senha(usuario.getSenha())
                 .dataNasc(usuario.getDataNasc())
-//                .cpf(usuario.getCpf())
-//                .cep(usuario.getCep())
-//                .rua(usuario.getRua())
-//                .numero(usuario.getNumero())
-//                .complemento(usuario.getComplemento())
-//                .cidade(usuario.getCidade())
-//                .uf(usuario.getUf())
+                .cpf(usuario.getCpf())
+                .cep(usuario.getCep())
+                .rua(usuario.getRua())
+                .numero(usuario.getNumero())
+                .complemento(usuario.getComplemento())
+                .cidade(usuario.getCidade())
+                .uf(usuario.getUf())
                 .build();
     }
-
 }

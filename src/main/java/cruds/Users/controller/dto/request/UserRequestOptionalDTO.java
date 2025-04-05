@@ -21,17 +21,21 @@ public class UserRequestOptionalDTO {
     private String cep;
 
     @NotBlank
+    @Pattern(regexp = "^[A-Za-z\\s]+$")
     private String rua;
 
     @NotBlank
     private Integer numero;
 
+    @Pattern(regexp = "^[A-Za-z\\s]+$")
     private String complemento;
 
     @NotBlank
+    @Pattern(regexp = "^[A-Za-z\\s]+$")
     private String cidade;
 
     @NotBlank
+    @Pattern(regexp = "^[A-Za-z\\s]+$")
     private String uf;
 
 
