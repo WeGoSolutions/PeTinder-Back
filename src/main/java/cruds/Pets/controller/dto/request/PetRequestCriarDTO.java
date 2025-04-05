@@ -38,8 +38,8 @@ public class PetRequestCriarDTO {
     @NotBlank
     private String descricao;
 
-    @Max(value = 5)
-    @NotBlank
+    @Size(max = 5)
+    @NotEmpty
     private List<String> imagemBase64;
 
     public static Pet toEntity(PetRequestCriarDTO petRequest) {
