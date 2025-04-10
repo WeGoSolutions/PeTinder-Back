@@ -24,11 +24,12 @@ public class Pet {
     private Double peso;
     private Double altura;
     private Integer curtidas;
+
+    @ElementCollection
     private List<String> tags;
     private String descricao;
     private Boolean isLiked = false;
 
     @ElementCollection
-    @Lob
-    private List<byte[]> imagem;
+    private List<Imagem> imagem;
 }
