@@ -23,11 +23,11 @@ public class Forms {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "pet_id")
+    @JoinColumn(name = "id")
     private Pet pet;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id")
     private User user;
 
     @NotBlank
