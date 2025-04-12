@@ -181,6 +181,20 @@ public class FormsService {
                 form.getImagens().size() >= 5;
     }
 
+    public Forms obterFormPorId(Integer id) {
+        return formsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Formulário com id " + id + " não encontrado"));
+    }
+
+    public byte[] getImagemPorIndice(Integer formId, int indice) {
+        Forms form = obterFormPorId(formId);
+        List<Imagem> imagens = form.getImagens();
+        if (imagens == null || indice < 0 || indice >= imagens.size()) {
+            throw new RuntimeException("Índice inválido para formulário com id " + formId);
+        }
+        return imagens.get(indice).getDados();
+    }
+
     private boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
     }

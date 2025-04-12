@@ -1,3 +1,4 @@
+// linguagem: java
 package cruds.Pets.controller.dto.request;
 
 import cruds.Pets.entity.Pet;
@@ -7,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -52,6 +54,7 @@ public class PetRequestCriarDTO {
                 .tags(petRequest.getTags())
                 .descricao(petRequest.getDescricao())
                 .isLiked(false)
+                .imagens(new ArrayList<>())
                 .build();
     }
 }

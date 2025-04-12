@@ -1,9 +1,11 @@
 // linguagem: java
 package cruds.Users.service;
 
+import cruds.Imagem.entity.Imagem;
 import cruds.Users.controller.dto.request.UserRequestCriarDTO;
 import cruds.Users.controller.dto.request.UserRequestImagemPerfilDTO;
 import cruds.Users.controller.dto.request.UserRequestOptionalDTO;
+import cruds.Users.controller.dto.request.UserRequestUpdateDTO;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.controller.dto.response.UserResponseLoginDTO;
 import cruds.Users.entity.Endereco;
@@ -100,13 +102,12 @@ public class UserService {
         return UserResponseCadastroDTO.toResponse(user);
     }
 
-    public UserResponseCadastroDTO updateUser(Integer id, UserRequestCriarDTO dto) {
+    public UserResponseCadastroDTO updateUser(Integer id, UserRequestUpdateDTO dto) {
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("Usuário com id: " + id + " não encontrado");
         }
-        if (!dto.isMaiorDe21()) {
-            throw new IdadeMenorException("A pessoa deve ter mais de 21 anos");
-        }
+        // Verificações de idade podem ser adicionadas conforme necessário
+
         Optional<User> existingUserOptional = userRepository.findByEmail(dto.getEmail());
         if (existingUserOptional.isPresent() && !existingUserOptional.get().getId().equals(id)) {
             throw new ConflictException("Email já cadastrado: " + dto.getEmail());
@@ -116,6 +117,17 @@ public class UserService {
         user.setEmail(dto.getEmail());
         user.setSenha(dto.getSenha());
         user.setDataNasc(dto.getDataNasc());
+        user.setCpf(dto.getCpf());
+
+        Endereco endereco = (user.getEndereco() != null) ? user.getEndereco() : new Endereco();
+        endereco.setCep(dto.getCep());
+        endereco.setRua(dto.getRua());
+        endereco.setNumero(dto.getNumero());
+        endereco.setComplemento(dto.getComplemento());
+        endereco.setCidade(dto.getCidade());
+        endereco.setUf(dto.getUf());
+        user.setEndereco(endereco);
+
         User updatedUser = userRepository.save(user);
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
@@ -169,8 +181,16 @@ public class UserService {
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
 
+    public byte[] getImagemPorIndice(Integer userId, int indice) {
+        User user = getUsuarioPorId(userId);
+        if (user.getImagemUser() == null || indice != 0) {
+            throw new UserNotFoundException("Imagem não encontrada para o usuário com id " + userId);
+        }
+        return user.getImagemUser().getDados();
+    }
+
     private User getUsuarioPorId(Integer id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Usuário com id: " + id + " não encontrado"));
+                .orElseThrow(() -> new UserNotFoundException("Usuário com id " + id + " não encontrado"));
     }
 }
