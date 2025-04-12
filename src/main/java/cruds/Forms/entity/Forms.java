@@ -67,7 +67,10 @@ public class Forms {
 
     @NotBlank
     private String possuiPet;
-    private String castradoOrVacinado;
+
+    @ElementCollection
+    private List<String> castradoOrVacinado;
+
     private String infosPet;
 
     @OneToMany(mappedBy = "form", cascade = CascadeType.ALL, orphanRemoval = true)

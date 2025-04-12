@@ -57,7 +57,7 @@ public class FormRequestCriarDTO {
     @NotBlank
     private String possuiPet;
 
-    private String castradoOrVacinado;
+    private List<String> castradoOrVacinado;
 
     private String infosPet;
 
