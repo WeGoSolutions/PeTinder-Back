@@ -29,46 +29,29 @@ public class UserRequestCriarDTO {
 
     @NotBlank
     @Size(min = 6)
-    @Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\":{}|<>]+$")
+    @Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\\\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\\\":{}|<>]+$")
     private String senha;
 
     @Past(message = "A data de nascimento deve ser no passado")
     private Date dataNasc;
-
-    private String cpf;
-    private String cep;
-    private String rua;
-    private Integer numero;
-    private String complemento;
-    private String cidade;
-    private String uf;
 
     @AssertTrue(message = "A pessoa deve ter mais de 21 anos")
     public boolean isMaiorDe21() {
         if (dataNasc == null) {
             return false;
         }
-
         LocalDate dataNascimento = new java.sql.Date(dataNasc.getTime()).toLocalDate();
         LocalDate hoje = LocalDate.now();
         Period periodo = Period.between(dataNascimento, hoje);
-
         return periodo.getYears() >= 21;
     }
 
-    public static User toEntity(@Valid UserRequestCriarDTO usuario){
+    public static User toEntity(@Valid UserRequestCriarDTO usuario) {
         return User.builder()
                 .nome(usuario.getNome())
                 .email(usuario.getEmail())
                 .senha(usuario.getSenha())
                 .dataNasc(usuario.getDataNasc())
-                .cpf(usuario.getCpf())
-                .cep(usuario.getCep())
-                .rua(usuario.getRua())
-                .numero(usuario.getNumero())
-                .complemento(usuario.getComplemento())
-                .cidade(usuario.getCidade())
-                .uf(usuario.getUf())
                 .build();
     }
 }

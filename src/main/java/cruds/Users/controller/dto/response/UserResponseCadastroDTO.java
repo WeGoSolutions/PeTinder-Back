@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.Base64;
 import java.util.Date;
 
@@ -34,16 +33,19 @@ public class UserResponseCadastroDTO {
                 .email(user.getEmail())
                 .dataNasc(user.getDataNasc())
                 .cpf(user.getCpf())
-                .cep(user.getCep())
-                .rua(user.getRua())
-                .numero(user.getNumero())
-                .cidade(user.getCidade())
-                .uf(user.getUf())
-                .complemento(user.getComplemento())
                 .build();
 
-        if (user.getImagemUsuario() != null) {
-            String base64Image = Base64.getEncoder().encodeToString(user.getImagemUsuario());
+        if (user.getEndereco() != null) {
+            dto.setCep(user.getEndereco().getCep());
+            dto.setRua(user.getEndereco().getRua());
+            dto.setNumero(user.getEndereco().getNumero());
+            dto.setCidade(user.getEndereco().getCidade());
+            dto.setUf(user.getEndereco().getUf());
+            dto.setComplemento(user.getEndereco().getComplemento());
+        }
+
+        if (user.getImagemUser() != null && user.getImagemUser().getDados() != null) {
+            String base64Image = Base64.getEncoder().encodeToString(user.getImagemUser().getDados());
             dto.setImagemUrl("data:image/jpeg;base64," + base64Image);
         }
 

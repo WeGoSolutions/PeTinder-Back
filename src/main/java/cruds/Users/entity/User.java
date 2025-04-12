@@ -2,7 +2,6 @@ package cruds.Users.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.Date;
 
 @Entity
@@ -10,12 +9,13 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder(toBuilder = true) //toBuilder altera no objeto instanciado, mas aqui nada é alterado
+@Builder(toBuilder = true)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private String nome;
 
     @Column(unique = true)
@@ -28,15 +28,12 @@ public class User {
 
     @Column(unique = true)
     private String cpf;
-    private String cep;
-    private String rua;
-    private Integer numero;
-    private String cidade;
-    private String uf;
-    private String complemento;
 
-    @ElementCollection
-    @Lob
-    private byte[] imagemUsuario;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "endereco_id")
+    private Endereco endereco;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "imagem_user_id")
+    private ImagemUser imagemUser;
 }

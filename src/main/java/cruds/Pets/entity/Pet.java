@@ -1,5 +1,6 @@
 package cruds.Pets.entity;
 
+import cruds.Imagem.entity.Imagem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,11 +25,13 @@ public class Pet {
     private Double peso;
     private Double altura;
     private Integer curtidas;
+
+    @ElementCollection
     private List<String> tags;
     private String descricao;
     private Boolean isLiked = false;
 
-    @ElementCollection
-    @Lob
-    private List<byte[]> imagem;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "pet_id")
+    private List<Imagem> imagem;
 }
