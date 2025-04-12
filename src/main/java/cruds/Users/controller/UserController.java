@@ -96,4 +96,12 @@ public class UserController {
         headers.setContentType(MediaType.IMAGE_JPEG);
         return new ResponseEntity<>(dados, headers, HttpStatus.OK);
     }
+
+    @PatchMapping("/{id}/senha")
+    public ResponseEntity<UserResponseCadastroDTO> updateSenha(@PathVariable Integer id,
+                                                               @Valid @RequestBody UserRequestSenhaDTO senha) {
+        var updatedUser = userService.updateSenha(id, senha);
+        return ResponseEntity.status(200).body(updatedUser);
+    }
+
 }
