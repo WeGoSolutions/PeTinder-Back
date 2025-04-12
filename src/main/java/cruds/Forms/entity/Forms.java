@@ -41,7 +41,7 @@ public class Forms {
     private String email;
 
     @Temporal(TemporalType.DATE)
-    @NotBlank
+    @NotNull
     private Date dataNasc;
     @NotBlank
     private String telefone;
