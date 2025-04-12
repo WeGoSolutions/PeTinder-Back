@@ -1,5 +1,6 @@
 package cruds.Pets.entity;
 
+import cruds.Imagem.entity.Imagem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

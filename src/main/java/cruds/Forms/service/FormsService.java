@@ -5,16 +5,18 @@ import cruds.Forms.controller.dto.response.FormResponsePreenchimentoUserDTO;
 import cruds.Forms.entity.Forms;
 import cruds.Forms.exceptions.FormUpdateNotAllowedException;
 import cruds.Forms.repository.FormsRepository;
-import cruds.Pets.entity.Imagem;
+import cruds.Imagem.entity.Imagem;
 import cruds.Pets.entity.Pet;
 import cruds.Users.entity.User;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import cruds.common.util.ImageValidationUtil;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class FormsService {
@@ -28,7 +30,6 @@ public class FormsService {
         this.formsRepository = formsRepository;
     }
 
-    // Obtém os dados do formulário preenchidos com base no ID do usuário.
     public FormResponsePreenchimentoUserDTO getDadosFormulario(Integer id) {
         UserResponseCadastroDTO userData = userService.getUserById(id);
         FormResponsePreenchimentoUserDTO formDTO = new FormResponsePreenchimentoUserDTO();
@@ -45,36 +46,65 @@ public class FormsService {
         return formDTO;
     }
 
-    // Cria um novo formulário a partir do DTO.
     public Forms createForm(FormRequestCriarDTO formDTO) {
-        Forms form = mapToEntity(formDTO);
+        List<byte[]> imagensBytes = new ArrayList<>();
+        List<String> nomesArquivos = new ArrayList<>();
+
+        for (MultipartFile file : formDTO.getImagens()) {
+            try {
+                imagensBytes.add(file.getBytes());
+                nomesArquivos.add(file.getOriginalFilename());
+            } catch (IOException e) {
+                throw new RuntimeException("Erro ao processar a imagem: " + e.getMessage());
+            }
+        }
+
+        try {
+            ImageValidationUtil.validateFormImages(imagensBytes, nomesArquivos);
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao processar as imagens do formulário: " + e.getMessage());
+        }
+        Forms form = mapToEntity(formDTO, imagensBytes);
         form.setFinalizado(isFormComplete(form));
         return formsRepository.save(form);
     }
 
-    // Atualiza um formulário existente utilizando o DTO.
     public Forms updateForm(Integer id, FormRequestCriarDTO formDTO) {
         Forms existingForm = formsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Formulário com id " + id + " não encontrado"));
         if (existingForm.isFinalizado()) {
             throw new FormUpdateNotAllowedException("Formulário finalizado não pode ser atualizado.");
         }
-        updateEntity(existingForm, formDTO);
+
+        List<byte[]> imagensBytes = new ArrayList<>();
+        List<String> nomesArquivos = new ArrayList<>();
+
+        for (MultipartFile file : formDTO.getImagens()) {
+            try {
+                imagensBytes.add(file.getBytes());
+                nomesArquivos.add(file.getOriginalFilename());
+            } catch (IOException e) {
+                throw new RuntimeException("Erro ao processar a imagem: " + e.getMessage());
+            }
+        }
+        try {
+            ImageValidationUtil.validateFormImages(imagensBytes, nomesArquivos);
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao processar as imagens do formulário: " + e.getMessage());
+        }
+        updateEntity(existingForm, formDTO, imagensBytes);
         existingForm.setFinalizado(isFormComplete(existingForm));
         return formsRepository.save(existingForm);
     }
 
-    // Mapeia o DTO para uma nova entidade Forms.
-    private Forms mapToEntity(FormRequestCriarDTO dto) {
+    private Forms mapToEntity(FormRequestCriarDTO dto, List<byte[]> imagensBytes) {
         Forms form = new Forms();
-        // Mapeamento de associações.
         Pet pet = new Pet();
         pet.setId(dto.getPetId());
         form.setPet(pet);
         User user = new User();
         user.setId(dto.getUserId());
         form.setUser(user);
-        // Mapeamento dos demais campos.
         form.setNome(dto.getNome());
         form.setCpf(dto.getCpf());
         form.setEmail(dto.getEmail());
@@ -92,9 +122,9 @@ public class FormsService {
         form.setPossuiPet(dto.getPossuiPet());
         form.setCastradoOrVacinado(dto.getCastradoOrVacinado());
         form.setInfosPet(dto.getInfosPet());
-        if (dto.getImagens() != null) {
+        if (imagensBytes != null) {
             List<Imagem> imagens = new ArrayList<>();
-            for (byte[] imgData : dto.getImagens()) {
+            for (byte[] imgData : imagensBytes) {
                 Imagem img = new Imagem();
                 img.setDados(imgData);
                 imagens.add(img);
@@ -104,8 +134,7 @@ public class FormsService {
         return form;
     }
 
-    // Atualiza a entidade Forms com os dados do DTO.
-    private void updateEntity(Forms form, FormRequestCriarDTO dto) {
+    private void updateEntity(Forms form, FormRequestCriarDTO dto, List<byte[]> imagensBytes) {
         form.setNome(dto.getNome());
         form.setCpf(dto.getCpf());
         form.setEmail(dto.getEmail());
@@ -123,9 +152,9 @@ public class FormsService {
         form.setPossuiPet(dto.getPossuiPet());
         form.setCastradoOrVacinado(dto.getCastradoOrVacinado());
         form.setInfosPet(dto.getInfosPet());
-        if (dto.getImagens() != null) {
+        if (imagensBytes != null) {
             List<Imagem> imagens = new ArrayList<>();
-            for (byte[] imgData : dto.getImagens()) {
+            for (byte[] imgData : imagensBytes) {
                 Imagem img = new Imagem();
                 img.setDados(imgData);
                 imagens.add(img);
@@ -134,7 +163,6 @@ public class FormsService {
         }
     }
 
-    // Verifica se o formulário está completo.
     private boolean isFormComplete(Forms form) {
         return !isBlank(form.getNome()) &&
                 !isBlank(form.getCpf()) &&
@@ -152,7 +180,6 @@ public class FormsService {
                 form.getImagens().size() >= 5;
     }
 
-    // Método auxiliar para verificar se uma string está vazia.
     private boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
     }

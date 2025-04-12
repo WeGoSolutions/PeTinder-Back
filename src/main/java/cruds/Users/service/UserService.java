@@ -1,3 +1,4 @@
+// linguagem: java
 package cruds.Users.service;
 
 import cruds.Users.controller.dto.request.UserRequestCriarDTO;
@@ -8,12 +9,16 @@ import cruds.Users.controller.dto.response.UserResponseLoginDTO;
 import cruds.Users.entity.Endereco;
 import cruds.Users.entity.ImagemUser;
 import cruds.Users.entity.User;
-import cruds.Users.exceptions.*;
+import cruds.Users.exceptions.ConflictException;
+import cruds.Users.exceptions.IdadeMenorException;
+import cruds.Users.exceptions.ImagemUploadException;
+import cruds.Users.exceptions.UserNotFoundException;
+import cruds.Users.exceptions.UserVazioException;
 import cruds.Users.repository.UserRepository;
+import cruds.common.util.ImageValidationUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -26,8 +31,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-    private static final String[] TIPOS_PERMITIDOS = {"jpg", "jpeg", "png"};
-    private static final int TAMANHO_MAXIMO = 5 * 1024 * 1024;
+    private static final String DEFAULT_IMAGE_NAME = "perfil.jpg";
 
     @Autowired
     public UserService(UserRepository userRepository) {
@@ -126,7 +130,7 @@ public class UserService {
     public UserResponseCadastroDTO updateImagemPerfil(Integer id, UserRequestImagemPerfilDTO dto) {
         byte[] imagemDecodificada = dto.getImagemDecodificada();
         try {
-            validarImagem(imagemDecodificada, dto.getImagemUsuario());
+            ImageValidationUtil.validateUserImage(imagemDecodificada, DEFAULT_IMAGE_NAME);
         } catch (IOException e) {
             throw new ImagemUploadException("Erro ao processar a imagem: " + e.getMessage());
         }
@@ -144,14 +148,13 @@ public class UserService {
     public UserResponseCadastroDTO uploadImagemPerfil(Integer id, UserRequestImagemPerfilDTO dto) {
         byte[] imagemDecodificada = dto.getImagemDecodificada();
         try {
-            validarImagem(imagemDecodificada, dto.getImagemUsuario());
+            ImageValidationUtil.validateUserImage(imagemDecodificada, DEFAULT_IMAGE_NAME);
         } catch (IOException e) {
             throw new ImagemUploadException("Erro ao processar a imagem: " + e.getMessage());
         }
 
         User user = getUsuarioPorId(id);
-        ImagemUser novaImagem = new ImagemUser(imagemDecodificada);
-        user.setImagemUser(novaImagem);
+        user.setImagemUser(new ImagemUser(imagemDecodificada));
         User updatedUser = userRepository.save(user);
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
@@ -169,18 +172,5 @@ public class UserService {
     private User getUsuarioPorId(Integer id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuário com id: " + id + " não encontrado"));
-    }
-
-    private void validarImagem(byte[] imagemDecodificada, String imagemUsuario) throws IOException {
-        String tipoArquivo = FilenameUtils.getExtension(imagemUsuario);
-        if (!Arrays.asList(TIPOS_PERMITIDOS).contains(tipoArquivo.toLowerCase())) {
-            throw new ImagemUploadException("Tipo de arquivo não permitido. Apenas JPG e PNG são aceitos.");
-        }
-        if (imagemDecodificada.length > TAMANHO_MAXIMO) {
-            throw new ImagemUploadException("Tamanho da imagem excede o limite de 5MB.");
-        }
-        if (ImageIO.read(new ByteArrayInputStream(imagemDecodificada)) == null) {
-            throw new ImagemUploadException("Arquivo enviado não é uma imagem válida.");
-        }
     }
 }

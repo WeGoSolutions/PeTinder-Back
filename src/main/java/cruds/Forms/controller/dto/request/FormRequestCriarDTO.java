@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import java.util.Date;
 import java.util.List;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class FormRequestCriarDTO {
@@ -62,5 +63,5 @@ public class FormRequestCriarDTO {
 
     @NotNull
     @Size(min = 5, message = "Deve haver no mínimo 5 imagens")
-    private List<byte[]> imagens;
+    private List<MultipartFile> imagens;
 }

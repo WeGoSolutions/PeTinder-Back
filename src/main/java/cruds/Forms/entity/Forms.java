@@ -1,6 +1,6 @@
 package cruds.Forms.entity;
 
-import cruds.Pets.entity.Imagem;
+import cruds.Imagem.entity.Imagem;
 import cruds.Users.entity.User;
 import jakarta.persistence.*;
 import cruds.Pets.entity.Pet;

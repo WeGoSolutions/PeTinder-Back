@@ -2,21 +2,24 @@ package cruds.Pets.service;
 
 import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
 import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
-import cruds.Pets.controller.dto.response.PetResponseCriarDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
-import cruds.Pets.entity.Imagem;
+import cruds.Imagem.entity.Imagem;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.exceptions.PetBadRequest;
 import cruds.Pets.exceptions.PetNotFoundException;
 import cruds.Pets.exceptions.PetVazioException;
 import cruds.Pets.repository.PetRepository;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import cruds.common.util.ImageValidationUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PetService {
@@ -26,6 +29,28 @@ public class PetService {
     @Autowired
     public PetService(PetRepository petRepository) {
         this.petRepository = petRepository;
+    }
+
+    public Pet uploadPetImages(Integer petId, List<byte[]> imagensBytes, List<String> nomesArquivos) {
+        try {
+            ImageValidationUtil.validatePetImages(imagensBytes, nomesArquivos);
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao processar as imagens: " + e.getMessage());
+        }
+
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new RuntimeException("Pet com id " + petId + " não encontrado"));
+
+        List<Imagem> imagens = imagensBytes.stream()
+                .map(bytes -> {
+                    Imagem img = new Imagem();
+                    img.setDados(bytes);
+                    return img;
+                })
+                .collect(Collectors.toList());
+
+        pet.setImagem(imagens);
+        return petRepository.save(pet);
     }
 
     public List<PetResponseGeralDTO> listarGeral() {
@@ -46,14 +71,27 @@ public class PetService {
     public Pet cadastrarPet(PetRequestCriarDTO dto) {
         Pet pet = PetRequestCriarDTO.toEntity(dto);
 
-        List<Imagem> imagens = new ArrayList<>();
-        for (String imagemBase64 : dto.getImagemBase64()) {
+        List<byte[]> imagensBytes = new ArrayList<>();
+        List<String> nomesArquivos = new ArrayList<>();
+        for (int i = 0; i < dto.getImagemBase64().size(); i++) {
             try {
-                byte[] imagemBytes = Base64.getDecoder().decode(imagemBase64);
-                imagens.add(new Imagem(imagemBytes));
+                byte[] imagemBytes = Base64.getDecoder().decode(dto.getImagemBase64().get(i));
+                imagensBytes.add(imagemBytes);
+                nomesArquivos.add("imagem_" + i + ".jpg");
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Imagem inválida", e);
             }
+        }
+
+        try {
+            ImageValidationUtil.validatePetImages(imagensBytes, nomesArquivos);
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao processar as imagens: " + e.getMessage());
+        }
+
+        List<Imagem> imagens = new ArrayList<>();
+        for (byte[] imagemBytes : imagensBytes) {
+            imagens.add(new Imagem(imagemBytes, null));
         }
         pet.setImagem(imagens);
 
@@ -94,10 +132,8 @@ public class PetService {
         if (!petRepository.existsById(id)){
             throw new PetNotFoundException("Pet com id: " + id + " não encontrado");
         }
-        Pet petParaAlterar = petRepository.findById(id).orElse(null);
-        if (petParaAlterar == null) {
-            throw new PetNotFoundException("Pet com id: " + id + " não encontrado");
-        }
+        Pet petParaAlterar = petRepository.findById(id)
+                .orElseThrow(() -> new PetNotFoundException("Pet com id: " + id + " não encontrado"));
 
         petParaAlterar = petParaAlterar.toBuilder()
                 .nome(dto.getNome())
@@ -109,14 +145,27 @@ public class PetService {
                 .descricao(dto.getDescricao())
                 .build();
 
-        List<Imagem> imagens = new ArrayList<>();
-        for (String imagemBase64 : dto.getImagemBase64()) {
+        List<byte[]> imagensBytes = new ArrayList<>();
+        List<String> nomesArquivos = new ArrayList<>();
+        for (int i = 0; i < dto.getImagemBase64().size(); i++) {
             try {
-                byte[] imagemBytes = Base64.getDecoder().decode(imagemBase64);
-                imagens.add(new Imagem(imagemBytes));
+                byte[] imagemBytes = Base64.getDecoder().decode(dto.getImagemBase64().get(i));
+                imagensBytes.add(imagemBytes);
+                nomesArquivos.add("imagem_" + i + ".jpg");
             } catch (IllegalArgumentException e) {
                 throw new PetBadRequest("Imagem inválida", e);
             }
+        }
+
+        try {
+            ImageValidationUtil.validatePetImages(imagensBytes, nomesArquivos);
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao processar as imagens: " + e.getMessage());
+        }
+
+        List<Imagem> imagens = new ArrayList<>();
+        for (byte[] imagemBytes : imagensBytes) {
+            imagens.add(new Imagem(imagemBytes, null));
         }
         petParaAlterar.setImagem(imagens);
 

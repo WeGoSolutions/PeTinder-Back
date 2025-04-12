@@ -1,4 +1,4 @@
-package cruds.Pets.entity;
+package cruds.Imagem.entity;
 
 import cruds.Forms.entity.Forms;
 import jakarta.persistence.*;
