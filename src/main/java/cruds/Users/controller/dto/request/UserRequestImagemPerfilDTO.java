@@ -16,6 +16,13 @@ public class UserRequestImagemPerfilDTO {
     private String imagemUsuario;
 
     public byte[] getImagemDecodificada() {
-        return Base64.getDecoder().decode(imagemUsuario);
+        String base64Data = imagemUsuario;
+        if (base64Data.startsWith("data:")) {
+            int commaIndex = base64Data.indexOf(",");
+            if (commaIndex != -1) {
+                base64Data = base64Data.substring(commaIndex + 1);
+            }
+        }
+        return Base64.getDecoder().decode(base64Data);
     }
 }

@@ -74,4 +74,18 @@ public class FormsController {
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/{formId}/imagens/{indice}")
+    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer formId,
+                                                     @PathVariable int indice) {
+        Forms form = formsService.obterFormPorId(formId);
+        List<Imagem> imagens = form.getImagens();
+        if (imagens == null || imagens.isEmpty() || indice < 0 || indice >= imagens.size()) {
+            return ResponseEntity.notFound().build();
+        }
+        byte[] dados = imagens.get(indice).getDados();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        return new ResponseEntity<>(dados, headers, HttpStatus.OK);
+    }
 }

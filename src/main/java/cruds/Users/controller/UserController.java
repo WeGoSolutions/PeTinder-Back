@@ -5,6 +5,9 @@ import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.controller.dto.response.UserResponseLoginDTO;
 import cruds.Users.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -52,8 +55,10 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UserResponseCadastroDTO> updateUser(@PathVariable Integer id, @Valid @RequestBody UserRequestCriarDTO userRequest) {
-        var updatedUser = userService.updateUser(id, userRequest);
+    public ResponseEntity<UserResponseCadastroDTO> updateUser(
+            @PathVariable Integer id,
+            @Valid @RequestBody UserRequestUpdateDTO updateDto) {
+        var updatedUser = userService.updateUser(id, updateDto);
         return ResponseEntity.status(202).body(updatedUser);
     }
 
@@ -65,14 +70,14 @@ public class UserController {
 
     @PostMapping("/{id}/imagem")
     public ResponseEntity<UserResponseCadastroDTO> uploadImagemPerfil(@PathVariable Integer id,
-                                                                   @Valid @RequestBody UserRequestImagemPerfilDTO dto) {
+                                                                      @Valid @RequestBody UserRequestImagemPerfilDTO dto) {
         var updatedUser = userService.uploadImagemPerfil(id, dto);
         return ResponseEntity.status(200).body(updatedUser);
     }
 
     @PutMapping("/{id}/imagem")
     public ResponseEntity<UserResponseCadastroDTO> updateImagemPerfil(@PathVariable Integer id,
-                                                                   @Valid @RequestBody UserRequestImagemPerfilDTO dto) {
+                                                                      @Valid @RequestBody UserRequestImagemPerfilDTO dto) {
         var updatedUser = userService.updateImagemPerfil(id, dto);
         return ResponseEntity.status(200).body(updatedUser);
     }
@@ -81,6 +86,15 @@ public class UserController {
     public ResponseEntity<UserResponseCadastroDTO> removerImagemPerfil(@PathVariable Integer id) {
         var updatedUser = userService.deleteImagemPerfil(id);
         return ResponseEntity.status(200).body(updatedUser);
+    }
+
+    @GetMapping("/{userId}/imagens/{indice}")
+    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer userId,
+                                                     @PathVariable int indice) {
+        byte[] dados = userService.getImagemPorIndice(userId, indice);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        return new ResponseEntity<>(dados, headers, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}/senha")

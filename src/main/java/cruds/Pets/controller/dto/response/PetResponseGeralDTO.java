@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class PetResponseGeralDTO {
+    private Integer id;
     private String nome;
     private Double idade;
     private Integer curtidas;
@@ -22,6 +23,7 @@ public class PetResponseGeralDTO {
 
     public static PetResponseGeralDTO toResponse(Pet pet) {
         return PetResponseGeralDTO.builder()
+                .id(pet.getId())
                 .nome(pet.getNome())
                 .idade(pet.getIdade())
                 .curtidas(pet.getCurtidas())
