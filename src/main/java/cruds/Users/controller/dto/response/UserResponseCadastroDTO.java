@@ -34,13 +34,16 @@ public class UserResponseCadastroDTO {
                 .email(user.getEmail())
                 .dataNasc(user.getDataNasc())
                 .cpf(user.getCpf())
-                .cep(user.getCep())
-                .rua(user.getRua())
-                .numero(user.getNumero())
-                .cidade(user.getCidade())
-                .uf(user.getUf())
-                .complemento(user.getComplemento())
                 .build();
+
+        if (user.getEndereco() != null) {
+            dto.setCep(user.getEndereco().getCep());
+            dto.setRua(user.getEndereco().getRua());
+            dto.setNumero(user.getEndereco().getNumero());
+            dto.setCidade(user.getEndereco().getCidade());
+            dto.setUf(user.getEndereco().getUf());
+            dto.setComplemento(user.getEndereco().getComplemento());
+        }
 
         if (user.getImagemUsuario() != null) {
             String base64Image = Base64.getEncoder().encodeToString(user.getImagemUsuario());

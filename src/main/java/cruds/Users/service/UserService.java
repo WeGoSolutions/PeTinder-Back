@@ -5,6 +5,8 @@ import cruds.Users.controller.dto.request.UserRequestImagemPerfilDTO;
 import cruds.Users.controller.dto.request.UserRequestOptionalDTO;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.controller.dto.response.UserResponseLoginDTO;
+import cruds.Users.entity.Endereco;
+import cruds.Users.entity.ImagemUser;
 import cruds.Users.entity.User;
 import cruds.Users.exceptions.*;
 import cruds.Users.repository.UserRepository;
@@ -36,11 +38,9 @@ public class UserService {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new ConflictException("Email já cadastrado: " + dto.getEmail());
         }
-
         if (!dto.isMaiorDe21()) {
             throw new IdadeMenorException("A pessoa deve ter mais de 21 anos");
         }
-
         User user = UserRequestCriarDTO.toEntity(dto);
         User savedUser = userRepository.save(user);
         return UserResponseCadastroDTO.toResponse(savedUser);
@@ -49,13 +49,18 @@ public class UserService {
     public UserResponseCadastroDTO updateOptionalInfo(Integer id, UserRequestOptionalDTO dto) {
         User user = getUsuarioPorId(id);
 
-        user.setCpf(dto.getCpf());
-        user.setCep(dto.getCep());
-        user.setRua(dto.getRua());
-        user.setNumero(dto.getNumero());
-        user.setComplemento(dto.getComplemento());
-        user.setCidade(dto.getCidade());
-        user.setUf(dto.getUf());
+        if (dto.getCpf() != null) {
+            user.setCpf(dto.getCpf());
+        }
+
+        Endereco endereco = (user.getEndereco() != null) ? user.getEndereco() : new Endereco();
+        endereco.setCep(dto.getCep());
+        endereco.setRua(dto.getRua());
+        endereco.setNumero(dto.getNumero());
+        endereco.setComplemento(dto.getComplemento());
+        endereco.setCidade(dto.getCidade());
+        endereco.setUf(dto.getUf());
+        user.setEndereco(endereco);
 
         User updatedUser = userRepository.save(user);
         return UserResponseCadastroDTO.toResponse(updatedUser);
@@ -95,33 +100,18 @@ public class UserService {
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("Usuário com id: " + id + " não encontrado");
         }
-
         if (!dto.isMaiorDe21()) {
             throw new IdadeMenorException("A pessoa deve ter mais de 21 anos");
         }
-
         Optional<User> existingUserOptional = userRepository.findByEmail(dto.getEmail());
         if (existingUserOptional.isPresent() && !existingUserOptional.get().getId().equals(id)) {
             throw new ConflictException("Email já cadastrado: " + dto.getEmail());
         }
-
-        if (dto.getSenha() == null || dto.getSenha().isBlank() || dto.getSenha().length() < 6 || !dto.getSenha().matches("^(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\":{}|<>]+$")) {
-            throw new ConflictException("Senha inválida: deve ter no mínimo 6 caracteres e conter pelo menos um caractere especial");
-        }
-
-        if (dto.getNome() == null || dto.getNome().isBlank() || dto.getNome().length() < 3 || !dto.getNome().matches("^[A-Za-zÀ-Ö ]+$")) {
-            throw new ConflictException("Nome inválido: deve ter no mínimo 3 caracteres e conter apenas letras e espaços");
-        }
-
-        if (dto.getCpf() == null || !dto.getCpf().matches("\\d{11}")) {
-            throw new ConflictException("CPF inválido: deve conter exatamente 11 dígitos");
-        }
-        if (dto.getCep() == null || !dto.getCep().matches("\\d{8}")) {
-            throw new ConflictException("CEP inválido: deve conter exatamente 8 dígitos");
-        }
-
-        User user = UserRequestCriarDTO.toEntity(dto);
-        user.setId(id);
+        User user = getUsuarioPorId(id);
+        user.setNome(dto.getNome());
+        user.setEmail(dto.getEmail());
+        user.setSenha(dto.getSenha());
+        user.setDataNasc(dto.getDataNasc());
         User updatedUser = userRepository.save(user);
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
@@ -134,8 +124,19 @@ public class UserService {
     }
 
     public UserResponseCadastroDTO updateImagemPerfil(Integer id, UserRequestImagemPerfilDTO dto) {
+        byte[] imagemDecodificada = dto.getImagemDecodificada();
+        try {
+            validarImagem(imagemDecodificada, dto.getImagemUsuario());
+        } catch (IOException e) {
+            throw new ImagemUploadException("Erro ao processar a imagem: " + e.getMessage());
+        }
+
         User user = getUsuarioPorId(id);
-        user.setImagemUsuario(dto.getImagemDecodificada());
+        if (user.getImagemUser() != null) {
+            user.getImagemUser().setDados(imagemDecodificada);
+        } else {
+            user.setImagemUser(new ImagemUser(imagemDecodificada));
+        }
         User updatedUser = userRepository.save(user);
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
@@ -149,18 +150,18 @@ public class UserService {
         }
 
         User user = getUsuarioPorId(id);
-        user.setImagemUsuario(imagemDecodificada);
+        ImagemUser novaImagem = new ImagemUser(imagemDecodificada);
+        user.setImagemUser(novaImagem);
         User updatedUser = userRepository.save(user);
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
 
     public UserResponseCadastroDTO deleteImagemPerfil(Integer id) {
         User user = getUsuarioPorId(id);
-        if (user.getImagemUsuario().equals("data:image/jpeg;base64")) {
+        if (user.getImagemUser() == null) {
             throw new ImagemUploadException("Usuário não possui uma imagem de perfil para remover.");
         }
-
-        user.setImagemUsuario(null);
+        user.setImagemUser(null);
         User updatedUser = userRepository.save(user);
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }

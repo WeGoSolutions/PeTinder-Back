@@ -1,48 +1,31 @@
-package cruds.Forms.entity;
+package cruds.Forms.controller.dto.request;
 
-import cruds.Pets.entity.Imagem;
-import cruds.Users.entity.User;
-import jakarta.persistence.*;
-import cruds.Pets.entity.Pet;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.Date;
 import java.util.List;
+import lombok.Data;
 
-@Entity
-@Table(name = "tb_forms")
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder(toBuilder = true)
-public class Forms {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @ManyToOne
-    @JoinColumn(name = "pet_id")
-    private Pet pet;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+public class FormRequestCriarDTO {
+    @NotNull
+    private Integer petId;
+    @NotNull
+    private Integer userId;
 
     @NotBlank
     private String nome;
+
     @NotBlank
     private String cpf;
+
     @NotBlank
     private String email;
 
-    @Temporal(TemporalType.DATE)
-    @NotBlank
+    @NotNull
     private Date dataNasc;
+
     @NotBlank
     private String telefone;
 
@@ -53,26 +36,31 @@ public class Forms {
 
     @NotBlank
     private String rua;
-    @NotBlank
+
+    @NotNull
     private Integer numero;
+
     @NotBlank
     private String cidade;
+
     @NotBlank
     private String uf;
 
     @NotBlank
     private String tipoMoradia;
+
     private String aluguePodeAnimal;
+
     private String infosCasa;
 
     @NotBlank
     private String possuiPet;
+
     private String castradoOrVacinado;
+
     private String infosPet;
 
-    @OneToMany(mappedBy = "form", cascade = CascadeType.ALL, orphanRemoval = true)
+    @NotNull
     @Size(min = 5, message = "Deve haver no mínimo 5 imagens")
-    private List<Imagem> imagens;
-
-    private boolean finalizado;
+    private List<byte[]> imagens;
 }
