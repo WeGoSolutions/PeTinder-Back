@@ -127,6 +127,7 @@ public class FormsService {
             for (byte[] imgData : imagensBytes) {
                 Imagem img = new Imagem();
                 img.setDados(imgData);
+                img.setForm(form); // Set the form field to maintain the relationship
                 imagens.add(img);
             }
             form.setImagens(imagens);
