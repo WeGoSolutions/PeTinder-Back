@@ -4,18 +4,16 @@ package cruds.Users.service;
 import cruds.Users.controller.dto.request.UserRequestCriarDTO;
 import cruds.Users.controller.dto.request.UserRequestImagemPerfilDTO;
 import cruds.Users.controller.dto.request.UserRequestOptionalDTO;
+import cruds.Users.controller.dto.request.UserRequestSenhaDTO;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.controller.dto.response.UserResponseLoginDTO;
 import cruds.Users.entity.Endereco;
 import cruds.Users.entity.ImagemUser;
 import cruds.Users.entity.User;
-import cruds.Users.exceptions.ConflictException;
-import cruds.Users.exceptions.IdadeMenorException;
-import cruds.Users.exceptions.ImagemUploadException;
-import cruds.Users.exceptions.UserNotFoundException;
-import cruds.Users.exceptions.UserVazioException;
+import cruds.Users.exceptions.*;
 import cruds.Users.repository.UserRepository;
 import cruds.common.util.ImageValidationUtil;
+import jakarta.validation.Valid;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -169,8 +167,20 @@ public class UserService {
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
 
+    public UserResponseCadastroDTO updateSenha(Integer id, @Valid UserRequestSenhaDTO senha) {
+
+        User user = getUsuarioPorId(id);
+        if (userRepository.findByEmail(user.getEmail()).isEmpty()) {
+            throw new UserEmailNotFoundException("Esse email não existe");
+        }
+        user.setSenha(senha.getSenha());
+        return UserResponseCadastroDTO.toResponse(userRepository.save(user));
+
+    }
+
     private User getUsuarioPorId(Integer id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuário com id: " + id + " não encontrado"));
     }
+
 }

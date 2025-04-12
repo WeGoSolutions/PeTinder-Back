@@ -1,9 +1,6 @@
 package cruds.Users.controller;
 
-import cruds.Users.controller.dto.request.UserRequestCriarDTO;
-import cruds.Users.controller.dto.request.UserRequestImagemPerfilDTO;
-import cruds.Users.controller.dto.request.UserRequestLoginDTO;
-import cruds.Users.controller.dto.request.UserRequestOptionalDTO;
+import cruds.Users.controller.dto.request.*;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.controller.dto.response.UserResponseLoginDTO;
 import cruds.Users.service.UserService;
@@ -85,4 +82,12 @@ public class UserController {
         var updatedUser = userService.deleteImagemPerfil(id);
         return ResponseEntity.status(200).body(updatedUser);
     }
+
+    @PatchMapping("/{id}/senha")
+    public ResponseEntity<UserResponseCadastroDTO> updateSenha(@PathVariable Integer id,
+                                                               @Valid @RequestBody UserRequestSenhaDTO senha) {
+        var updatedUser = userService.updateSenha(id, senha);
+        return ResponseEntity.status(200).body(updatedUser);
+    }
+
 }
