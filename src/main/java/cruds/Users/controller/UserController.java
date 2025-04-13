@@ -97,6 +97,12 @@ public class UserController {
         return new ResponseEntity<>(dados, headers, HttpStatus.OK);
     }
 
+    @GetMapping("/{email}/validar-email")
+    public ResponseEntity<UserResponseCadastroDTO> validarEmail(@PathVariable String email) {
+        var user = userService.validarEmail(email);
+        return ResponseEntity.status(200).body(user);
+    }
+
     @PatchMapping("/{id}/senha")
     public ResponseEntity<UserResponseCadastroDTO> updateSenha(@PathVariable Integer id,
                                                                @Valid @RequestBody UserRequestSenhaDTO senha) {

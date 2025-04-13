@@ -200,8 +200,15 @@ public class UserService {
 
     }
 
+    public UserResponseCadastroDTO validarEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Usuário com email " + email + " não encontrado"));
+        return UserResponseCadastroDTO.toResponse(user);
+    }
+
     private User getUsuarioPorId(Integer id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuário com id " + id + " não encontrado"));
     }
+
 }
