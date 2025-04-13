@@ -5,7 +5,7 @@ import lombok.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "tb_user")
+@Table(name = "usuario")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,6 +34,6 @@ public class User {
     private Endereco endereco;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "imagem_user_id")
+    @JoinColumn(name = "imagemUsuario_id")
     private ImagemUser imagemUser;
 }

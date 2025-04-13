@@ -5,7 +5,7 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Table(name = "tb_endereco")
+@Table(name = "endereco")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

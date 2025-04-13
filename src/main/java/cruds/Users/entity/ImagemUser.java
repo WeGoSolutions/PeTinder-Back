@@ -3,7 +3,7 @@ package cruds.Users.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "tb_imagem_usuario")
+@Table(name = "imagemUsuario")
 public class ImagemUser {
 
     @Id
