@@ -189,12 +189,9 @@ public class UserService {
         return user.getImagemUser().getDados();
     }
 
-    public UserResponseCadastroDTO updateSenha(Integer id, @Valid UserRequestSenhaDTO senha) {
+    public UserResponseCadastroDTO updateSenha(String email, @Valid UserRequestSenhaDTO senha) {
 
-        User user = getUsuarioPorId(id);
-        if (userRepository.findByEmail(user.getEmail()).isEmpty()) {
-            throw new UserEmailNotFoundException("Esse email não existe");
-        }
+        User user = getUsuarioPorEmail(email);
         user.setSenha(senha.getSenha());
         return UserResponseCadastroDTO.toResponse(userRepository.save(user));
 
@@ -209,6 +206,11 @@ public class UserService {
     private User getUsuarioPorId(Integer id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuário com id " + id + " não encontrado"));
+    }
+
+    private User getUsuarioPorEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Usuário com email " + email + " não encontrado"));
     }
 
 }

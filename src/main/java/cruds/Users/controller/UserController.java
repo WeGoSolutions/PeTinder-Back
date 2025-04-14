@@ -103,10 +103,10 @@ public class UserController {
         return ResponseEntity.status(200).body(user);
     }
 
-    @PatchMapping("/{id}/senha")
-    public ResponseEntity<UserResponseCadastroDTO> updateSenha(@PathVariable Integer id,
-                                                               @Valid @RequestBody UserRequestSenhaDTO senha) {
-        var updatedUser = userService.updateSenha(id, senha);
+    @PatchMapping("/senha")
+    public ResponseEntity<UserResponseCadastroDTO> updateSenha(@Valid @RequestBody UserRequestSenhaDTO senha,
+                                                               String email) {
+        var updatedUser = userService.updateSenha(email, senha);
         return ResponseEntity.status(200).body(updatedUser);
     }
 
