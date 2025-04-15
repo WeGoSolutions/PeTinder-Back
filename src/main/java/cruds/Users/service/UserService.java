@@ -2,6 +2,8 @@
 package cruds.Users.service;
 
 import cruds.Imagem.entity.Imagem;
+import cruds.common.event.UserCreatedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import cruds.Users.controller.dto.request.UserRequestCriarDTO;
 import cruds.Users.controller.dto.request.UserRequestImagemPerfilDTO;
 import cruds.Users.controller.dto.request.UserRequestOptionalDTO;
@@ -31,11 +33,13 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
     private static final String DEFAULT_IMAGE_NAME = "perfil.jpg";
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public UserResponseCadastroDTO createUser(UserRequestCriarDTO dto) {
@@ -47,7 +51,9 @@ public class UserService {
         }
         User user = UserRequestCriarDTO.toEntity(dto);
         User savedUser = userRepository.save(user);
-        return UserResponseCadastroDTO.toResponse(savedUser);
+        UserResponseCadastroDTO response = UserResponseCadastroDTO.toResponse(savedUser);
+        eventPublisher.publishEvent(new UserCreatedEvent(this, response));
+        return response;
     }
 
     public UserResponseCadastroDTO updateOptionalInfo(Integer id, UserRequestOptionalDTO dto) {
