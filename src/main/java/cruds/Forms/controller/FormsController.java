@@ -1,4 +1,3 @@
-// linguagem: java
 package cruds.Forms.controller;
 
 import cruds.Forms.controller.dto.request.FormRequestCriarDTO;
@@ -7,6 +6,8 @@ import cruds.Forms.controller.dto.response.FormResponsePreenchimentoUserDTO;
 import cruds.Forms.service.FormsService;
 import cruds.Imagem.entity.Imagem;
 import cruds.Imagem.repository.ImagemRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/forms")
 @Validated
+@Tag(name = "Formulario", description = "Endpoints relacionados a criação do formulario.")
 public class FormsController {
 
     @Autowired
@@ -31,24 +33,28 @@ public class FormsController {
     @Autowired
     private ImagemRepository imagemRepository;
 
+    @Operation(summary = "Obtém os dados do formulário para preenchimento do usuário")
     @GetMapping("/{id}/dados-formulario")
     public ResponseEntity<FormResponsePreenchimentoUserDTO> getDadosFormulario(@PathVariable Integer id) {
         FormResponsePreenchimentoUserDTO dados = formsService.getDadosFormulario(id);
         return ResponseEntity.ok(dados);
     }
 
+    @Operation(summary = "Cria um novo formulário")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Forms> createForm(@ModelAttribute @Valid FormRequestCriarDTO form) {
         Forms createdForm = formsService.createForm(form);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdForm);
     }
 
+    @Operation(summary = "Atualiza um formulário")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Forms> updateForm(@PathVariable Integer id, @ModelAttribute @Valid FormRequestCriarDTO form) {
         Forms updatedForm = formsService.updateForm(id, form);
         return ResponseEntity.ok(updatedForm);
     }
 
+    @Operation(summary = "Retorna imagens do formulário no formato Base64")
     @GetMapping("/{formId}/imagens")
     public ResponseEntity<List<String>> getImagens(@PathVariable Integer formId) {
         List<Imagem> imagens = imagemRepository.findByFormId(formId);
@@ -62,30 +68,5 @@ public class FormsController {
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(imagensBase64, HttpStatus.OK);
-    }
-
-    @GetMapping("/imagens/{id}")
-    public ResponseEntity<byte[]> getImagem(@PathVariable Integer id) {
-        return imagemRepository.findById(id)
-                .map(imagem -> {
-                    HttpHeaders headers = new HttpHeaders();
-                    headers.setContentType(MediaType.IMAGE_JPEG);
-                    return new ResponseEntity<>(imagem.getDados(), headers, HttpStatus.OK);
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/{formId}/imagens/{indice}")
-    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer formId,
-                                                     @PathVariable int indice) {
-        Forms form = formsService.obterFormPorId(formId);
-        List<Imagem> imagens = form.getImagens();
-        if (imagens == null || imagens.isEmpty() || indice < 0 || indice >= imagens.size()) {
-            return ResponseEntity.notFound().build();
-        }
-        byte[] dados = imagens.get(indice).getDados();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_JPEG);
-        return new ResponseEntity<>(dados, headers, HttpStatus.OK);
     }
 }
