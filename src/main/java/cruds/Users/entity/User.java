@@ -2,6 +2,8 @@ package cruds.Users.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -24,7 +26,7 @@ public class User {
     private String senha;
 
     @Temporal(TemporalType.DATE)
-    private Date dataNasc;
+    private LocalDate dataNasc;
 
     @Column(unique = true)
     private String cpf;

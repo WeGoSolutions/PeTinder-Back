@@ -3,17 +3,21 @@ package cruds.Forms.service;
 import cruds.Forms.controller.dto.request.FormRequestCriarDTO;
 import cruds.Forms.controller.dto.response.FormResponsePreenchimentoUserDTO;
 import cruds.Forms.entity.Forms;
-import cruds.Forms.exceptions.FormUpdateNotAllowedException;
 import cruds.Forms.repository.FormsRepository;
 import cruds.Imagem.entity.Imagem;
 import cruds.Pets.entity.Pet;
 import cruds.Users.entity.User;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.service.UserService;
+import cruds.common.exception.BadRequestException;
+import cruds.common.exception.NotAllowedException;
+import cruds.common.exception.NotFoundException;
 import cruds.common.util.ImageValidationUtil;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,14 +59,14 @@ public class FormsService {
                 imagensBytes.add(file.getBytes());
                 nomesArquivos.add(file.getOriginalFilename());
             } catch (IOException e) {
-                throw new RuntimeException("Erro ao processar a imagem: " + e.getMessage());
+                throw new BadRequestException("Erro ao processar a imagem: " + e.getMessage());
             }
         }
 
         try {
             ImageValidationUtil.validateFormImages(imagensBytes, nomesArquivos);
         } catch (IOException e) {
-            throw new RuntimeException("Erro ao processar as imagens do formulário: " + e.getMessage());
+            throw new BadRequestException("Erro ao processar as imagens do formulário: " + e.getMessage());
         }
         Forms form = mapToEntity(formDTO, imagensBytes);
         form.setFinalizado(isFormComplete(form));
@@ -73,7 +77,7 @@ public class FormsService {
         Forms existingForm = formsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Formulário com id " + id + " não encontrado"));
         if (existingForm.isFinalizado()) {
-            throw new FormUpdateNotAllowedException("Formulário finalizado não pode ser atualizado.");
+            throw new NotAllowedException("Formulário finalizado não pode ser atualizado.");
         }
 
         List<byte[]> imagensBytes = new ArrayList<>();
@@ -84,13 +88,13 @@ public class FormsService {
                 imagensBytes.add(file.getBytes());
                 nomesArquivos.add(file.getOriginalFilename());
             } catch (IOException e) {
-                throw new RuntimeException("Erro ao processar a imagem: " + e.getMessage());
+                throw new BadRequestException("Erro ao processar a imagem: " + e.getMessage());
             }
         }
         try {
             ImageValidationUtil.validateFormImages(imagensBytes, nomesArquivos);
         } catch (IOException e) {
-            throw new RuntimeException("Erro ao processar as imagens do formulário: " + e.getMessage());
+            throw new BadRequestException("Erro ao processar as imagens do formulário: " + e.getMessage());
         }
         updateEntity(existingForm, formDTO, imagensBytes);
         existingForm.setFinalizado(isFormComplete(existingForm));
@@ -183,14 +187,14 @@ public class FormsService {
 
     public Forms obterFormPorId(Integer id) {
         return formsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Formulário com id " + id + " não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Formulário com id " + id + " não encontrado"));
     }
 
     public byte[] getImagemPorIndice(Integer formId, int indice) {
         Forms form = obterFormPorId(formId);
         List<Imagem> imagens = form.getImagens();
         if (imagens == null || indice < 0 || indice >= imagens.size()) {
-            throw new RuntimeException("Índice inválido para formulário com id " + formId);
+            throw new NotFoundException("Índice inválido para formulário com id " + formId);
         }
         return imagens.get(indice).getDados();
     }

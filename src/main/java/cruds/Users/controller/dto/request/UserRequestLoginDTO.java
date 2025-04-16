@@ -23,11 +23,4 @@ public class UserRequestLoginDTO {
 
     @NotBlank
     private String senha;
-
-    public static User toEntity(@Valid UserRequestLoginDTO usuario){
-        return User.builder()
-                .email(usuario.getEmail())
-                .senha(usuario.getSenha())
-                .build();
-    }
 }

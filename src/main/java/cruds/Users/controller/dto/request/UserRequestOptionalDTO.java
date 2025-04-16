@@ -37,18 +37,4 @@ public class UserRequestOptionalDTO {
     @NotBlank
     @Pattern(regexp = "^[A-Za-z\\s]+$")
     private String uf;
-
-
-    public static UserRequestOptionalDTO toOptional(@Valid UserRequestOptionalDTO user) {
-        UserRequestOptionalDTO dto = new UserRequestOptionalDTO();
-        dto.setCpf(user.getCpf());
-        dto.setCep(user.getCep());
-        dto.setRua(user.getRua());
-        dto.setNumero(user.getNumero());
-        dto.setComplemento(user.getComplemento());
-        dto.setCidade(user.getCidade());
-        dto.setUf(user.getUf());
-        return dto;
-    }
-
 }

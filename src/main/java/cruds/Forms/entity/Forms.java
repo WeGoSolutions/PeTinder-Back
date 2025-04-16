@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class Forms {
 
     @Temporal(TemporalType.DATE)
     @NotBlank
-    private Date dataNasc;
+    private LocalDate dataNasc;
     @NotBlank
     private String telefone;
 

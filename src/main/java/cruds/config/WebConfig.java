@@ -1,5 +1,6 @@
-package cruds.common.util;
+package cruds.config;
 
+import cruds.common.util.LoggingInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;

@@ -1,5 +1,6 @@
 package cruds.Users.controller;
 
+import cruds.Users.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import cruds.Users.controller.dto.request.*;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
@@ -24,6 +25,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     @Operation(summary = "Cria um novo usuário")
     @PostMapping
@@ -124,5 +127,11 @@ public class UserController {
                                                                String email) {
         var updatedUser = userService.updateSenha(email, senha);
         return ResponseEntity.status(200).body(updatedUser);
+    }
+
+    @DeleteMapping("/teste")
+    public ResponseEntity<Void>deletarTodos(){
+        userRepository.deleteAll();
+        return ResponseEntity.status(204).build();
     }
 }

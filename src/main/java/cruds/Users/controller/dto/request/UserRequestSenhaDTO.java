@@ -4,7 +4,15 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserRequestSenhaDTO {
 
     @NotBlank
@@ -18,17 +26,5 @@ public class UserRequestSenhaDTO {
 
     public @NotBlank @Size(min = 6) @Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\\\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\\\":{}|<>]+$") String getSenha() {
         return senha;
-    }
-
-    public void setSenha(@NotBlank @Size(min = 6) @Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\\\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\\\":{}|<>]+$") String senha) {
-        this.senha = senha;
-    }
-
-    public @NotBlank @Email String getEmail() {
-        return email;
-    }
-
-    public void setEmail(@NotBlank @Email String email) {
-        this.email = email;
     }
 }
