@@ -1,6 +1,7 @@
 package cruds.Users.controller.dto.request;
 
 import cruds.Users.entity.User;
+import cruds.common.exception.NotAllowedException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -40,15 +41,18 @@ public class UserRequestCriarDTO {
         }
         LocalDate hoje = LocalDate.now();
         Period periodo = Period.between(dataNasc, hoje);
-        return periodo.getYears() >= 21;
+        if (periodo.getYears() >= 21) {
+            return true;
+        }
+        throw new NotAllowedException("Usuário deve ter mais de 21 anos");
     }
 
-    public static User toEntity(@Valid UserRequestCriarDTO usuario) {
+    public static User toEntity(UserRequestCriarDTO dto) {
         return User.builder()
-                .nome(usuario.getNome())
-                .email(usuario.getEmail())
-                .senha(usuario.getSenha())
-                .dataNasc(usuario.getDataNasc())
-                .build();
+                .nome(dto.getNome())
+                .email(dto.getEmail())
+                .senha(dto.getSenha())
+                .dataNasc(dto.getDataNasc())
+                    .build();
     }
 }

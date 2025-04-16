@@ -115,7 +115,7 @@ public class FormsService {
         form.setCep(dto.getCep());
         form.setComplemento(dto.getComplemento());
         form.setRua(dto.getRua());
-        form.setNumero(dto.getNumero());
+        form.setLogradouro(dto.getLogradouro());
         form.setCidade(dto.getCidade());
         form.setUf(dto.getUf());
         form.setTipoMoradia(dto.getTipoMoradia());
@@ -146,7 +146,7 @@ public class FormsService {
         form.setCep(dto.getCep());
         form.setComplemento(dto.getComplemento());
         form.setRua(dto.getRua());
-        form.setNumero(dto.getNumero());
+        form.setLogradouro(dto.getLogradouro());
         form.setCidade(dto.getCidade());
         form.setUf(dto.getUf());
         form.setTipoMoradia(dto.getTipoMoradia());
@@ -174,7 +174,7 @@ public class FormsService {
                 !isBlank(form.getTelefone()) &&
                 !isBlank(form.getCep()) &&
                 !isBlank(form.getRua()) &&
-                form.getNumero() != null &&
+                form.getLogradouro() != null &&
                 !isBlank(form.getCidade()) &&
                 !isBlank(form.getUf()) &&
                 !isBlank(form.getTipoMoradia()) &&

@@ -1,6 +1,7 @@
 // linguagem: java
 package cruds.Users.controller.dto.request;
 
+import cruds.common.exception.NotAllowedException;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -39,7 +40,10 @@ public class UserRequestUpdateDTO {
         }
         LocalDate hoje = LocalDate.now();
         Period periodo = Period.between(dataNasc, hoje);
-        return periodo.getYears() >= 21;
+        if (periodo.getYears() >= 21) {
+            return true;
+        }
+        throw new NotAllowedException("Usuário deve ter mais de 21 anos");
     }
 
     @NotBlank
@@ -52,7 +56,7 @@ public class UserRequestUpdateDTO {
     private String rua;
 
     @NotBlank
-    private Integer numero;
+    private Integer logradouro;
 
     @NotBlank
     private String complemento;

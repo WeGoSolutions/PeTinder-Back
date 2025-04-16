@@ -39,7 +39,7 @@ public class UserService {
     }
 
     public UserResponseCadastroDTO createUser(UserRequestCriarDTO dto) {
-        creationRules(dto);
+        userRules(dto);
         User user = UserRequestCriarDTO.toEntity(dto);
         User savedUser = userRepository.save(user);
         UserResponseCadastroDTO response = UserResponseCadastroDTO.toResponse(savedUser);
@@ -57,7 +57,7 @@ public class UserService {
         Endereco endereco = (user.getEndereco() != null) ? user.getEndereco() : new Endereco();
         endereco.setCep(dto.getCep());
         endereco.setRua(dto.getRua());
-        endereco.setNumero(dto.getNumero());
+        endereco.setLogradouro(dto.getLogradouro());
         endereco.setComplemento(dto.getComplemento());
         endereco.setCidade(dto.getCidade());
         endereco.setUf(dto.getUf());
@@ -119,7 +119,7 @@ public class UserService {
         Endereco endereco = (user.getEndereco() != null) ? user.getEndereco() : new Endereco();
         endereco.setCep(dto.getCep());
         endereco.setRua(dto.getRua());
-        endereco.setNumero(dto.getNumero());
+        endereco.setLogradouro(dto.getLogradouro());
         endereco.setComplemento(dto.getComplemento());
         endereco.setCidade(dto.getCidade());
         endereco.setUf(dto.getUf());
@@ -210,13 +210,17 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("Usuário com email " + email + " não encontrado"));
     }
 
-    private void creationRules(UserRequestCriarDTO user) {
-        if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
-            throw new BadRequestException("Email não pode ser utilizado");
+    private void userRules(UserRequestCriarDTO user) {
+        if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@") || userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new ConflictException("Email não pode ser utilizado");
         }
         if (user.getSenha() == null || user.getSenha().isEmpty() || user.getSenha().length() < 8
-            || !user.getSenha().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$")) {
-            throw new BadRequestException("Senha não pode ser cadastrada ou não atende aos requisitos de segurança");
+                || !user.getSenha().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$")) {
+            throw new ConflictException("Senha não pode ser cadastrada ou não atende aos requisitos de segurança");
+        }
+        if (user.getNome() == null || user.getNome().isEmpty() || user.getNome().length() < 3
+                || !user.getNome().matches("^[A-Za-zÀ-Ö ]+$")) {
+            throw new ConflictException("Nome não pode ser utilizado");
         }
 
         user.isMaiorDe21();

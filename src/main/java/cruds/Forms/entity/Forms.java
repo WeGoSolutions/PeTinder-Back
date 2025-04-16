@@ -55,7 +55,7 @@ public class Forms {
     @NotBlank
     private String rua;
     @NotBlank
-    private Integer numero;
+    private Integer logradouro;
     @NotBlank
     private String cidade;
     @NotBlank
