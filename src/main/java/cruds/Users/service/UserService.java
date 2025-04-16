@@ -57,7 +57,7 @@ public class UserService {
         Endereco endereco = (user.getEndereco() != null) ? user.getEndereco() : new Endereco();
         endereco.setCep(dto.getCep());
         endereco.setRua(dto.getRua());
-        endereco.setLogradouro(dto.getLogradouro());
+        endereco.setNumero(dto.getNumero());
         endereco.setComplemento(dto.getComplemento());
         endereco.setCidade(dto.getCidade());
         endereco.setUf(dto.getUf());
@@ -119,7 +119,7 @@ public class UserService {
         Endereco endereco = (user.getEndereco() != null) ? user.getEndereco() : new Endereco();
         endereco.setCep(dto.getCep());
         endereco.setRua(dto.getRua());
-        endereco.setLogradouro(dto.getLogradouro());
+        endereco.setNumero(dto.getNumero());
         endereco.setComplemento(dto.getComplemento());
         endereco.setCidade(dto.getCidade());
         endereco.setUf(dto.getUf());

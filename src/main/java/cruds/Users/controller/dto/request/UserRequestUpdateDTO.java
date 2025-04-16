@@ -56,7 +56,7 @@ public class UserRequestUpdateDTO {
     private String rua;
 
     @NotBlank
-    private Integer logradouro;
+    private Integer numero;
 
     @NotBlank
     private String complemento;

@@ -13,9 +13,11 @@ import cruds.common.exception.BadRequestException;
 import cruds.common.exception.NotAllowedException;
 import cruds.common.exception.NotFoundException;
 import cruds.common.util.ImageValidationUtil;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -115,7 +117,7 @@ public class FormsService {
         form.setCep(dto.getCep());
         form.setComplemento(dto.getComplemento());
         form.setRua(dto.getRua());
-        form.setLogradouro(dto.getLogradouro());
+        form.setNumero(dto.getNumero());
         form.setCidade(dto.getCidade());
         form.setUf(dto.getUf());
         form.setTipoMoradia(dto.getTipoMoradia());
@@ -146,7 +148,7 @@ public class FormsService {
         form.setCep(dto.getCep());
         form.setComplemento(dto.getComplemento());
         form.setRua(dto.getRua());
-        form.setLogradouro(dto.getLogradouro());
+        form.setNumero(dto.getNumero());
         form.setCidade(dto.getCidade());
         form.setUf(dto.getUf());
         form.setTipoMoradia(dto.getTipoMoradia());
@@ -174,7 +176,7 @@ public class FormsService {
                 !isBlank(form.getTelefone()) &&
                 !isBlank(form.getCep()) &&
                 !isBlank(form.getRua()) &&
-                form.getLogradouro() != null &&
+                form.getNumero() != null &&
                 !isBlank(form.getCidade()) &&
                 !isBlank(form.getUf()) &&
                 !isBlank(form.getTipoMoradia()) &&

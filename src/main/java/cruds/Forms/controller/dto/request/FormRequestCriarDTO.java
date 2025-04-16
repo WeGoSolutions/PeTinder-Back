@@ -41,7 +41,7 @@ public class FormRequestCriarDTO {
     private String rua;
 
     @NotNull
-    private Integer logradouro;
+    private Integer numero;
 
     @NotBlank
     private String cidade;

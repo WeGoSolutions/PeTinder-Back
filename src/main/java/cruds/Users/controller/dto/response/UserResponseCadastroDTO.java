@@ -22,7 +22,7 @@ public class UserResponseCadastroDTO {
     private String cpf;
     private String cep;
     private String rua;
-    private Integer logradouro;
+    private Integer numero;
     private String cidade;
     private String uf;
     private String complemento;
@@ -40,7 +40,7 @@ public class UserResponseCadastroDTO {
         if (user.getEndereco() != null) {
             dto.setCep(user.getEndereco().getCep());
             dto.setRua(user.getEndereco().getRua());
-            dto.setLogradouro(user.getEndereco().getLogradouro());
+            dto.setNumero(user.getEndereco().getNumero());
             dto.setCidade(user.getEndereco().getCidade());
             dto.setUf(user.getEndereco().getUf());
             dto.setComplemento(user.getEndereco().getComplemento());

@@ -25,7 +25,7 @@ public class UserRequestOptionalDTO {
     private String rua;
 
     @NotBlank
-    private Integer logradouro;
+    private Integer numero;
 
     @Pattern(regexp = "^[A-Za-z\\s]+$")
     private String complemento;
