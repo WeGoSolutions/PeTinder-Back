@@ -1,6 +1,8 @@
 package cruds.Forms.controller.dto.response;
 
 import lombok.Data;
+
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -8,7 +10,7 @@ public class FormResponsePreenchimentoUserDTO {
     private String nome;
     private String cpf;
     private String email;
-    private Date dataNasc;
+    private LocalDate dataNasc;
     private String cep;
     private String rua;
     private Integer numero;

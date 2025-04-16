@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -28,21 +27,19 @@ public class UserRequestCriarDTO {
     private String email;
 
     @NotBlank
-    @Size(min = 6)
-    @Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\\\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\\\":{}|<>]+$")
+    @Size(min = 8)
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\\\":{}|<>])[A-Za-z\\d!@#$%^&*(),.?\\\":{}|<>]+$")
     private String senha;
 
     @Past(message = "A data de nascimento deve ser no passado")
-    private Date dataNasc;
+    private LocalDate dataNasc;
 
-    @AssertTrue(message = "A pessoa deve ter mais de 21 anos")
     public boolean isMaiorDe21() {
         if (dataNasc == null) {
             return false;
         }
-        LocalDate dataNascimento = new java.sql.Date(dataNasc.getTime()).toLocalDate();
         LocalDate hoje = LocalDate.now();
-        Period periodo = Period.between(dataNascimento, hoje);
+        Period periodo = Period.between(dataNasc, hoje);
         return periodo.getYears() >= 21;
     }
 

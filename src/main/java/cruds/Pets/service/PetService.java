@@ -5,10 +5,11 @@ import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Imagem.entity.Imagem;
 import cruds.Pets.entity.Pet;
-import cruds.Pets.exceptions.PetBadRequest;
-import cruds.Pets.exceptions.PetNotFoundException;
-import cruds.Pets.exceptions.PetVazioException;
 import cruds.Pets.repository.PetRepository;
+import cruds.common.exception.BadRequestException;
+import cruds.common.exception.ConflictException;
+import cruds.common.exception.NoContentException;
+import cruds.common.exception.NotFoundException;
 import cruds.common.util.ImageValidationUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,14 +53,14 @@ public class PetService {
                 imagensBytes.add(imagemBytes);
                 nomesArquivos.add("imagem_" + i + ".jpg");
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Imagem inválida", e);
+                throw new ConflictException("Imagem inválida", e);
             }
         }
 
         try {
             ImageValidationUtil.validatePetImages(imagensBytes, nomesArquivos);
         } catch (IOException e) {
-            throw new RuntimeException("Erro ao processar as imagens: " + e.getMessage());
+            throw new BadRequestException("Erro ao processar as imagens: " + e.getMessage());
         }
 
         List<Imagem> imagens = new ArrayList<>();
@@ -73,10 +74,10 @@ public class PetService {
 
     public Pet atualizar(Integer id, PetRequestCriarDTO dto) {
         if (!petRepository.existsById(id)) {
-            throw new PetNotFoundException("Pet com id " + id + " não encontrado");
+            throw new NotFoundException("Pet com id " + id + " não encontrado");
         }
         Pet petParaAlterar = petRepository.findById(id)
-                .orElseThrow(() -> new PetNotFoundException("Pet com id " + id + " não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Pet com id " + id + " não encontrado"));
 
         petParaAlterar = petParaAlterar.toBuilder()
                 .nome(dto.getNome())
@@ -96,14 +97,14 @@ public class PetService {
                 imagensBytes.add(imagemBytes);
                 nomesArquivos.add("imagem_" + i + ".jpg");
             } catch (IllegalArgumentException e) {
-                throw new PetBadRequest("Imagem inválida", e);
+                throw new BadRequestException("Imagem inválida", e);
             }
         }
 
         try {
             ImageValidationUtil.validatePetImages(imagensBytes, nomesArquivos);
         } catch (IOException e) {
-            throw new RuntimeException("Erro ao processar as imagens: " + e.getMessage());
+            throw new BadRequestException("Erro ao processar as imagens: " + e.getMessage());
         }
 
         List<Imagem> imagens = new ArrayList<>();
@@ -120,7 +121,7 @@ public class PetService {
         try {
             ImageValidationUtil.validatePetImages(imagensBytes, nomesArquivos);
         } catch (IOException e) {
-            throw new RuntimeException("Erro ao processar as imagens: " + e.getMessage());
+            throw new BadRequestException("Erro ao processar as imagens: " + e.getMessage());
         }
         List<Imagem> imagens = new ArrayList<>();
         for (byte[] imagemBytes : imagensBytes) {
@@ -133,7 +134,7 @@ public class PetService {
     public List<PetResponseGeralDTO> listarGeral() {
         var pets = petRepository.findAll();
         if (pets.isEmpty()) {
-            throw new PetVazioException("Nenhum pet encontrado");
+            throw new NoContentException("Nenhum pet encontrado");
         }
         List<PetResponseGeralDTO> responseList = pets.stream()
                 .map(PetResponseGeralDTO::toResponse)
@@ -143,14 +144,14 @@ public class PetService {
 
     public Pet obterPetPorId(Integer id) {
         return petRepository.findById(id)
-                .orElseThrow(() -> new PetVazioException("Pet com id: " + id + " não encontrado"));
+                .orElseThrow(() -> new NoContentException("Pet com id: " + id + " não encontrado"));
     }
 
     public List<String> listarUrlsImagens(HttpServletRequest request, Integer id) {
         Pet pet = obterPetPorId(id);
         List<Imagem> imagens = pet.getImagens();
         if (imagens == null || imagens.isEmpty()) {
-            throw new PetNotFoundException("Nenhuma imagem encontrada para o pet com id " + id);
+            throw new NotFoundException("Nenhuma imagem encontrada para o pet com id " + id);
         }
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
                 .replacePath(null)
@@ -165,7 +166,7 @@ public class PetService {
 
     public void deletarPet(Integer id) {
         if (!petRepository.existsById(id)) {
-            throw new PetNotFoundException("Pet com id: " + id + " não encontrado");
+            throw new NotFoundException("Pet com id: " + id + " não encontrado");
         }
         petRepository.deleteById(id);
     }
@@ -174,10 +175,10 @@ public class PetService {
         Pet pet = obterPetPorId(id);
         List<Imagem> imagens = pet.getImagens();
         if (imagens == null || imagens.isEmpty()) {
-            throw new PetNotFoundException("Nenhuma imagem para o pet com id " + id);
+            throw new NotFoundException("Nenhuma imagem para o pet com id " + id);
         }
         if (indice < 0 || indice >= imagens.size()) {
-            throw new PetNotFoundException("Índice " + indice + " inválido para o pet com id " + id
+            throw new NotFoundException("Índice " + indice + " inválido para o pet com id " + id
                     + ". Total de imagens: " + imagens.size());
         }
         return imagens.get(indice).getDados();
@@ -185,7 +186,7 @@ public class PetService {
 
     public Pet curtirPet(Integer id, PetRequestCurtirDTO dto) {
         Pet petParaAlterar = petRepository.findById(id)
-                .orElseThrow(() -> new PetNotFoundException("Pet com id: " + id + " não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Pet com id: " + id + " não encontrado"));
         petParaAlterar.setIsLiked(dto.getIsLiked());
         return petRepository.save(petParaAlterar);
     }

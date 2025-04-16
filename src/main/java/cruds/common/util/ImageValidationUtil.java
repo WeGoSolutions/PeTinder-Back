@@ -1,5 +1,7 @@
 package cruds.common.util;
 
+import cruds.common.exception.NoContentException;
+import cruds.common.exception.NotAllowedException;
 import org.apache.commons.io.FilenameUtils;
 import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
@@ -15,29 +17,29 @@ public class ImageValidationUtil {
     private static void validateCommon(byte[] imagem, String nomeArquivo) throws IOException {
         String tipoArquivo = FilenameUtils.getExtension(nomeArquivo);
         if (!Arrays.asList(TIPOS_PERMITIDOS).contains(tipoArquivo.toLowerCase())) {
-            throw new IllegalArgumentException("Tipo de arquivo não permitido. Apenas JPG e PNG são aceitos.");
+            throw new NotAllowedException("Tipo de arquivo não permitido. Apenas JPG e PNG são aceitos.");
         }
         if (imagem.length > TAMANHO_MAXIMO) {
-            throw new IllegalArgumentException("Tamanho da imagem excede o limite de 5MB.");
+            throw new NotAllowedException("Tamanho da imagem excede o limite de 5MB.");
         }
         if (ImageIO.read(new ByteArrayInputStream(imagem)) == null) {
-            throw new IllegalArgumentException("Arquivo enviado não é uma imagem válida.");
+            throw new NotAllowedException("Arquivo enviado não é uma imagem válida.");
         }
     }
 
     public static void validateUserImage(byte[] imagem, String nomeArquivo) throws IOException {
         if (imagem == null || imagem.length == 0) {
-            throw new IllegalArgumentException("Imagem de perfil é obrigatória.");
+            throw new NoContentException("Imagem de perfil é obrigatória.");
         }
         validateCommon(imagem, nomeArquivo);
     }
 
     public static void validatePetImages(List<byte[]> imagens, List<String> nomesArquivos) throws IOException {
         if (imagens == null || imagens.isEmpty()) {
-            throw new IllegalArgumentException("Ao menos uma imagem é obrigatória para o pet.");
+            throw new NoContentException("Ao menos uma imagem é obrigatória para o pet.");
         }
         if (imagens.size() > 5) {
-            throw new IllegalArgumentException("Máximo de 5 imagens permitidas para o pet.");
+            throw new NotAllowedException("Máximo de 5 imagens permitidas para o pet.");
         }
         for (int i = 0; i < imagens.size(); i++) {
             validateCommon(imagens.get(i), nomesArquivos.get(i));
@@ -46,7 +48,7 @@ public class ImageValidationUtil {
 
     public static void validateFormImages(List<byte[]> imagens, List<String> nomesArquivos) throws IOException {
         if (imagens == null || imagens.size() < 5) {
-            throw new IllegalArgumentException("Ao menos 5 imagens são obrigatórias no formulário.");
+            throw new NotAllowedException("Ao menos 5 imagens são obrigatórias no formulário.");
         }
         for (int i = 0; i < imagens.size(); i++) {
             validateCommon(imagens.get(i), nomesArquivos.get(i));

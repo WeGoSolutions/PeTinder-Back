@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.Date;
 
@@ -16,7 +18,7 @@ public class UserResponseCadastroDTO {
     private Integer id;
     private String nome;
     private String email;
-    private Date dataNasc;
+    private LocalDate dataNasc;
     private String cpf;
     private String cep;
     private String rua;
