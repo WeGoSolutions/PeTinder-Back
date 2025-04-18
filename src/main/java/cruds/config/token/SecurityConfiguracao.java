@@ -1,8 +1,6 @@
 package cruds.config.token;
 
 import cruds.Users.service.AutenticacaoService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -33,12 +31,11 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfiguracao {
 
-    @Autowired
-    private AutenticacaoService autenticacaoService;
+    private final AutenticacaoService autenticacaoService;
 
-    @Autowired
-    @Qualifier("jwtAuthenticationEntryPointBean")
-    private AutenticacaoEntryPoint autenticacaoJwtEntryPoint;
+    public SecurityConfiguracao(AutenticacaoService autenticacaoService) {
+        this.autenticacaoService = autenticacaoService;
+    }
 
     private static final AntPathRequestMatcher[] URLS_PERMITIDAS = {
             new AntPathRequestMatcher("/swagger-ui/**"),
@@ -71,7 +68,7 @@ public class SecurityConfiguracao {
                         .authenticated()
                 )
                 .exceptionHandling(handling -> handling
-                        .authenticationEntryPoint(autenticacaoJwtEntryPoint))
+                        .authenticationEntryPoint(jwtAuthenticationEntryPointBean()))
                 .sessionManagement(management -> management
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
