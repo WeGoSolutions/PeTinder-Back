@@ -18,6 +18,7 @@ import cruds.Users.repository.UserRepository;
 import cruds.common.util.ImageValidationUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,18 +30,22 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private static final String DEFAULT_IMAGE_NAME = "perfil.jpg"; //alterar para a imagem default
 
     @Autowired
-    public UserService(UserRepository userRepository, ApplicationEventPublisher eventPublisher) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
     }
 
     public UserResponseCadastroDTO createUser(UserRequestCriarDTO dto) {
         userRules(dto);
         User user = UserRequestCriarDTO.toEntity(dto);
+        String senhaCriptografada = passwordEncoder.encode(dto.getSenha());
+        dto.setSenha(senhaCriptografada);
         User savedUser = userRepository.save(user);
         UserResponseCadastroDTO response = UserResponseCadastroDTO.toResponse(savedUser);
         eventPublisher.publishEvent(new UserCreatedEvent(this, response));
