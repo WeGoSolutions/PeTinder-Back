@@ -1,10 +1,8 @@
 package cruds.Pets.controller;
 
 import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
-import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
 import cruds.Pets.controller.dto.request.UploadImagesRequest;
 import cruds.Pets.controller.dto.response.PetResponseCriarDTO;
-import cruds.Pets.controller.dto.response.PetResponseCurtirDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.service.PetService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,6 +52,16 @@ public class PetController {
     public ResponseEntity<List<PetResponseGeralDTO>> listarGeral() {
         var pets = petService.listarGeral();
         return ResponseEntity.status(200).body(pets);
+    }
+
+    @Operation(summary = "Exibe a imagem especifica do pet")
+    @GetMapping("/{id}/imagens/{indice}")
+    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer id,
+                                                     @PathVariable int indice) {
+        byte[] imagem = petService.getImagemPorIndice(id, indice);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(imagem);
     }
 
     @Operation(summary = "Atualiza os dados de um pet")
