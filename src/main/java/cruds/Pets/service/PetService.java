@@ -190,4 +190,22 @@ public class PetService {
         petParaAlterar.setIsLiked(dto.getIsLiked());
         return petRepository.save(petParaAlterar);
     }
+
+    public void apagarImagem(Integer id, int indice) {
+        Pet pet = obterPetPorId(id);
+        List<Imagem> imagens = pet.getImagens();
+
+        if (imagens == null || imagens.isEmpty()) {
+            throw new NotFoundException("Nenhuma imagem encontrada para o pet com id " + id);
+        }
+
+        if (indice < 0 || indice >= imagens.size()) {
+            throw new NotFoundException("Índice " + indice + " inválido para o pet com id " + id
+                    + ". Total de imagens: " + imagens.size());
+        }
+
+        imagens.remove(indice);
+        pet.setImagens(imagens);
+        petRepository.save(pet);
+    }
 }

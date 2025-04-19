@@ -8,6 +8,7 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class UserResponseLoginDTO {
+    private Long id;
     private String nome;
     private String email;
     private String token;

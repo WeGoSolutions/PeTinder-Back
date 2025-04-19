@@ -99,6 +99,7 @@ public class UserService {
 
         // Retorne o DTO com os dados necessários
         return UserResponseLoginDTO.builder()
+                .id(user.getId())
                 .nome(user.getNome())
                 .email(user.getEmail())
                 .token(token)
