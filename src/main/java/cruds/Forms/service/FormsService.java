@@ -107,7 +107,7 @@ public class FormsService {
         pet.setId(dto.getPetId());
         form.setPet(pet);
         User user = new User();
-        user.setId(dto.getUserId());
+        user.setId(Long.valueOf(dto.getUserId()));
         form.setUser(user);
         form.setNome(dto.getNome());
         form.setCpf(dto.getCpf());

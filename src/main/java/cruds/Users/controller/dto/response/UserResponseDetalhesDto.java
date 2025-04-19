@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
-public class UsuarioDetalhesDto implements UserDetails {
+public class UserResponseDetalhesDto implements UserDetails {
 
   private final String nome;
 
@@ -14,7 +14,7 @@ public class UsuarioDetalhesDto implements UserDetails {
 
   private final String senha;
 
-  public UsuarioDetalhesDto(User usuario) {
+  public UserResponseDetalhesDto(User usuario) {
     this.nome = usuario.getNome();
     this.email = usuario.getEmail();
     this.senha = usuario.getSenha();

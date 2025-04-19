@@ -1,5 +1,6 @@
 package cruds.Users.controller;
 
+import cruds.Users.entity.User;
 import cruds.Users.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import cruds.Users.controller.dto.request.*;
@@ -37,9 +38,9 @@ public class UserController {
 
     @Operation(summary = "Realiza login do usuário")
     @PostMapping("/login")
-    public ResponseEntity<UserResponseLoginDTO> login(@Valid @RequestBody UserRequestLoginDTO loginRequest) {
-        var user = userService.login(loginRequest.getEmail(), loginRequest.getSenha());
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserResponseLoginDTO> login(@RequestBody @Valid UserRequestLoginDTO loginDTO) {
+        UserResponseLoginDTO response = userService.login(loginDTO.getEmail(), loginDTO.getSenha());
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Atualiza informações opcionais do usuário")
@@ -126,6 +127,13 @@ public class UserController {
     public ResponseEntity<UserResponseCadastroDTO> updateSenha(@Valid @RequestBody UserRequestSenhaDTO senha,
                                                                String email) {
         var updatedUser = userService.updateSenha(email, senha);
+        return ResponseEntity.status(200).body(updatedUser);
+    }
+
+    @Operation(summary = "Atualiza o campo userNovo para false")
+    @PatchMapping("/{id}/user-novo")
+    public ResponseEntity<UserResponseCadastroDTO> atualizarUserNovoParaFalse(@PathVariable Integer id) {
+        var updatedUser = userService.atualizarUserNovoParaFalse(id);
         return ResponseEntity.status(200).body(updatedUser);
     }
 
