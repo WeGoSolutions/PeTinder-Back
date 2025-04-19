@@ -1,4 +1,3 @@
-// linguagem: java
 package cruds.Pets.controller.dto.response;
 
 import cruds.Pets.entity.Pet;

@@ -15,7 +15,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 public class UserResponseCadastroDTO {
-    private Integer id;
+    private Long id;
     private String nome;
     private String email;
     private LocalDate dataNasc;

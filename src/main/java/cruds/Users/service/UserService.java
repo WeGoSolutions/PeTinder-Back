@@ -1,14 +1,11 @@
-// linguagem: java
 package cruds.Users.service;
 
+import cruds.Users.controller.UsuarioMapper;
+import cruds.Users.controller.dto.request.*;
 import cruds.common.event.UserCreatedEvent;
 import cruds.common.exception.*;
+import cruds.config.token.GerenciadorTokenJwt;
 import org.springframework.context.ApplicationEventPublisher;
-import cruds.Users.controller.dto.request.UserRequestCriarDTO;
-import cruds.Users.controller.dto.request.UserRequestImagemPerfilDTO;
-import cruds.Users.controller.dto.request.UserRequestOptionalDTO;
-import cruds.Users.controller.dto.request.UserRequestSenhaDTO;
-import cruds.Users.controller.dto.request.UserRequestUpdateDTO;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.controller.dto.response.UserResponseLoginDTO;
 import cruds.Users.entity.Endereco;
@@ -18,7 +15,14 @@ import cruds.Users.repository.UserRepository;
 import cruds.common.util.ImageValidationUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,18 +33,26 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
+    private AuthenticationManager authenticationManager;
+    private GerenciadorTokenJwt gerenciadorTokenJwt;
     private static final String DEFAULT_IMAGE_NAME = "perfil.jpg"; //alterar para a imagem default
 
     @Autowired
-    public UserService(UserRepository userRepository, ApplicationEventPublisher eventPublisher) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
+        this.authenticationManager = authenticationManager;
+        this.gerenciadorTokenJwt = gerenciadorTokenJwt;
     }
 
     public UserResponseCadastroDTO createUser(UserRequestCriarDTO dto) {
         userRules(dto);
         User user = UserRequestCriarDTO.toEntity(dto);
+        String senhaCriptografada = passwordEncoder.encode(dto.getSenha());
+        user.setSenha(senhaCriptografada);
         User savedUser = userRepository.save(user);
         UserResponseCadastroDTO response = UserResponseCadastroDTO.toResponse(savedUser);
         eventPublisher.publishEvent(new UserCreatedEvent(this, response));
@@ -74,11 +86,24 @@ public class UserService {
         }
 
         User user = userOptional.get();
-        if (!user.getSenha().equals(senha)) {
+        if (!passwordEncoder.matches(senha, user.getSenha())) {
             throw new NotFoundException("Senha inválida");
         }
 
-        return UserResponseLoginDTO.toResponse(user);
+        // Gere o token JWT
+        final UsernamePasswordAuthenticationToken credentials =
+                new UsernamePasswordAuthenticationToken(email, senha);
+        final Authentication authentication = authenticationManager.authenticate(credentials);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = gerenciadorTokenJwt.generateToken(authentication);
+
+        // Retorne o DTO com os dados necessários
+        return UserResponseLoginDTO.builder()
+                .nome(user.getNome())
+                .email(user.getEmail())
+                .token(token)
+                .userNovo(user.getUserNovo())
+                .build();
     }
 
     public List<UserResponseCadastroDTO> getListaUsuarios() {
@@ -200,6 +225,13 @@ public class UserService {
         return UserResponseCadastroDTO.toResponse(user);
     }
 
+    public UserResponseCadastroDTO atualizarUserNovoParaFalse(Integer id) {
+        User user = getUsuarioPorId(id);
+        user.setUserNovo(false);
+        User updatedUser = userRepository.save(user);
+        return UserResponseCadastroDTO.toResponse(updatedUser);
+    }
+
     private User getUsuarioPorId(Integer id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Usuário com id " + id + " não encontrado"));
@@ -224,5 +256,20 @@ public class UserService {
         }
 
         user.isMaiorDe21();
+    }
+
+    public UserRequestTokenDto autenticar(User usuario) {
+        final UsernamePasswordAuthenticationToken credentials =
+                new UsernamePasswordAuthenticationToken(usuario.getEmail(), usuario.getSenha());
+
+        final Authentication authentication = this.authenticationManager.authenticate(credentials);
+
+        User usuarioAutenticado = userRepository.findByEmail(usuario.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatusCode.valueOf(404), "Email do usuário não cadastrado"));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        final String token = gerenciadorTokenJwt.generateToken(authentication);
+
+        return UsuarioMapper.of(usuarioAutenticado, token);
     }
 }
