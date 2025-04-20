@@ -1,9 +1,12 @@
 package cruds.Pets.controller;
 
 import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
+import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
 import cruds.Pets.controller.dto.request.UploadImagesRequest;
 import cruds.Pets.controller.dto.response.PetResponseCriarDTO;
+import cruds.Pets.controller.dto.response.PetResponseCurtirDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
+import cruds.Pets.entity.Pet;
 import cruds.Pets.service.PetService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -71,4 +74,27 @@ public class PetController {
         var petAlterado = petService.atualizar(id, dto);
         return ResponseEntity.status(200).body(PetResponseCriarDTO.toResponse(petAlterado));
     }
+
+    @Operation(summary = "Deleta um pet")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
+        petService.deletarPet(id);
+        return ResponseEntity.status(204).build();
+    }
+
+    @Operation(summary = "Curtir um pet")
+    @PutMapping("/curtir/{id}")
+    public ResponseEntity<PetResponseCurtirDTO> curtirPet(@PathVariable Integer id, @RequestBody PetRequestCurtirDTO dto) {
+        var petAlterado = petService.curtirPet(id, dto);
+        return ResponseEntity.status(202).body(PetResponseCurtirDTO.toResponse(petAlterado));
+    }
+
+    @Operation(summary = "Apagar uma imagem do pet")
+    @DeleteMapping("/{id}/imagens/{indice}")
+    public ResponseEntity<Void> apagarImagem(@PathVariable Integer id,
+                                             @PathVariable int indice) {
+        petService.apagarImagem(id, indice);
+        return ResponseEntity.status(204).build();
+    }
+
 }
