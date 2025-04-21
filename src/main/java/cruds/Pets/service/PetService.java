@@ -32,7 +32,7 @@ public class PetService {
     @Autowired
     private ImagemRepository imagemRepository;
 
-    private static final String UPLOAD_DIR = "C:/Users/Cauan/Desktop/S3 local/imagens";
+    private static final String UPLOAD_DIR = "{caminho da pasta aqui}";
 
     private final PetRepository petRepository;
 
