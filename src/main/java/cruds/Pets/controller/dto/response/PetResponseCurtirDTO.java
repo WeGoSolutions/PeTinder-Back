@@ -15,10 +15,12 @@ import java.util.List;
 
 public class PetResponseCurtirDTO {
     private Boolean isLiked;
+    private Integer curtidas;
 
     public static PetResponseCurtirDTO toResponse(Pet pet) {
         return PetResponseCurtirDTO.builder()
                 .isLiked(pet.getIsLiked())
+                .curtidas(pet.getCurtidas())
                 .build();
     }
 }
