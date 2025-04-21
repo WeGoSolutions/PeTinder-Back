@@ -15,8 +15,11 @@ import cruds.common.exception.NotFoundException;
 import cruds.common.util.ImageValidationUtil;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class FormsService {
+
+    private static final String UPLOAD_DIR = "C:/Users/Cauan/Desktop/S3 local/imagens/";
 
     private final UserService userService;
     private final FormsRepository formsRepository;
@@ -66,8 +71,9 @@ public class FormsService {
         try {
             ImageValidationUtil.validateFormImages(imagensBytes, nomesArquivos);
         } catch (IOException e) {
-            throw new BadRequestException("Erro ao processar as imagens do formulário: " + e.getMessage());
+            throw new BadRequestException("Erro ao validar as imagens do formulário: " + e.getMessage());
         }
+
         Forms form = mapToEntity(formDTO, imagensBytes);
         form.setFinalizado(isFormComplete(form));
         return formsRepository.save(form);
@@ -75,7 +81,8 @@ public class FormsService {
 
     public Forms updateForm(Integer id, FormRequestCriarDTO formDTO) {
         Forms existingForm = formsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Formulário com id " + id + " não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Formulário com id " + id + " não encontrado"));
+
         if (existingForm.isFinalizado()) {
             throw new NotAllowedException("Formulário finalizado não pode ser atualizado.");
         }
@@ -91,11 +98,13 @@ public class FormsService {
                 throw new BadRequestException("Erro ao processar a imagem: " + e.getMessage());
             }
         }
+
         try {
             ImageValidationUtil.validateFormImages(imagensBytes, nomesArquivos);
         } catch (IOException e) {
-            throw new BadRequestException("Erro ao processar as imagens do formulário: " + e.getMessage());
+            throw new BadRequestException("Erro ao validar as imagens do formulário: " + e.getMessage());
         }
+
         updateEntity(existingForm, formDTO, imagensBytes);
         existingForm.setFinalizado(isFormComplete(existingForm));
         return formsRepository.save(existingForm);
@@ -126,16 +135,22 @@ public class FormsService {
         form.setPossuiPet(dto.getPossuiPet());
         form.setCastradoOrVacinado(dto.getCastradoOrVacinado());
         form.setInfosPet(dto.getInfosPet());
+
         if (imagensBytes != null) {
             List<Imagem> imagens = new ArrayList<>();
             for (byte[] imgData : imagensBytes) {
-                Imagem img = new Imagem();
-                img.setDados(imgData);
-                img.setForm(form); // Set the form field to maintain the relationship
-                imagens.add(img);
+                String nomeArquivo = "form_" + UUID.randomUUID() + ".jpg";
+                String caminhoCompleto = UPLOAD_DIR + nomeArquivo;
+                try {
+                    Files.write(Paths.get(caminhoCompleto), imgData);
+                    imagens.add(new Imagem(caminhoCompleto, form));
+                } catch (IOException e) {
+                    throw new RuntimeException("Erro ao salvar imagem no disco: " + e.getMessage());
+                }
             }
             form.setImagens(imagens);
         }
+
         return form;
     }
 
@@ -157,14 +172,38 @@ public class FormsService {
         form.setPossuiPet(dto.getPossuiPet());
         form.setCastradoOrVacinado(dto.getCastradoOrVacinado());
         form.setInfosPet(dto.getInfosPet());
+
         if (imagensBytes != null) {
             List<Imagem> imagens = new ArrayList<>();
             for (byte[] imgData : imagensBytes) {
-                Imagem img = new Imagem();
-                img.setDados(imgData);
-                imagens.add(img);
+                String nomeArquivo = "form_" + UUID.randomUUID() + ".jpg";
+                String caminhoCompleto = UPLOAD_DIR + nomeArquivo;
+                try {
+                    Files.write(Paths.get(caminhoCompleto), imgData);
+                    imagens.add(new Imagem(caminhoCompleto, form));
+                } catch (IOException e) {
+                    throw new RuntimeException("Erro ao salvar imagem no disco: " + e.getMessage());
+                }
             }
             form.setImagens(imagens);
+        }
+    }
+
+    public Forms obterFormPorId(Integer id) {
+        return formsRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Formulário com id " + id + " não encontrado"));
+    }
+
+    public byte[] getImagemPorIndice(Integer formId, int indice) {
+        Forms form = obterFormPorId(formId);
+        List<Imagem> imagens = form.getImagens();
+        if (imagens == null || indice < 0 || indice >= imagens.size()) {
+            throw new NotFoundException("Índice inválido para formulário com id " + formId);
+        }
+        try {
+            return Files.readAllBytes(Paths.get(imagens.get(indice).getCaminho()));
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao ler imagem do disco: " + e.getMessage());
         }
     }
 
@@ -183,20 +222,6 @@ public class FormsService {
                 !isBlank(form.getPossuiPet()) &&
                 form.getImagens() != null &&
                 form.getImagens().size() >= 5;
-    }
-
-    public Forms obterFormPorId(Integer id) {
-        return formsRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Formulário com id " + id + " não encontrado"));
-    }
-
-    public byte[] getImagemPorIndice(Integer formId, int indice) {
-        Forms form = obterFormPorId(formId);
-        List<Imagem> imagens = form.getImagens();
-        if (imagens == null || indice < 0 || indice >= imagens.size()) {
-            throw new NotFoundException("Índice inválido para formulário com id " + formId);
-        }
-        return imagens.get(indice).getDados();
     }
 
     private boolean isBlank(String s) {

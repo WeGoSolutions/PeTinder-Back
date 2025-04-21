@@ -38,7 +38,7 @@ public class Pet {
 
     private Boolean isLiked = false;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "pet_id")
+    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Imagem> imagens;
+
 }

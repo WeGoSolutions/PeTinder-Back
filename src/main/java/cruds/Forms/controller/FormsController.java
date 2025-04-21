@@ -17,6 +17,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,7 +67,14 @@ public class FormsController {
         }
 
         List<String> imagensBase64 = imagens.stream()
-                .map(img -> "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(img.getDados()))
+                .map(img -> {
+                    try {
+                        byte[] dados = Files.readAllBytes(Paths.get(img.getCaminho()));
+                        return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(dados);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Erro ao carregar imagem: " + e.getMessage());
+                    }
+                })
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(imagensBase64, HttpStatus.OK);
