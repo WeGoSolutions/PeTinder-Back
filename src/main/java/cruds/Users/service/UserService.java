@@ -215,7 +215,8 @@ public class UserService {
     public UserResponseCadastroDTO updateSenha(String email, @Valid UserRequestSenhaDTO senha) {
 
         User user = getUsuarioPorEmail(email);
-        user.setSenha(senha.getSenha());
+        String senhaCriptografada = passwordEncoder.encode(senha.getSenha());
+        user.setSenha(senhaCriptografada);
         return UserResponseCadastroDTO.toResponse(userRepository.save(user));
 
     }
