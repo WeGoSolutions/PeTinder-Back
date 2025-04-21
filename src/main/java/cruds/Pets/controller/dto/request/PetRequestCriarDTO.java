@@ -53,7 +53,6 @@ public class PetRequestCriarDTO {
                 .tags(petRequest.getTags())
                 .descricao(petRequest.getDescricao())
                 .isLiked(false)
-                .imagens(new ArrayList<>())
                 .build();
     }
 }

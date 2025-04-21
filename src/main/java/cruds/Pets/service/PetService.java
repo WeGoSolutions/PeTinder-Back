@@ -1,5 +1,6 @@
 package cruds.Pets.service;
 
+import cruds.Imagem.repository.ImagemRepository;
 import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
 import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
@@ -16,13 +17,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class PetService {
+
+    @Autowired
+    private ImagemRepository imagemRepository;
+
+    private static final String UPLOAD_DIR = System.getProperty("user.home") + "/Desktop/S3 local/imagens/";
 
     private final PetRepository petRepository;
 
@@ -43,34 +53,56 @@ public class PetService {
     }
 
     public Pet cadastrarPet(PetRequestCriarDTO dto) {
+        // Converte DTO para entidade
         Pet pet = PetRequestCriarDTO.toEntity(dto);
 
-        List<byte[]> imagensBytes = new ArrayList<>();
+        // Salva o pet primeiro para garantir que ele tenha um ID
+        pet = petRepository.save(pet);
+
         List<String> nomesArquivos = new ArrayList<>();
+        List<byte[]> imagensBytes = new ArrayList<>();
+
+        // Decodifica as imagens em base64
         for (int i = 0; i < dto.getImagemBase64().size(); i++) {
             try {
                 byte[] imagemBytes = decodeImage(dto.getImagemBase64().get(i));
                 imagensBytes.add(imagemBytes);
-                nomesArquivos.add("imagem_" + i + ".jpg");
+                nomesArquivos.add("pet_" + UUID.randomUUID() + ".jpg"); // Nome único
             } catch (IllegalArgumentException e) {
                 throw new ConflictException("Imagem inválida", e);
             }
         }
 
+        // Valida as imagens
         try {
             ImageValidationUtil.validatePetImages(imagensBytes, nomesArquivos);
         } catch (IOException e) {
-            throw new BadRequestException("Erro ao processar as imagens: " + e.getMessage());
+            throw new BadRequestException("Erro ao validar as imagens: " + e.getMessage());
         }
 
+        // Cria lista de Imagem associadas ao pet
         List<Imagem> imagens = new ArrayList<>();
-        for (byte[] imagemBytes : imagensBytes) {
-            imagens.add(new Imagem(imagemBytes, null));
+        for (int i = 0; i < imagensBytes.size(); i++) {
+            String filePath = UPLOAD_DIR + "/" + nomesArquivos.get(i);
+            try {
+                salvarImagemNoDisco(imagensBytes.get(i), filePath);
+                Imagem imagem = new Imagem(filePath, pet); // Associa imagem ao pet com ID já existente
+                imagens.add(imagem);
+            } catch (IOException e) {
+                throw new RuntimeException("Erro ao salvar a imagem no disco: " + e.getMessage());
+            }
         }
+
+        // Associa imagens ao pet
         pet.setImagens(imagens);
 
-        return petRepository.save(pet);
+        // Salva as imagens diretamente no repositório
+        imagemRepository.saveAll(imagens);
+
+        return pet;
     }
+
+
 
     public Pet atualizar(Integer id, PetRequestCriarDTO dto) {
         if (!petRepository.existsById(id)) {
@@ -108,8 +140,14 @@ public class PetService {
         }
 
         List<Imagem> imagens = new ArrayList<>();
-        for (byte[] imagemBytes : imagensBytes) {
-            imagens.add(new Imagem(imagemBytes, null));
+        for (int i = 0; i < imagensBytes.size(); i++) {
+            String filePath = UPLOAD_DIR + "/pet_" + UUID.randomUUID() + ".jpg";
+            try {
+                salvarImagemNoDisco(imagensBytes.get(i), filePath);
+                imagens.add(new Imagem(filePath, petParaAlterar));
+            } catch (IOException e) {
+                throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage());
+            }
         }
         petParaAlterar.setImagens(imagens);
 
@@ -124,10 +162,16 @@ public class PetService {
             throw new BadRequestException("Erro ao processar as imagens: " + e.getMessage());
         }
         List<Imagem> imagens = new ArrayList<>();
-        for (byte[] imagemBytes : imagensBytes) {
-            imagens.add(new Imagem(imagemBytes, null));
+        for (int i = 0; i < imagensBytes.size(); i++) {
+            String filePath = UPLOAD_DIR + "/pet_" + UUID.randomUUID() + ".jpg";
+            try {
+                salvarImagemNoDisco(imagensBytes.get(i), filePath);
+                imagens.add(new Imagem(filePath, pet));
+            } catch (IOException e) {
+                throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage());
+            }
         }
-        pet.setImagens(imagens);
+
         return petRepository.save(pet);
     }
 
@@ -181,7 +225,12 @@ public class PetService {
             throw new NotFoundException("Índice " + indice + " inválido para o pet com id " + id
                     + ". Total de imagens: " + imagens.size());
         }
-        return imagens.get(indice).getDados();
+        try {
+            return Files.readAllBytes(Paths.get(imagens.get(indice).getCaminho()));
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao ler imagem do disco: " + e.getMessage());
+        }
+
     }
 
     public Pet curtirPet(Integer id, PetRequestCurtirDTO dto) {
@@ -208,4 +257,11 @@ public class PetService {
         pet.setImagens(imagens);
         petRepository.save(pet);
     }
+
+    private void salvarImagemNoDisco(byte[] imagemBytes, String caminhoRelativo) throws IOException {
+        Path path = Paths.get(caminhoRelativo);
+        Files.createDirectories(path.getParent());
+        Files.write(path, imagemBytes);
+    }
+
 }
