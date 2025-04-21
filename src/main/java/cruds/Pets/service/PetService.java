@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -101,7 +102,6 @@ public class PetService {
 
         return pet;
     }
-
 
 
     public Pet atualizar(Integer id, PetRequestCriarDTO dto) {
@@ -237,6 +237,14 @@ public class PetService {
         Pet petParaAlterar = petRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Pet com id: " + id + " não encontrado"));
         petParaAlterar.setIsLiked(dto.getIsLiked());
+        if (petParaAlterar.getIsLiked()) {
+            petParaAlterar.setCurtidas(petParaAlterar.getCurtidas() + 1);
+        } else {
+            petParaAlterar.setCurtidas(petParaAlterar.getCurtidas() - 1);
+            if (petParaAlterar.getCurtidas() <= 0) {
+                petParaAlterar.setCurtidas(0);
+            }
+        }
         return petRepository.save(petParaAlterar);
     }
 
