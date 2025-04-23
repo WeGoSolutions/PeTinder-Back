@@ -3,6 +3,7 @@ package cruds.Users.service;
 import cruds.Users.controller.UsuarioMapper;
 import cruds.Users.controller.dto.request.*;
 import cruds.common.event.UserCreatedEvent;
+import cruds.common.event.UserLoggedInEvent;
 import cruds.common.exception.*;
 import cruds.config.token.GerenciadorTokenJwt;
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -97,7 +99,9 @@ public class UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = gerenciadorTokenJwt.generateToken(authentication);
 
-        // Retorne o DTO com os dados necessários
+        var userCadastroResponse = UserResponseCadastroDTO.toResponse(user);
+        eventPublisher.publishEvent(new UserLoggedInEvent(this, userCadastroResponse, LocalDateTime.now()));
+
         return UserResponseLoginDTO.builder()
                 .id(user.getId())
                 .nome(user.getNome())
