@@ -49,7 +49,7 @@ public class PetRequestCriarDTO {
                 .idade(petRequest.getIdade())
                 .peso(petRequest.getPeso())
                 .altura(petRequest.getAltura())
-                .curtidas(petRequest.getCurtidas())
+                .curtidas(0)
                 .tags(petRequest.getTags())
                 .descricao(petRequest.getDescricao())
                 .isLiked(false)
