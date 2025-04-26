@@ -13,4 +13,10 @@ public class LocalImageStorageStrategy implements ImageStorageStrategy {
         Files.createDirectories(path.getParent());
         Files.write(path, imagemBytes);
     }
+
+    @Override
+    public String gerarCaminho(String nomeArquivo) {
+        return UPLOAD_DIR + nomeArquivo;
+    }
+
 }
