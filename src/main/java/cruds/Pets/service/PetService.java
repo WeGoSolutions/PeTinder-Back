@@ -11,6 +11,7 @@ import cruds.common.exception.BadRequestException;
 import cruds.common.exception.ConflictException;
 import cruds.common.exception.NoContentException;
 import cruds.common.exception.NotFoundException;
+import cruds.common.strategy.ImageStorageStrategy;
 import cruds.common.util.ImageValidationUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +36,11 @@ public class PetService {
 
     private static final String UPLOAD_DIR = System.getProperty("user.home") + "/Desktop/S3 local/imagens/";
 
-    private final PetRepository petRepository;
+    @Autowired
+    private PetRepository petRepository;
 
     @Autowired
-    public PetService(PetRepository petRepository) {
-        this.petRepository = petRepository;
-    }
+    private ImageStorageStrategy imageStorageStrategy;
 
     private byte[] decodeImage(String imageData) {
         String base64Data = imageData;
@@ -267,9 +267,7 @@ public class PetService {
     }
 
     private void salvarImagemNoDisco(byte[] imagemBytes, String caminhoRelativo) throws IOException {
-        Path path = Paths.get(caminhoRelativo);
-        Files.createDirectories(path.getParent());
-        Files.write(path, imagemBytes);
+        imageStorageStrategy.salvarImagem(imagemBytes, caminhoRelativo);
     }
 
 }
