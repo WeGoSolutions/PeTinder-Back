@@ -21,8 +21,8 @@ public class StrategyConfig {
 
     @Bean
     @Profile("azure")
-    public ImageStorageStrategy azureBlobStorageStrategy() {
-        return new AzureBlobStorageStrategy();
+    public AzureImageStorageStrategy azureBlobStorageStrategy() {
+        return new AzureImageStorageStrategy();
     }
 
 }

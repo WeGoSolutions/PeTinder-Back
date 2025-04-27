@@ -54,19 +54,16 @@ public class PetService {
     }
 
     public Pet cadastrarPet(PetRequestCriarDTO dto) {
-        // Converte DTO para entidade
         Pet pet = PetRequestCriarDTO.toEntity(dto);
 
-        // Salva o pet primeiro para garantir que ele tenha um ID
         pet = petRepository.save(pet);
 
         List<String> nomesArquivos = new ArrayList<>();
         List<byte[]> imagensBytes = new ArrayList<>();
 
-        // Decodifica as imagens em base64
-        for (int i = 0; i < dto.getImagemBase64().size(); i++) {
+        for (String imagemBase64 : dto.getImagemBase64()) {
             try {
-                byte[] imagemBytes = decodeImage(dto.getImagemBase64().get(i));
+                byte[] imagemBytes = decodeImage(imagemBase64);
                 imagensBytes.add(imagemBytes);
                 nomesArquivos.add("pet_" + UUID.randomUUID() + ".jpg"); // Nome único
             } catch (IllegalArgumentException e) {
@@ -74,30 +71,26 @@ public class PetService {
             }
         }
 
-        // Valida as imagens
         try {
             ImageValidationUtil.validatePetImages(imagensBytes, nomesArquivos);
         } catch (IOException e) {
             throw new BadRequestException("Erro ao validar as imagens: " + e.getMessage());
         }
 
-        // Cria lista de Imagem associadas ao pet
         List<Imagem> imagens = new ArrayList<>();
         for (int i = 0; i < imagensBytes.size(); i++) {
-            String filePath = UPLOAD_DIR + "/" + nomesArquivos.get(i);
             try {
-                salvarImagemNoDisco(imagensBytes.get(i), filePath);
-                Imagem imagem = new Imagem(filePath, pet); // Associa imagem ao pet com ID já existente
+                String caminho = imageStorageStrategy.gerarCaminho(nomesArquivos.get(i));
+                imageStorageStrategy.salvarImagem(imagensBytes.get(i), nomesArquivos.get(i));
+                Imagem imagem = new Imagem(caminho, pet);
                 imagens.add(imagem);
             } catch (IOException e) {
-                throw new RuntimeException("Erro ao salvar a imagem no disco: " + e.getMessage());
+                throw new RuntimeException("Erro ao salvar a imagem: " + e.getMessage());
             }
         }
 
-        // Associa imagens ao pet
         pet.setImagens(imagens);
 
-        // Salva as imagens diretamente no repositório
         imagemRepository.saveAll(imagens);
 
         return pet;
