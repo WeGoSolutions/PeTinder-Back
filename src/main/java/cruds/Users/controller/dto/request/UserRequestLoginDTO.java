@@ -15,7 +15,6 @@ import java.util.Base64;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class UserRequestLoginDTO {
 
     @Email
