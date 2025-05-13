@@ -34,6 +34,13 @@ public class ImageValidationUtil {
         validateCommon(imagem, nomeArquivo);
     }
 
+    public static void validateOngImage(byte[] imagem, String nomeArquivo) throws IOException {
+        if (imagem == null || imagem.length == 0) {
+            throw new NoContentException("Imagem da ONG é obrigatória.");
+        }
+        validateCommon(imagem, nomeArquivo);
+    }
+
     public static void validatePetImages(List<byte[]> imagens, List<String> nomesArquivos) throws IOException {
         if (imagens == null || imagens.isEmpty()) {
             throw new NoContentException("Ao menos uma imagem é obrigatória para o pet.");

@@ -25,6 +25,9 @@ public class Ong {
     @Column(name = "cnpj")
     private String cnpj;
 
+    @Column(name = "cpf")
+    private String cpf;
+
     @Column(name = "nome")
     private String nome;
 
@@ -39,6 +42,9 @@ public class Ong {
 
     @OneToOne
     private ImagemOng imagemOng;
+
+    @Column(name = "link")
+    private String link;
 
     public Integer getId() {
         return id;
@@ -94,5 +100,21 @@ public class Ong {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 }
