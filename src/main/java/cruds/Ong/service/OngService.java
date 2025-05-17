@@ -149,4 +149,12 @@ public class OngService {
         imageStorageStrategy.salvarImagem(imagemBytes, caminhoRelativo);
     }
 
+    public OngResponseDTO getImageOng(Integer id) {
+        Ong ong = acharPorId(id);
+        ImagemOng imagemOng = ong.getImagemOng();
+        if (imagemOng == null) {
+            throw new ConflictException("Imagem não encontrada");
+        }
+        return OngResponseDTO.toResponse(ong);
+    }
 }
