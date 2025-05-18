@@ -1,6 +1,7 @@
 package cruds.Forms.entity;
 
 import cruds.Imagem.entity.Imagem;
+import cruds.Imagem.entity.ImagemForms;
 import cruds.Users.entity.User;
 import jakarta.persistence.*;
 import cruds.Pets.entity.Pet;
@@ -76,7 +77,7 @@ public class Forms {
 
     @OneToMany(mappedBy = "form", cascade = CascadeType.ALL, orphanRemoval = true)
     @Size(min = 5, message = "Deve haver no mínimo 5 imagens")
-    private List<Imagem> imagens;
+    private List<ImagemForms> imagens;
 
     private boolean finalizado;
 }
