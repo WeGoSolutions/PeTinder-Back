@@ -16,6 +16,7 @@ import java.util.List;
 @Builder
 public class OngResponseDTO {
 
+    private Integer id;
     private String cnpj;
     private String nome;
     private String razaoSocial;
@@ -23,6 +24,7 @@ public class OngResponseDTO {
 
     public static OngResponseDTO toResponse(Ong ong) {
         return OngResponseDTO.builder()
+                .id(ong.getId())
                 .cnpj(ong.getCnpj())
                 .nome(ong.getNome())
                 .razaoSocial(ong.getRazaoSocial())

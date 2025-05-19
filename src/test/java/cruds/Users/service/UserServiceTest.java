@@ -1,4 +1,3 @@
-// java
 package cruds.Users.service;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -76,7 +75,6 @@ class UserServiceTest {
         user.setNome(validCreateDto.getNome());
     }
 
-    // Tests for createUser
     @Test
     @DisplayName("Deve criar um usuário com sucesso quando os dados são válidos")
     void createUser_Success() {
