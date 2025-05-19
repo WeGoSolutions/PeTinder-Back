@@ -5,6 +5,7 @@ import cruds.Forms.controller.dto.response.FormResponsePreenchimentoUserDTO;
 import cruds.Forms.entity.Forms;
 import cruds.Forms.repository.FormsRepository;
 import cruds.Imagem.entity.Imagem;
+import cruds.Imagem.entity.ImagemForms;
 import cruds.Pets.entity.Pet;
 import cruds.Users.entity.User;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
@@ -137,13 +138,13 @@ public class FormsService {
         form.setInfosPet(dto.getInfosPet());
 
         if (imagensBytes != null) {
-            List<Imagem> imagens = new ArrayList<>();
+            List<ImagemForms> imagens = new ArrayList<>();
             for (byte[] imgData : imagensBytes) {
                 String nomeArquivo = "form_" + UUID.randomUUID() + ".jpg";
                 String caminhoCompleto = UPLOAD_DIR + nomeArquivo;
                 try {
                     Files.write(Paths.get(caminhoCompleto), imgData);
-                    imagens.add(new Imagem(caminhoCompleto, form));
+                    imagens.add(new ImagemForms(caminhoCompleto, form));
                 } catch (IOException e) {
                     throw new RuntimeException("Erro ao salvar imagem no disco: " + e.getMessage());
                 }
@@ -174,13 +175,13 @@ public class FormsService {
         form.setInfosPet(dto.getInfosPet());
 
         if (imagensBytes != null) {
-            List<Imagem> imagens = new ArrayList<>();
+            List<ImagemForms> imagens = new ArrayList<>();
             for (byte[] imgData : imagensBytes) {
                 String nomeArquivo = "form_" + UUID.randomUUID() + ".jpg";
                 String caminhoCompleto = UPLOAD_DIR + nomeArquivo;
                 try {
                     Files.write(Paths.get(caminhoCompleto), imgData);
-                    imagens.add(new Imagem(caminhoCompleto, form));
+                    imagens.add(new ImagemForms(caminhoCompleto, form));
                 } catch (IOException e) {
                     throw new RuntimeException("Erro ao salvar imagem no disco: " + e.getMessage());
                 }
@@ -196,7 +197,7 @@ public class FormsService {
 
     public byte[] getImagemPorIndice(Integer formId, int indice) {
         Forms form = obterFormPorId(formId);
-        List<Imagem> imagens = form.getImagens();
+        List<ImagemForms> imagens = form.getImagens();
         if (imagens == null || indice < 0 || indice >= imagens.size()) {
             throw new NotFoundException("Índice inválido para formulário com id " + formId);
         }

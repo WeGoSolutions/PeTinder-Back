@@ -1,43 +1,35 @@
 package cruds.Imagem.entity;
 
 import cruds.Forms.entity.Forms;
-import cruds.Pets.entity.Pet;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "imagem_pet")
-public class Imagem {
+@Table(name = "imagem_forms")
+public class ImagemForms {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idimagemPet")
+    @Column(name = "idimagemForms")
     private Integer id;
-
 
     @Column(name = "link")
     private String caminho;
 
     @ManyToOne
-    @JoinColumn(name = "fkPet")
-    private Pet pet;
+    @JoinColumn(name = "fkForm")
+    private Forms form;
 
-    public Imagem() {}
+    public ImagemForms(){}
 
-    public Imagem(String caminho) {
+    public ImagemForms(String caminho, Forms form) {
         this.caminho = caminho;
+        this.form = form;
     }
 
-    public Imagem(String caminho, Pet pet) {
+    public ImagemForms(Integer id, String caminho, Forms form) {
+        this.id = id;
         this.caminho = caminho;
-        this.pet = pet;
-    }
-
-    public Pet getPet() {
-        return pet;
-    }
-
-    public void setPet(Pet pet) {
-        this.pet = pet;
+        this.form = form;
     }
 
     public Integer getId() {
@@ -54,5 +46,13 @@ public class Imagem {
 
     public void setCaminho(String caminho) {
         this.caminho = caminho;
+    }
+
+    public Forms getForm() {
+        return form;
+    }
+
+    public void setForm(Forms form) {
+        this.form = form;
     }
 }
