@@ -14,11 +14,13 @@ import java.util.List;
 @Builder
 
 public class PetResponseCurtirDTO {
+    private Integer id;
     private Boolean isLiked;
     private Integer curtidas;
 
     public static PetResponseCurtirDTO toResponse(Pet pet) {
         return PetResponseCurtirDTO.builder()
+                .id(pet.getId())
                 .isLiked(pet.getIsLiked())
                 .curtidas(pet.getCurtidas())
                 .build();

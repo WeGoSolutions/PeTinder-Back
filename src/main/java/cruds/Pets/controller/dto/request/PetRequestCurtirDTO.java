@@ -11,10 +11,4 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PetRequestCurtirDTO {
     private Boolean isLiked;
-
-    public static PetRequestCurtirDTO toEntity(Boolean isLiked) {
-        return PetRequestCurtirDTO.builder()
-                .isLiked(isLiked)
-                .build();
-    }
 }
