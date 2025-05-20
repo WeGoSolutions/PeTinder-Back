@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/dash")
+@RequestMapping("/dashs")
 @Validated
 public class DashboardController {
 

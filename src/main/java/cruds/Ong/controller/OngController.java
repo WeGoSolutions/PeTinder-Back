@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/ong")
+@RequestMapping("/ongs")
 @Tag(name = "Ong", description = "Endpoints relacionados a Ongs.")
 public class OngController {
 

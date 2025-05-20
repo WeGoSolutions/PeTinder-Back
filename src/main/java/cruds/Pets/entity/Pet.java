@@ -1,6 +1,7 @@
 package cruds.Pets.entity;
 
 import cruds.Imagem.entity.Imagem;
+import cruds.Ong.entity.Ong;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,4 +49,8 @@ public class Pet {
     private Boolean isVacinado = false;
 
     private Boolean isAdotado = false;
+
+    @ManyToOne
+    @JoinColumn(name = "ong_id", nullable = false)
+    private Ong ong;
 }
