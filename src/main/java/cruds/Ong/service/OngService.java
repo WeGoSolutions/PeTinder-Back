@@ -72,7 +72,7 @@ public class OngService {
 
     public OngResponseLoginDTO login(@Email @NotBlank String email, @NotBlank String senha) {
 
-        Optional<Ong> ongOptional = ongRepository.findByEmailandSenha(email, senha);
+        Optional<Ong> ongOptional = ongRepository.findByEmailAndSenha(email, senha);
 
         if (ongOptional.isEmpty()) {
             throw new ConflictException("Email ou senha invalidos");

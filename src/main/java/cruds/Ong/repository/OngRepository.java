@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface OngRepository extends JpaRepository<Ong, Integer> {
     Optional<Ong> findByEmail(@NotBlank @Email String email);
 
-    Optional<Ong> findByEmailandSenha(@Email @NotBlank String email, @NotBlank String senha);
+    Optional<Ong> findByEmailAndSenha(@Email @NotBlank String email, @NotBlank String senha);
 }

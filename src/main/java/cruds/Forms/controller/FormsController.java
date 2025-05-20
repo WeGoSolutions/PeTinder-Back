@@ -5,6 +5,8 @@ import cruds.Forms.entity.Forms;
 import cruds.Forms.controller.dto.response.FormResponsePreenchimentoUserDTO;
 import cruds.Forms.service.FormsService;
 import cruds.Imagem.entity.Imagem;
+import cruds.Imagem.entity.ImagemForms;
+import cruds.Imagem.repository.ImagemFormsRepository;
 import cruds.Imagem.repository.ImagemRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,7 +36,7 @@ public class FormsController {
     FormsService formsService;
 
     @Autowired
-    private ImagemRepository imagemRepository;
+    private ImagemFormsRepository imagemRepository;
 
     @Operation(summary = "Obtém os dados do formulário para preenchimento do usuário")
     @GetMapping("/{id}/dados-formulario")
@@ -60,7 +62,7 @@ public class FormsController {
     @Operation(summary = "Retorna imagens do formulário no formato Base64")
     @GetMapping("/{formId}/imagens")
     public ResponseEntity<List<String>> getImagens(@PathVariable Integer formId) {
-        List<Imagem> imagens = imagemRepository.findByFormId(formId);
+        List<ImagemForms> imagens = imagemRepository.findByFormId(formId);
 
         if (imagens.isEmpty()) {
             return ResponseEntity.notFound().build();
