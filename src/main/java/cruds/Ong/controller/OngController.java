@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/ong")
+@RequestMapping("/ongs")
 @Tag(name = "Ong", description = "Endpoints relacionados a Ongs.")
 public class OngController {
 
@@ -58,7 +58,7 @@ public class OngController {
         return ResponseEntity.ok(OngResponseDTO.toResponse(response));
     }
 
-    @Operation(summary = "pega a imagem da ONG")
+    @Operation(summary = "Pega a imagem da ONG")
     @GetMapping("/{id}/imagem")
     public ResponseEntity<OngResponseDTO> getImageOng(@PathVariable Integer id) {
         OngResponseDTO response = ongService.getImageOng(id);

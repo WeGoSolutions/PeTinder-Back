@@ -23,6 +23,10 @@ public class PetResponseCriarDTO {
     private List<String> tags;
     private Boolean isLiked;
     private List<String> imagens;
+    private Boolean isCastrado;
+    private Boolean isVermifugo;
+    private Boolean isVacinado;
+    private Boolean isAdotado;
 
     public static PetResponseCriarDTO toResponse(Pet pet) {
         return PetResponseCriarDTO.builder()
@@ -34,6 +38,10 @@ public class PetResponseCriarDTO {
                 .tags(pet.getTags())
                 .isLiked(pet.getIsLiked())
                 .imagens(Collections.emptyList())
+                .isCastrado(pet.getIsCastrado())
+                .isVacinado(pet.getIsVacinado())
+                .isVermifugo(pet.getIsVermifugo())
+                .isAdotado(pet.getIsAdotado())
                 .build();
     }
 }

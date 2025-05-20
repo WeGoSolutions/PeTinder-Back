@@ -1,6 +1,7 @@
 package cruds.Pets.entity;
 
 import cruds.Imagem.entity.Imagem;
+import cruds.Ong.entity.Ong;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,4 +42,15 @@ public class Pet {
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Imagem> imagens;
 
+    private Boolean isCastrado = false;
+
+    private Boolean isVermifugo = false;
+
+    private Boolean isVacinado = false;
+
+    private Boolean isAdotado = false;
+
+    @ManyToOne
+    @JoinColumn(name = "ong_id", nullable = false)
+    private Ong ong;
 }
