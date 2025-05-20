@@ -2,6 +2,7 @@ package cruds.Ong.entity;
 
 import cruds.Imagem.entity.ImagemForms;
 import cruds.Imagem.entity.ImagemOng;
+import cruds.Pets.entity.Pet;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,6 +43,9 @@ public class Ong {
 
     @OneToOne
     private ImagemOng imagemOng;
+
+    @OneToMany(mappedBy = "ong")
+    private List<Pet> pets;
 
     @Column(name = "link")
     private String link;

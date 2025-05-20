@@ -20,6 +20,10 @@ public class PetResponseGeralDTO {
     private String descricao;
     private List<String> tags;
     private Boolean isLiked;
+    private Boolean isCastrado;
+    private Boolean isVermifugo;
+    private Boolean isVacinado;
+    private Boolean isAdotado;
 
     public static PetResponseGeralDTO toResponse(Pet pet) {
         return PetResponseGeralDTO.builder()
@@ -30,6 +34,10 @@ public class PetResponseGeralDTO {
                 .descricao(pet.getDescricao())
                 .tags(pet.getTags())
                 .isLiked(pet.getIsLiked())
+                .isCastrado(pet.getIsCastrado())
+                .isVacinado(pet.getIsVacinado())
+                .isVermifugo(pet.getIsVermifugo())
+                .isAdotado(pet.getIsAdotado())
                 .build();
     }
 }
