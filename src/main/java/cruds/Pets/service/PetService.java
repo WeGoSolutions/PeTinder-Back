@@ -1,6 +1,8 @@
 package cruds.Pets.service;
 
 import cruds.Imagem.repository.ImagemRepository;
+import cruds.Ong.entity.Ong;
+import cruds.Ong.repository.OngRepository;
 import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
 import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
@@ -42,6 +44,9 @@ public class PetService {
     @Autowired
     private ImageStorageStrategy imageStorageStrategy;
 
+    @Autowired
+    private OngRepository ongRepository;
+
     private byte[] decodeImage(String imageData) {
         String base64Data = imageData;
         if (base64Data.startsWith("data:")) {
@@ -55,6 +60,9 @@ public class PetService {
 
     public Pet cadastrarPet(PetRequestCriarDTO dto) {
         Pet pet = PetRequestCriarDTO.toEntity(dto);
+        Ong ong = ongRepository.findById(dto.getOngId())
+                .orElseThrow(() -> new NotFoundException("ONG com id " + dto.getOngId() + " não encontrada"));
+        pet.setOng(ong);
 
         pet = petRepository.save(pet);
 
