@@ -78,6 +78,6 @@ public class DashboardService {
     }
 
     private RuntimeException naoExistePet(Integer ongId) {
-        return new NotFoundException("Nenhum pet encontrado para a ONG com ID: " + ongId);
+        throw new NotFoundException("Nenhum pet encontrado para a ONG com ID: " + ongId);
     }
 }

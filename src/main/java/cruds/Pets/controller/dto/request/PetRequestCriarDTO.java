@@ -42,6 +42,12 @@ public class PetRequestCriarDTO {
     @NotEmpty
     private Integer ongId;
 
+    private Boolean isCastrado;
+    private Boolean isVermifugo;
+    private Boolean isVacinado;
+
+    private Boolean isAdotado;
+
     @Size(max = 5)
     @NotEmpty
     private List<String> imagemBase64;
@@ -56,9 +62,9 @@ public class PetRequestCriarDTO {
                 .tags(petRequest.getTags())
                 .descricao(petRequest.getDescricao())
                 .isLiked(false)
-                .isCastrado(false)
-                .isVermifugo(false)
-                .isVacinado(false)
+                .isCastrado(Boolean.TRUE.equals(petRequest.getIsCastrado()))
+                .isVermifugo(Boolean.TRUE.equals(petRequest.getIsVermifugo()))
+                .isVacinado(Boolean.TRUE.equals(petRequest.getIsVacinado()))
                 .isAdotado(false)
                 .build();
     }

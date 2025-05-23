@@ -2,20 +2,20 @@ package cruds.Users.service;
 
 import cruds.Users.controller.UsuarioMapper;
 import cruds.Users.controller.dto.request.*;
-import cruds.common.event.UserCreatedEvent;
-import cruds.common.event.UserLoggedInEvent;
-import cruds.common.exception.*;
-import cruds.config.token.GerenciadorTokenJwt;
-import org.springframework.context.ApplicationEventPublisher;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.controller.dto.response.UserResponseLoginDTO;
 import cruds.Users.entity.Endereco;
 import cruds.Users.entity.ImagemUser;
 import cruds.Users.entity.User;
 import cruds.Users.repository.UserRepository;
+import cruds.common.event.UserLoggedInEvent;
+import cruds.common.exception.*;
+import cruds.common.service.EmailService;
 import cruds.common.util.ImageValidationUtil;
+import cruds.config.token.GerenciadorTokenJwt;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,17 +38,19 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
+    private final EmailService emailService;
     private AuthenticationManager authenticationManager;
     private GerenciadorTokenJwt gerenciadorTokenJwt;
     private static final String DEFAULT_IMAGE_NAME = "perfil.jpg"; //alterar para a imagem default
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
         this.authenticationManager = authenticationManager;
         this.gerenciadorTokenJwt = gerenciadorTokenJwt;
+        this.emailService = emailService;
     }
 
     public UserResponseCadastroDTO createUser(UserRequestCriarDTO dto) {
@@ -56,9 +59,25 @@ public class UserService {
         String senhaCriptografada = passwordEncoder.encode(dto.getSenha());
         user.setSenha(senhaCriptografada);
         User savedUser = userRepository.save(user);
-        UserResponseCadastroDTO response = UserResponseCadastroDTO.toResponse(savedUser);
-        eventPublisher.publishEvent(new UserCreatedEvent(this, response));
-        return response;
+        emailService.enviarEmail(savedUser.getEmail(),
+                "Bem-vindo ao PeTinder, %s!".formatted(user.getNome()),
+                """
+                            <div style="font-family: Arial, sans-serif; background-color: #fefefe; padding: 20px; border-radius: 10px; border: 1px solid #ddd;">
+                                <h1 style="color: #ff6f61;">🐾 Bem-vindo ao PeTinder, %s!</h1>
+                        
+                                <p style="font-size: 16px; color: #333;">
+                                    Estamos super felizes por ter você com a gente! <br>
+                                    Aqui no <strong>PeTinder</strong>, acreditamos que todo pet merece um lar cheio de amor, e toda pessoa merece um pet que mude sua vida. 💕
+                                </p>
+                        
+                                <p style="font-size: 16px; color: #333;">
+                                    Prepare-se para conhecer novos amigos peludos, descobrir histórias emocionantes e, quem sabe, encontrar seu novo companheiro de quatro patas.
+                                </p>
+                        
+                                <p style="font-size: 14px; color: #666;">Com carinho,<br>Equipe PeTinder 🐶🐱</p>
+                            </div>
+                        """.formatted(user.getNome()));
+        return UserResponseCadastroDTO.toResponse(savedUser);
     }
 
     public UserResponseCadastroDTO updateOptionalInfo(Integer id, UserRequestOptionalDTO dto) {
@@ -92,15 +111,37 @@ public class UserService {
             throw new NotFoundException("Senha inválida");
         }
 
-        // Gere o token JWT
         final UsernamePasswordAuthenticationToken credentials =
                 new UsernamePasswordAuthenticationToken(email, senha);
         final Authentication authentication = authenticationManager.authenticate(credentials);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = gerenciadorTokenJwt.generateToken(authentication);
 
-        var userCadastroResponse = UserResponseCadastroDTO.toResponse(user);
-        eventPublisher.publishEvent(new UserLoggedInEvent(this, userCadastroResponse, LocalDateTime.now()));
+        LocalDateTime loginTime = LocalDateTime.now();
+
+        emailService.enviarEmail(
+                user.getEmail(),
+                "🔒 Novo login no PeTinder, " + user.getNome() + "!",
+                """
+                        <div style="font-family: Arial, sans-serif; background-color: #ffffff; padding: 20px; border-radius: 8px; border:1px solid #e0e0e0;">
+                          <h2 style="color: #4a90e2;">🔒 Olá, %s!</h2>
+                          <p style="font-size: 16px; color: #333;">
+                            Detectamos um <strong>novo acesso</strong> à sua conta em <em>%s</em>.
+                          </p>
+                          <p style="font-size: 15px; color: #333;">
+                            Se foi você, continue aproveitando o PeTinder. 😊<br>
+                            Caso não reconheça este acesso, <strong>recomendamos</strong> trocar sua senha imediatamente.
+                          </p>
+                          <p style="font-size: 14px; color: #777;">
+                            Abraços,<br>
+                            Equipe PeTinder 🐶🐱
+                          </p>
+                        </div>
+                        """.formatted(
+                        user.getNome(),
+                        loginTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm"))
+                )
+        );
 
         return UserResponseLoginDTO.builder()
                 .id(user.getId())

@@ -27,6 +27,7 @@ public class PetResponseCriarDTO {
     private Boolean isVermifugo;
     private Boolean isVacinado;
     private Boolean isAdotado;
+    private Integer ongId;
 
     public static PetResponseCriarDTO toResponse(Pet pet) {
         return PetResponseCriarDTO.builder()
@@ -42,6 +43,7 @@ public class PetResponseCriarDTO {
                 .isVacinado(pet.getIsVacinado())
                 .isVermifugo(pet.getIsVermifugo())
                 .isAdotado(pet.getIsAdotado())
+                .ongId(pet.getOng().getId())
                 .build();
     }
 }
