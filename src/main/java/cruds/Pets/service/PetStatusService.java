@@ -107,4 +107,26 @@ public class PetStatusService {
         pet.setIsAdopted(true);
         petRepository.save(pet);
     }
+
+    public List<Object> getAllPetsWithUserStatus() {
+        List<Pet> pets = petRepository.findAll();
+        List<User> users = userRepository.findAll();
+        List<Object> result = new java.util.ArrayList<>();
+        for (Pet pet : pets) {
+            for (User user : users) {
+                PetStatus status = petStatusRepository.findByPet_IdAndUser_Id(pet.getId(), Math.toIntExact(user.getId())).orElse(null);
+                String statusStr = null;
+                if (status != null && status.getStatus() != null) {
+                    statusStr = status.getStatus().toString();
+                }
+                java.util.Map<String, Object> map = new java.util.HashMap<>();
+                map.put("id_pet", pet.getId());
+                map.put("id_user", user.getId());
+                map.put("nome_pet", pet.getNome());
+                map.put("status", statusStr);
+                result.add(map);
+            }
+        }
+        return result;
+    }
 }

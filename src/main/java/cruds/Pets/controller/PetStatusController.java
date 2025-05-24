@@ -39,19 +39,14 @@ public class PetStatusController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Lista todos os status de todos os pets")
+    @Operation(summary = "Lista todos os pets e o status de cada um para cada usuário")
     @GetMapping
-    public ResponseEntity<List<PetStatusResponseDTO>> listarTodos(@RequestParam(required = false) Integer userId) {
-        List<PetStatus> statusPets = (userId == null)
-                ? petStatusRepository.findAllLikedStatusPets()
-                : petStatusRepository.findLikedStatusPetsByUser_Id(userId);
-        if (statusPets.isEmpty()) {
+    public ResponseEntity<List<?>> listarTodos() {
+        var pets = petStatusService.getAllPetsWithUserStatus();
+        if (pets.isEmpty()) {
             return ResponseEntity.status(204).build();
         }
-        List<PetStatusResponseDTO> response = statusPets.stream()
-                .map(PetStatusResponseDTO::new)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(pets);
     }
 
     @Operation(summary = "Cria ou atualiza o status de um pet para um usuário")
