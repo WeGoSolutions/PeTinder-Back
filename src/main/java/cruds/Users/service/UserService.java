@@ -8,12 +8,10 @@ import cruds.Users.entity.Endereco;
 import cruds.Users.entity.ImagemUser;
 import cruds.Users.entity.User;
 import cruds.Users.repository.UserRepository;
-import cruds.common.event.UserLoggedInEvent;
 import cruds.common.exception.*;
 import cruds.common.service.EmailService;
 import cruds.common.util.ImageValidationUtil;
 import cruds.config.token.GerenciadorTokenJwt;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatusCode;
@@ -183,7 +181,7 @@ public class UserService {
         User user = getUsuarioPorId(id);
         user.setNome(dto.getNome());
         user.setEmail(dto.getEmail());
-        user.setSenha(dto.getSenha());
+        user.setSenha(passwordEncoder.encode(dto.getSenha()));
         user.setDataNasc(dto.getDataNasc());
         user.setCpf(dto.getCpf());
 
@@ -257,13 +255,14 @@ public class UserService {
         return user.getImagemUser().getDados();
     }
 
-    public UserResponseCadastroDTO updateSenha(String email, @Valid UserRequestSenhaDTO senha) {
-
-        User user = getUsuarioPorEmail(email);
-        String senhaCriptografada = passwordEncoder.encode(senha.getSenha());
+    public UserResponseCadastroDTO updateSenha(String email, UserRequestSenhaDTO senhaDto) {
+        if (senhaDto.getEmail() == null || senhaDto.getEmail().isEmpty()) {
+            throw new BadRequestException("Email é obrigatório para atualizar a senha.");
+        }
+        User user = getUsuarioPorEmail(senhaDto.getEmail());
+        String senhaCriptografada = passwordEncoder.encode(senhaDto.getSenha());
         user.setSenha(senhaCriptografada);
         return UserResponseCadastroDTO.toResponse(userRepository.save(user));
-
     }
 
     public UserResponseCadastroDTO validarEmail(String email) {
@@ -320,3 +319,4 @@ public class UserService {
         return UsuarioMapper.of(usuarioAutenticado, token);
     }
 }
+
