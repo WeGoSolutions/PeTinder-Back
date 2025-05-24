@@ -11,6 +11,10 @@ public class ImageUploadUtil {
             throw new BadRequestException("Imagem ou nome do arquivo não foram informados.");
         }
 
+        if (!imagensBytes.startsWith("data:image/")) {
+            imagensBytes = "data:image/jpeg;base64," + imagensBytes;
+        }
+
         String extension = "";
         String dadosBase64 = imagensBytes;
 
