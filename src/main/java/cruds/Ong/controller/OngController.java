@@ -8,6 +8,7 @@ import cruds.Ong.controller.dto.request.OngRequestLoginDTO;
 import cruds.Ong.controller.dto.request.OngRequestUpdateDTO;
 import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
+import cruds.Ong.controller.dto.response.OngResponseUrlDTO;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.service.OngService;
 import cruds.common.exception.BadRequestException;
@@ -82,8 +83,8 @@ public class OngController {
 
     @Operation(summary = "Pega a imagem da ONG")
     @GetMapping("/{id}/imagem")
-    public ResponseEntity<OngResponseDTO> getImageOng(@PathVariable Integer id) {
-        OngResponseDTO response = ongService.getImageOng(id);
+    public ResponseEntity<OngResponseUrlDTO> getImageOng(@PathVariable Integer id) {
+        OngResponseUrlDTO response = ongService.getImageOng(id);
         return ResponseEntity.ok(response);
     }
 }

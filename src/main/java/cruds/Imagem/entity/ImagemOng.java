@@ -29,4 +29,8 @@ public class ImagemOng {
     public ImagemOng() {
 
     }
+
+    public String getArquivo() {
+        return caminho;
+    }
 }

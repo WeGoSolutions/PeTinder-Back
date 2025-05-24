@@ -7,6 +7,7 @@ import cruds.Ong.controller.dto.request.OngRequestImagemDTO;
 import cruds.Ong.controller.dto.request.OngRequestUpdateDTO;
 import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
+import cruds.Ong.controller.dto.response.OngResponseUrlDTO;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.repository.OngRepository;
 import cruds.Users.controller.dto.request.UserRequestCriarDTO;
@@ -120,21 +121,23 @@ public class OngService {
     public Ong uploadOngImage(Integer id, byte[] imagemBytes, String nomeArquivo, String extension) {
         Ong ong = acharPorId(id);
 
+        if (ong == null) {
+            throw new NotFoundException("ONG com o ID fornecido não foi encontrada.");
+        }
+
+        if (ong.getImagemOng() != null) {
+            throw new ConflictException("A ONG já possui uma imagem cadastrada.");
+        }
+
         try {
-            // Validar a imagem
             ImageValidationUtil.validateOngImage(imagemBytes, nomeArquivo);
 
-            // Gerar um caminho único para a imagem
             String filePath = UPLOAD_DIR + "/ong_" + UUID.randomUUID() + "." + (extension.isEmpty() ? "jpg" : extension);
 
-            // Salvar a imagem no disco
             salvarImagemNoDisco(imagemBytes, filePath);
-
-            // Criar e vincular a imagem à ONG
             ImagemOng imagemOng = new ImagemOng(filePath, ong);
             ong.setImagemOng(imagemOng);
 
-            // Salvar a ONG atualizada
             return ongRepository.save(ong);
         } catch (IOException e) {
             throw new BadRequestException("Erro ao processar a imagem: " + e.getMessage());
@@ -150,12 +153,11 @@ public class OngService {
         imageStorageStrategy.salvarImagem(imagemBytes, caminhoRelativo);
     }
 
-    public OngResponseDTO getImageOng(Integer id) {
+    public OngResponseUrlDTO getImageOng(Integer id) {
         Ong ong = acharPorId(id);
-        ImagemOng imagemOng = ong.getImagemOng();
-        if (imagemOng == null) {
+        if (ong.getImagemOng() == null) {
             throw new ConflictException("Imagem não encontrada");
         }
-        return OngResponseDTO.toResponse(ong);
+        return OngResponseUrlDTO.toResponse(ong);
     }
 }
