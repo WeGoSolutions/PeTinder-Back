@@ -3,15 +3,15 @@ package cruds.Pets.controller.dto.request;
 import java.util.List;
 
 public class UploadImagesRequest {
-    private List<byte[]> imagensBytes;
+    private List<String> imagensBase64;
     private List<String> nomesArquivos;
 
-    public List<byte[]> getImagensBytes() {
-        return imagensBytes;
+    public List<String> getImagensBase64() {
+        return imagensBase64;
     }
 
-    public void setImagensBytes(List<byte[]> imagensBytes) {
-        this.imagensBytes = imagensBytes;
+    public void setImagensBase64(List<String> imagensBase64) {
+        this.imagensBase64 = imagensBase64;
     }
 
     public List<String> getNomesArquivos() {

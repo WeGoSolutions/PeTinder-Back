@@ -155,24 +155,48 @@ public class PetService {
         return petRepository.save(petParaAlterar);
     }
 
-    public Pet uploadPetImages(Integer id, List<byte[]> imagensBytes, List<String> nomesArquivos) {
+    public Pet uploadPetImages(Integer id, List<String> imagensBase64, List<String> nomesArquivos) {
         Pet pet = obterPetPorId(id);
+        List<byte[]> imagensBytes = new ArrayList<>();
+        for (int i = 0; i < imagensBase64.size(); i++) {
+            String base64 = imagensBase64.get(i);
+            String nomeArquivo = nomesArquivos.get(i);
+            if (!base64.startsWith("data:image/")) {
+                base64 = "data:image/jpeg;base64," + base64;
+                nomesArquivos.set(i, nomeArquivo.endsWith(".jpg") || nomeArquivo.endsWith(".jpeg") || nomeArquivo.endsWith(".png") ? nomeArquivo : nomeArquivo + ".jpg");
+            }
+            String base64Data = base64;
+            if (base64Data.startsWith("data:")) {
+                int commaIndex = base64Data.indexOf(",");
+                if (commaIndex != -1) {
+                    base64Data = base64Data.substring(commaIndex + 1);
+                }
+            }
+            imagensBytes.add(Base64.getDecoder().decode(base64Data));
+        }
         try {
             ImageValidationUtil.validatePetImages(imagensBytes, nomesArquivos);
         } catch (IOException e) {
             throw new BadRequestException("Erro ao processar as imagens: " + e.getMessage());
         }
-        List<Imagem> imagens = new ArrayList<>();
+        List<Imagem> novasImagens = new ArrayList<>();
         for (int i = 0; i < imagensBytes.size(); i++) {
             String filePath = UPLOAD_DIR + "/pet_" + UUID.randomUUID() + ".jpg";
             try {
                 salvarImagemNoDisco(imagensBytes.get(i), filePath);
-                imagens.add(new Imagem(filePath, pet));
+                novasImagens.add(new Imagem(filePath, pet));
             } catch (IOException e) {
                 throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage());
             }
         }
-
+        // Corrige o problema de referência da lista
+        if (pet.getImagens() == null) {
+            pet.setImagens(new ArrayList<>());
+        } else {
+            pet.getImagens().clear();
+        }
+        pet.getImagens().addAll(novasImagens);
+        imagemRepository.saveAll(novasImagens);
         return petRepository.save(pet);
     }
 
@@ -272,3 +296,4 @@ public class PetService {
     }
 
 }
+
