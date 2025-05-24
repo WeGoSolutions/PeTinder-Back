@@ -8,6 +8,11 @@ public class InMemoryImageStorageStrategy implements ImageStorageStrategy {
     private final Map<String, byte[]> storage = new HashMap<>();
 
     @Override
+    public String salvarImagem(byte[] imageBytes, String fileName, String extension) throws IOException {
+        return "";
+    }
+
+    @Override
     public void salvarImagem(byte[] imagemBytes, String nomeArquivo) {
         storage.put(nomeArquivo, imagemBytes);
     }

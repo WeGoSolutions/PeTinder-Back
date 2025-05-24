@@ -16,7 +16,15 @@ import java.util.List;
 public class OngRequestImagemDTO {
 
     @NotBlank
-    private byte[] imagensBytes;
+    private String imagensBytes;
     private String nomeArquivo;
+
+    public byte[] getImagensBytesDecoded() {
+        String base64Data = imagensBytes;
+        if (base64Data.contains(",")) {
+            base64Data = base64Data.substring(base64Data.indexOf(",") + 1);
+        }
+        return Base64.getDecoder().decode(base64Data);
+    }
 
 }

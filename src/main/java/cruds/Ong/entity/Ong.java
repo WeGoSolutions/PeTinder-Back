@@ -42,7 +42,8 @@ public class Ong {
     @Column(name = "email")
     private String email;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "fkImagemOng")
     private ImagemOng imagemOng;
 
     @OneToMany(mappedBy = "ong")

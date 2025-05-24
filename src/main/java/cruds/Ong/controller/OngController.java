@@ -1,5 +1,7 @@
 package cruds.Ong.controller;
 
+import cruds.Imagem.entity.ImagemOng;
+import cruds.Imagem.service.ImagemOngService;
 import cruds.Ong.controller.dto.request.OngRequestCriarDTO;
 import cruds.Ong.controller.dto.request.OngRequestImagemDTO;
 import cruds.Ong.controller.dto.request.OngRequestLoginDTO;
@@ -8,12 +10,17 @@ import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.service.OngService;
+import cruds.common.exception.BadRequestException;
+import cruds.common.dto.ImageUploadData;
+import cruds.common.util.ImageUploadUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Base64;
 
 @RestController
 @RequestMapping("/ongs")
@@ -22,6 +29,9 @@ public class OngController {
 
     @Autowired
     private OngService ongService;
+
+    @Autowired
+    private ImagemOngService imagemOngService;
 
     @Operation(summary = "Criar ONG")
     @PostMapping
@@ -52,10 +62,22 @@ public class OngController {
     }
 
     @Operation(summary = "Sobe a imagem da ONG")
-    @PostMapping("/{id}")
-    public ResponseEntity<OngResponseDTO> updateImageOng(@PathVariable Integer id, @RequestBody OngRequestImagemDTO ong) {
-        Ong response = ongService.updateImageOng(id, ong.getNomeArquivo(), ong.getImagensBytes());
-        return ResponseEntity.ok(OngResponseDTO.toResponse(response));
+    @PostMapping(value = "/{id}/imagem")
+    public ResponseEntity<OngResponseDTO> updateImageOng(@PathVariable Integer id,
+                                                         @RequestBody @Valid OngRequestImagemDTO imagem) {
+        try {
+            ImageUploadData uploadData = ImageUploadUtil.parseImageUploadRequest(imagem.getImagensBytes(),
+                    imagem.getNomeArquivo());
+
+            Ong ongAtualizada = ongService.uploadOngImage(id, uploadData.getImageBytes(), uploadData.getNomeArquivo(),
+                    uploadData.getExtension());
+            return ResponseEntity.ok(OngResponseDTO.toResponse(ongAtualizada));
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
     }
 
     @Operation(summary = "Pega a imagem da ONG")
@@ -64,5 +86,4 @@ public class OngController {
         OngResponseDTO response = ongService.getImageOng(id);
         return ResponseEntity.ok(response);
     }
-
 }

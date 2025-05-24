@@ -35,10 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class OngService {
@@ -119,23 +116,29 @@ public class OngService {
     }
 
 
-    public Ong updateImageOng(Integer id, String nomeArquivo, byte[] imagensBytes ) {
+    @Transactional
+    public Ong uploadOngImage(Integer id, byte[] imagemBytes, String nomeArquivo, String extension) {
+        Ong ong = acharPorId(id);
 
         try {
-            ImageValidationUtil.validateOngImage(imagensBytes, nomeArquivo);
+            // Validar a imagem
+            ImageValidationUtil.validateOngImage(imagemBytes, nomeArquivo);
+
+            // Gerar um caminho único para a imagem
+            String filePath = UPLOAD_DIR + "/ong_" + UUID.randomUUID() + "." + (extension.isEmpty() ? "jpg" : extension);
+
+            // Salvar a imagem no disco
+            salvarImagemNoDisco(imagemBytes, filePath);
+
+            // Criar e vincular a imagem à ONG
+            ImagemOng imagemOng = new ImagemOng(filePath, ong);
+            ong.setImagemOng(imagemOng);
+
+            // Salvar a ONG atualizada
+            return ongRepository.save(ong);
         } catch (IOException e) {
             throw new BadRequestException("Erro ao processar a imagem: " + e.getMessage());
         }
-
-        Ong ong = acharPorId(id);
-        String filePath = UPLOAD_DIR + "/ong_" + UUID.randomUUID() + ".jpg";
-        try {
-            salvarImagemNoDisco(imagensBytes, filePath);
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage());
-        }
-
-        return ongRepository.save(ong);
     }
 
     public Ong acharPorId(Integer id){
