@@ -1,5 +1,7 @@
 package cruds.Users.controller;
 
+import cruds.Ong.controller.dto.response.OngResponseUrlDTO;
+import cruds.Users.controller.dto.response.UserResponseUrlDTO;
 import cruds.Users.entity.User;
 import cruds.Users.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -141,5 +143,12 @@ public class UserController {
     public ResponseEntity<Void>deletarTodos(){
         userRepository.deleteAll();
         return ResponseEntity.status(204).build();
+    }
+
+    @Operation(summary = "Pega a url da imagem do user")
+    @GetMapping("/{id}/imagem")
+    public ResponseEntity<UserResponseUrlDTO> getUrlImageUser(@PathVariable Integer id) {
+        UserResponseUrlDTO response = userService.getUrlImageUser(id);
+        return ResponseEntity.ok(response);
     }
 }

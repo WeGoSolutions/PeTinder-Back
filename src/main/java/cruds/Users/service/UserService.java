@@ -1,18 +1,23 @@
 package cruds.Users.service;
 
+import cruds.Ong.controller.dto.response.OngResponseUrlDTO;
+import cruds.Ong.entity.Ong;
 import cruds.Users.controller.UsuarioMapper;
 import cruds.Users.controller.dto.request.*;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.controller.dto.response.UserResponseLoginDTO;
+import cruds.Users.controller.dto.response.UserResponseUrlDTO;
 import cruds.Users.entity.Endereco;
 import cruds.Users.entity.ImagemUser;
 import cruds.Users.entity.User;
 import cruds.Users.repository.UserRepository;
 import cruds.common.exception.*;
 import cruds.common.service.EmailService;
+import cruds.common.strategy.ImageStorageStrategy;
 import cruds.common.util.ImageValidationUtil;
 import cruds.config.token.GerenciadorTokenJwt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,6 +45,11 @@ public class UserService {
     private AuthenticationManager authenticationManager;
     private GerenciadorTokenJwt gerenciadorTokenJwt;
     private static final String DEFAULT_IMAGE_NAME = "perfil.jpg"; //alterar para a imagem default
+    private static final String UPLOAD_DIR = System.getProperty("user.home") + "/Desktop/S3 local/imagens/";
+
+    @Autowired
+    @Qualifier("localImageStorageStrategy")
+    private ImageStorageStrategy imageStorageStrategy;
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, EmailService emailService) {
@@ -214,10 +224,20 @@ public class UserService {
         }
 
         User user = getUsuarioPorId(id);
+        String nomeArquivo = "user_" + id + "_perfil.jpg";
+        String caminhoCompleto = UPLOAD_DIR + nomeArquivo;
+        try {
+            imageStorageStrategy.salvarImagem(imagemDecodificada, caminhoCompleto);
+        } catch (IOException e) {
+            throw new BadRequestException("Erro ao salvar a imagem: " + e.getMessage());
+        }
         if (user.getImagemUser() != null) {
             user.getImagemUser().setDados(imagemDecodificada);
+            user.getImagemUser().setArquivo(caminhoCompleto);
         } else {
-            user.setImagemUser(new ImagemUser(imagemDecodificada));
+            ImagemUser imagemUser = new ImagemUser(imagemDecodificada);
+            imagemUser.setArquivo(caminhoCompleto);
+            user.setImagemUser(imagemUser);
         }
         User updatedUser = userRepository.save(user);
         return UserResponseCadastroDTO.toResponse(updatedUser);
@@ -232,7 +252,16 @@ public class UserService {
         }
 
         User user = getUsuarioPorId(id);
-        user.setImagemUser(new ImagemUser(imagemDecodificada));
+        String nomeArquivo = "user_" + id + "_perfil.jpg";
+        String caminhoCompleto = UPLOAD_DIR + nomeArquivo;
+        try {
+            imageStorageStrategy.salvarImagem(imagemDecodificada, caminhoCompleto);
+        } catch (IOException e) {
+            throw new BadRequestException("Erro ao salvar a imagem: " + e.getMessage());
+        }
+        ImagemUser imagemUser = new ImagemUser(imagemDecodificada);
+        imagemUser.setArquivo(caminhoCompleto);
+        user.setImagemUser(imagemUser);
         User updatedUser = userRepository.save(user);
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
@@ -317,6 +346,14 @@ public class UserService {
         final String token = gerenciadorTokenJwt.generateToken(authentication);
 
         return UsuarioMapper.of(usuarioAutenticado, token);
+    }
+
+    public UserResponseUrlDTO getUrlImageUser(Integer id) {
+        User user = getUsuarioPorId(id);
+        if (user.getImagemUser() == null) {
+            throw new ConflictException("Imagem não encontrada");
+        }
+        return UserResponseUrlDTO.toResponse(user);
     }
 }
 
