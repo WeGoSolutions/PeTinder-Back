@@ -17,6 +17,7 @@ import cruds.Users.entity.User;
 import cruds.common.event.UserLoggedInEvent;
 import cruds.common.exception.BadRequestException;
 import cruds.common.exception.ConflictException;
+import cruds.common.exception.NotFoundException;
 import cruds.common.strategy.ImageStorageStrategy;
 import cruds.common.util.ImageValidationUtil;
 import cruds.config.token.GerenciadorTokenJwt;
@@ -73,19 +74,16 @@ public class OngService {
 
     public OngResponseLoginDTO login(@Email @NotBlank String email, @NotBlank String senha) {
 
-        Optional<Ong> ongOptional = ongRepository.findByEmailAndSenha(email, senha);
 
+        Optional<Ong> ongOptional = ongRepository.findByEmail(email);
         if (ongOptional.isEmpty()) {
-            throw new ConflictException("Email ou senha invalidos");
+            throw new NotFoundException("Email não encontrado");
         }
 
         Ong ong = ongOptional.get();
-
-        final UsernamePasswordAuthenticationToken credentials =
-                new UsernamePasswordAuthenticationToken(email, senha);
-        final Authentication authentication = authenticationManager.authenticate(credentials);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = gerenciadorTokenJwt.generateToken(authentication);
+        if (!passwordEncoder.matches(senha, ong.getSenha())) {
+            throw new NotFoundException("Senha inválida");
+        }
 
         return OngResponseLoginDTO.builder()
                 .id(ong.getId())
