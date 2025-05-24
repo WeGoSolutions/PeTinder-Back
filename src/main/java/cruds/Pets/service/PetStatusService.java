@@ -1,6 +1,7 @@
 package cruds.Pets.service;
 
 import cruds.Pets.controller.dto.request.PetStatusRequestDTO;
+import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
@@ -50,12 +51,14 @@ public class PetStatusService {
         }
     }
 
-    public List<Pet> listAvailablePetsForUser(Integer userId) {
+    public List<PetResponseGeralDTO> listAvailablePetsForUser(Integer userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Usuário com id " + userId + " não encontrado");
         }
-
-        return petStatusRepository.findPetsNotInteractedByUser(userId);
+        return petStatusRepository.findPetsNotInteractedByUser(userId)
+                .stream()
+                .map(PetResponseGeralDTO::toResponse)
+                .toList();
     }
 
     public List<PetStatus> getPetsByUserAndStatus(Integer userId, PetStatusEnum status) {
@@ -71,5 +74,21 @@ public class PetStatusService {
                 .orElseThrow(() -> new NotFoundException("Status não encontrado para pet " + petId + " e usuário " + userId));
 
         petStatusRepository.delete(status);
+    }
+
+    public List<PetResponseGeralDTO> listDefaultPets(Integer userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("Usuário com id " + userId + " não encontrado");
+        }
+        List<PetResponseGeralDTO> availablePets = petStatusRepository
+                .findPetsNotInteractedByUser(userId)
+                .stream()
+                .map(PetResponseGeralDTO::toResponse)
+                .toList();
+
+        if (availablePets.isEmpty()) {
+            throw new NotFoundException("Nenhum pet default encontrado para o usuário " + userId);
+        }
+        return availablePets;
     }
 }

@@ -1,5 +1,6 @@
 package cruds.Pets.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import cruds.Imagem.entity.Imagem;
 import cruds.Ong.entity.Ong;
 import jakarta.persistence.*;
@@ -40,6 +41,7 @@ public class Pet {
     private Boolean isLiked = false;
 
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Imagem> imagens;
 
     private Boolean isCastrado = false;
@@ -53,4 +55,6 @@ public class Pet {
     @ManyToOne
     @JoinColumn(name = "ong_id", nullable = false)
     private Ong ong;
+
+    private String status = "PENDING";
 }
