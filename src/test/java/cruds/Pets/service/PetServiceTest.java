@@ -245,32 +245,6 @@ class PetServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar NotFoundException ao tentar curtir pet inexistente")
-    void curtirPet_notFound() {
-        when(petRepository.findById(19)).thenReturn(Optional.empty());
-        assertThrows(NotFoundException.class, () -> petService.curtirPet(19, new PetRequestCurtirDTO()));
-    }
-
-    @Test
-    @DisplayName("Deve incrementar e decrementar curtidas ao curtir e descurtir pet")
-    void curtirPet_likeAndUnlike() {
-        Pet p = new Pet();
-        p.setId(20);
-        p.setCurtidas(5);
-        when(petRepository.findById(20)).thenReturn(Optional.of(p));
-        when(petRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-
-        PetRequestCurtirDTO dto = new PetRequestCurtirDTO();
-        dto.setIsLiked(true);
-        Pet liked = petService.curtirPet(20, dto);
-        assertEquals(6, liked.getCurtidas());
-
-        dto.setIsLiked(false);
-        Pet unliked = petService.curtirPet(20, dto);
-        assertEquals(5, unliked.getCurtidas());
-    }
-
-    @Test
     @DisplayName("Deve lançar NotFoundException ao tentar apagar imagem se não houver imagens")
     void apagarImagem_noImages_notFound() {
         when(petRepository.findById(21)).thenReturn(Optional.of(new Pet()));

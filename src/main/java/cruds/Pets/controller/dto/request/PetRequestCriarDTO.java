@@ -39,15 +39,20 @@ public class PetRequestCriarDTO {
     @NotBlank
     private String descricao;
 
-    @Size(max = 5)
     @NotEmpty
-    private List<String> imagemBase64;
+    private Integer ongId;
 
     private Boolean isCastrado;
     private Boolean isVermifugo;
     private Boolean isVacinado;
 
     private Boolean isAdotado;
+
+    private String status;
+
+    @Size(max = 5)
+    @NotEmpty
+    private List<String> imagemBase64;
 
     public static Pet toEntity(PetRequestCriarDTO petRequest) {
         return Pet.builder()
@@ -58,11 +63,11 @@ public class PetRequestCriarDTO {
                 .curtidas(0)
                 .tags(petRequest.getTags())
                 .descricao(petRequest.getDescricao())
-                .isLiked(false)
                 .isCastrado(Boolean.TRUE.equals(petRequest.getIsCastrado()))
                 .isVermifugo(Boolean.TRUE.equals(petRequest.getIsVermifugo()))
                 .isVacinado(Boolean.TRUE.equals(petRequest.getIsVacinado()))
-                .isAdotado(false)
+                .isAdopted(false)
+                .status("PENDING")
                 .build();
     }
 }

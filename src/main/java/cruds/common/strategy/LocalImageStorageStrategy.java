@@ -1,22 +1,37 @@
 package cruds.common.strategy;
-import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.io.IOException;
 
+@Component
 public class LocalImageStorageStrategy implements ImageStorageStrategy {
-    private static final String UPLOAD_DIR = System.getProperty("user.home") + "/Desktop/S3 local/imagens/";
+
+    @Value("${app.image.storage.path}")
+    private String baseDirectory;
+
+    @Override
+    public String salvarImagem(byte[] imageBytes, String fileName, String extension) throws IOException {
+        String safeFileName = Paths.get(fileName).getFileName().toString();
+        Path dirPath = Paths.get(baseDirectory);
+        if (!Files.exists(dirPath)) {
+            Files.createDirectories(dirPath);
+        }
+        Path filePath = dirPath.resolve(safeFileName);
+        Files.write(filePath, imageBytes);
+        return filePath.toString();
+    }
 
     @Override
     public void salvarImagem(byte[] imagemBytes, String nomeArquivo) throws IOException {
-        Path path = Paths.get(UPLOAD_DIR + nomeArquivo);
-        Files.createDirectories(path.getParent());
-        Files.write(path, imagemBytes);
+        salvarImagem(imagemBytes, nomeArquivo, null);
     }
 
     @Override
     public String gerarCaminho(String nomeArquivo) {
-        return UPLOAD_DIR + nomeArquivo;
+        return Paths.get(baseDirectory, nomeArquivo).toString();
     }
-
 }

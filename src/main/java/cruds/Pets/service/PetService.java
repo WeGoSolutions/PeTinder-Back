@@ -1,6 +1,8 @@
 package cruds.Pets.service;
 
 import cruds.Imagem.repository.ImagemRepository;
+import cruds.Ong.entity.Ong;
+import cruds.Ong.repository.OngRepository;
 import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
 import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
@@ -42,6 +44,9 @@ public class PetService {
     @Autowired
     private ImageStorageStrategy imageStorageStrategy;
 
+    @Autowired
+    private OngRepository ongRepository;
+
     private byte[] decodeImage(String imageData) {
         String base64Data = imageData;
         if (base64Data.startsWith("data:")) {
@@ -55,6 +60,9 @@ public class PetService {
 
     public Pet cadastrarPet(PetRequestCriarDTO dto) {
         Pet pet = PetRequestCriarDTO.toEntity(dto);
+        Ong ong = ongRepository.findById(dto.getOngId())
+                .orElseThrow(() -> new NotFoundException("ONG com id " + dto.getOngId() + " não encontrada"));
+        pet.setOng(ong);
 
         pet = petRepository.save(pet);
 
@@ -147,24 +155,48 @@ public class PetService {
         return petRepository.save(petParaAlterar);
     }
 
-    public Pet uploadPetImages(Integer id, List<byte[]> imagensBytes, List<String> nomesArquivos) {
+    public Pet uploadPetImages(Integer id, List<String> imagensBase64, List<String> nomesArquivos) {
         Pet pet = obterPetPorId(id);
+        List<byte[]> imagensBytes = new ArrayList<>();
+        for (int i = 0; i < imagensBase64.size(); i++) {
+            String base64 = imagensBase64.get(i);
+            String nomeArquivo = nomesArquivos.get(i);
+            if (!base64.startsWith("data:image/")) {
+                base64 = "data:image/jpeg;base64," + base64;
+                nomesArquivos.set(i, nomeArquivo.endsWith(".jpg") || nomeArquivo.endsWith(".jpeg") || nomeArquivo.endsWith(".png") ? nomeArquivo : nomeArquivo + ".jpg");
+            }
+            String base64Data = base64;
+            if (base64Data.startsWith("data:")) {
+                int commaIndex = base64Data.indexOf(",");
+                if (commaIndex != -1) {
+                    base64Data = base64Data.substring(commaIndex + 1);
+                }
+            }
+            imagensBytes.add(Base64.getDecoder().decode(base64Data));
+        }
         try {
             ImageValidationUtil.validatePetImages(imagensBytes, nomesArquivos);
         } catch (IOException e) {
             throw new BadRequestException("Erro ao processar as imagens: " + e.getMessage());
         }
-        List<Imagem> imagens = new ArrayList<>();
+        List<Imagem> novasImagens = new ArrayList<>();
         for (int i = 0; i < imagensBytes.size(); i++) {
             String filePath = UPLOAD_DIR + "/pet_" + UUID.randomUUID() + ".jpg";
             try {
                 salvarImagemNoDisco(imagensBytes.get(i), filePath);
-                imagens.add(new Imagem(filePath, pet));
+                novasImagens.add(new Imagem(filePath, pet));
             } catch (IOException e) {
                 throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage());
             }
         }
-
+        // Corrige o problema de referência da lista
+        if (pet.getImagens() == null) {
+            pet.setImagens(new ArrayList<>());
+        } else {
+            pet.getImagens().clear();
+        }
+        pet.getImagens().addAll(novasImagens);
+        imagemRepository.saveAll(novasImagens);
         return petRepository.save(pet);
     }
 
@@ -226,20 +258,20 @@ public class PetService {
 
     }
 
-    public Pet curtirPet(Integer id, PetRequestCurtirDTO dto) {
-        Pet petParaAlterar = petRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Pet com id: " + id + " não encontrado"));
-        petParaAlterar.setIsLiked(dto.getIsLiked());
-        if (petParaAlterar.getIsLiked()) {
-            petParaAlterar.setCurtidas(petParaAlterar.getCurtidas() + 1);
-        } else {
-            petParaAlterar.setCurtidas(petParaAlterar.getCurtidas() - 1);
-            if (petParaAlterar.getCurtidas() <= 0) {
-                petParaAlterar.setCurtidas(0);
-            }
-        }
-        return petRepository.save(petParaAlterar);
-    }
+    //public Pet curtirPet(Integer id, PetRequestCurtirDTO dto) {
+    //    Pet petParaAlterar = petRepository.findById(id)
+    //            .orElseThrow(() -> new NotFoundException("Pet com id: " + id + " não encontrado"));
+    //    petParaAlterar.setIsLiked(dto.getIsLiked());
+    //    if (petParaAlterar.getIsLiked()) {
+    //        petParaAlterar.setCurtidas(petParaAlterar.getCurtidas() + 1);
+    //    } else {
+    //        petParaAlterar.setCurtidas(petParaAlterar.getCurtidas() - 1);
+    //        if (petParaAlterar.getCurtidas() <= 0) {
+    //            petParaAlterar.setCurtidas(0);
+    //        }
+    //    }
+    //    return petRepository.save(petParaAlterar);
+    //}
 
     public void apagarImagem(Integer id, int indice) {
         Pet pet = obterPetPorId(id);
@@ -264,3 +296,4 @@ public class PetService {
     }
 
 }
+

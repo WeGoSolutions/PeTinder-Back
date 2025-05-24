@@ -7,6 +7,7 @@ import cruds.Ong.controller.dto.request.OngRequestImagemDTO;
 import cruds.Ong.controller.dto.request.OngRequestUpdateDTO;
 import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
+import cruds.Ong.controller.dto.response.OngResponseUrlDTO;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.repository.OngRepository;
 import cruds.Users.controller.dto.request.UserRequestCriarDTO;
@@ -17,9 +18,11 @@ import cruds.Users.entity.User;
 import cruds.common.event.UserLoggedInEvent;
 import cruds.common.exception.BadRequestException;
 import cruds.common.exception.ConflictException;
+import cruds.common.exception.NotFoundException;
 import cruds.common.strategy.ImageStorageStrategy;
 import cruds.common.util.ImageValidationUtil;
 import cruds.config.token.GerenciadorTokenJwt;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -33,10 +36,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class OngService {
@@ -64,7 +64,7 @@ public class OngService {
             throw new ConflictException("Email ja cadastrado");
         }
         Ong ong = OngRequestCriarDTO.toEntity(dto);
-        String senhaCriptografada = dto.getSenha();
+        String senhaCriptografada = passwordEncoder.encode(dto.getSenha());
         ong.setSenha(senhaCriptografada);
         Ong ongCriada = ongRepository.save(ong);
         return ongCriada;
@@ -72,20 +72,16 @@ public class OngService {
 
     public OngResponseLoginDTO login(@Email @NotBlank String email, @NotBlank String senha) {
 
-        Optional<Ong> ongOptional = ongRepository.findByEmailAndSenha(email, senha);
 
+        Optional<Ong> ongOptional = ongRepository.findByEmail(email);
         if (ongOptional.isEmpty()) {
-            throw new ConflictException("Email ou senha invalidos");
+            throw new NotFoundException("Email não encontrado");
         }
 
         Ong ong = ongOptional.get();
-
-        final UsernamePasswordAuthenticationToken credentials =
-                new UsernamePasswordAuthenticationToken(email, senha);
-        final Authentication authentication = authenticationManager.authenticate(credentials);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = gerenciadorTokenJwt.generateToken(authentication);
-
+        if (!passwordEncoder.matches(senha, ong.getSenha())) {
+            throw new NotFoundException("Senha inválida");
+        }
 
         return OngResponseLoginDTO.builder()
                 .id(ong.getId())
@@ -121,23 +117,31 @@ public class OngService {
     }
 
 
-    public Ong updateImageOng(Integer id, String nomeArquivo, byte[] imagensBytes ) {
+    @Transactional
+    public Ong uploadOngImage(Integer id, byte[] imagemBytes, String nomeArquivo, String extension) {
+        Ong ong = acharPorId(id);
+
+        if (ong == null) {
+            throw new NotFoundException("ONG com o ID fornecido não foi encontrada.");
+        }
+
+        if (ong.getImagemOng() != null) {
+            throw new ConflictException("A ONG já possui uma imagem cadastrada.");
+        }
 
         try {
-            ImageValidationUtil.validateOngImage(imagensBytes, nomeArquivo);
+            ImageValidationUtil.validateOngImage(imagemBytes, nomeArquivo);
+
+            String filePath = UPLOAD_DIR + "/ong_" + UUID.randomUUID() + "." + (extension.isEmpty() ? "jpg" : extension);
+
+            salvarImagemNoDisco(imagemBytes, filePath);
+            ImagemOng imagemOng = new ImagemOng(filePath, ong);
+            ong.setImagemOng(imagemOng);
+
+            return ongRepository.save(ong);
         } catch (IOException e) {
             throw new BadRequestException("Erro ao processar a imagem: " + e.getMessage());
         }
-
-        Ong ong = acharPorId(id);
-        String filePath = UPLOAD_DIR + "/ong_" + UUID.randomUUID() + ".jpg";
-        try {
-            salvarImagemNoDisco(imagensBytes, filePath);
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage());
-        }
-
-        return ongRepository.save(ong);
     }
 
     public Ong acharPorId(Integer id){
@@ -149,12 +153,11 @@ public class OngService {
         imageStorageStrategy.salvarImagem(imagemBytes, caminhoRelativo);
     }
 
-    public OngResponseDTO getImageOng(Integer id) {
+    public OngResponseUrlDTO getImageOng(Integer id) {
         Ong ong = acharPorId(id);
-        ImagemOng imagemOng = ong.getImagemOng();
-        if (imagemOng == null) {
+        if (ong.getImagemOng() == null) {
             throw new ConflictException("Imagem não encontrada");
         }
-        return OngResponseDTO.toResponse(ong);
+        return OngResponseUrlDTO.toResponse(ong);
     }
 }

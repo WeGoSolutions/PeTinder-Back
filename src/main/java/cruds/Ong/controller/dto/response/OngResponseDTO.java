@@ -18,17 +18,23 @@ public class OngResponseDTO {
 
     private Integer id;
     private String cnpj;
+    private String cpf;
     private String nome;
     private String razaoSocial;
     private String email;
+    private String senha;
+    private String link;
 
     public static OngResponseDTO toResponse(Ong ong) {
         return OngResponseDTO.builder()
                 .id(ong.getId())
                 .cnpj(ong.getCnpj())
+                .cpf(ong.getCpf())
                 .nome(ong.getNome())
                 .razaoSocial(ong.getRazaoSocial())
                 .email(ong.getEmail())
+                .senha(ong.getSenha())
+                .link(ong.getLink())
                 .build();
     }
 

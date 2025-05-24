@@ -1,11 +1,16 @@
 package cruds.Imagem.entity;
 
-import cruds.Forms.entity.Forms;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import cruds.Pets.entity.Pet;
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "imagem_pet")
+@Getter
+@Setter
+@Builder(toBuilder = true)
+@AllArgsConstructor
 public class Imagem {
 
     @Id
@@ -13,12 +18,12 @@ public class Imagem {
     @Column(name = "idimagemPet")
     private Integer id;
 
-
     @Column(name = "link")
     private String caminho;
 
     @ManyToOne
     @JoinColumn(name = "fkPet")
+    @JsonBackReference
     private Pet pet;
 
     public Imagem() {}
@@ -32,27 +37,15 @@ public class Imagem {
         this.pet = pet;
     }
 
-    public Pet getPet() {
-        return pet;
-    }
-
-    public void setPet(Pet pet) {
-        this.pet = pet;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
     public void setId(Integer id) {
         this.id = id;
     }
 
-    public String getCaminho() {
-        return caminho;
-    }
-
     public void setCaminho(String caminho) {
         this.caminho = caminho;
+    }
+
+    public void setPet(Pet pet) {
+        this.pet = pet;
     }
 }

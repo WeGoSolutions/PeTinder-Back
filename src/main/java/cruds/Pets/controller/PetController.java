@@ -38,7 +38,7 @@ public class PetController {
     @PostMapping("/{id}/upload-imagens")
     public ResponseEntity<PetResponseCriarDTO> uploadPetImages(@PathVariable Integer id,
                                                                @RequestBody UploadImagesRequest request) {
-        var petAtualizado = petService.uploadPetImages(id, request.getImagensBytes(), request.getNomesArquivos());
+        var petAtualizado = petService.uploadPetImages(id, request.getImagensBase64(), request.getNomesArquivos());
         return ResponseEntity.status(200).body(PetResponseCriarDTO.toResponse(petAtualizado));
     }
 
@@ -82,12 +82,12 @@ public class PetController {
         return ResponseEntity.status(204).build();
     }
 
-    @Operation(summary = "Curtir um pet")
-    @PutMapping("/curtir/{id}")
-    public ResponseEntity<PetResponseCurtirDTO> curtirPet(@PathVariable Integer id, @RequestBody PetRequestCurtirDTO dto) {
-        var petAlterado = petService.curtirPet(id, dto);
-        return ResponseEntity.status(202).body(PetResponseCurtirDTO.toResponse(petAlterado));
-    }
+    //@Operation(summary = "Curtir um pet")
+    //@PutMapping("/curtir/{id}")
+    //public ResponseEntity<PetResponseCurtirDTO> curtirPet(@PathVariable Integer id, @RequestBody PetRequestCurtirDTO dto) {
+    //    var petAlterado = petService.curtirPet(id, dto);
+    //    return ResponseEntity.status(202).body(PetResponseCurtirDTO.toResponse(petAlterado));
+    //}
 
     @Operation(summary = "Apagar uma imagem do pet")
     @DeleteMapping("/{id}/imagens/{indice}")

@@ -1,5 +1,6 @@
 package cruds.Pets.entity;
 
+import cruds.Pets.enums.PetStatusEnum;
 import cruds.Users.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,18 +11,20 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StatusPet {
+public class PetStatus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
+    @JoinColumn(name = "pet_id")
     private Pet pet;
 
     @ManyToOne
-    private User usuario;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private PetStatusEnum status;
 }

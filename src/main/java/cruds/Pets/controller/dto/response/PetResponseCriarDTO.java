@@ -21,12 +21,12 @@ public class PetResponseCriarDTO {
     private Integer curtidas;
     private String descricao;
     private List<String> tags;
-    private Boolean isLiked;
     private List<String> imagens;
     private Boolean isCastrado;
     private Boolean isVermifugo;
     private Boolean isVacinado;
-    private Boolean isAdotado;
+    private Integer ongId;
+    private String status;
 
     public static PetResponseCriarDTO toResponse(Pet pet) {
         return PetResponseCriarDTO.builder()
@@ -36,12 +36,12 @@ public class PetResponseCriarDTO {
                 .curtidas(pet.getCurtidas())
                 .descricao(pet.getDescricao())
                 .tags(pet.getTags())
-                .isLiked(pet.getIsLiked())
                 .imagens(Collections.emptyList())
                 .isCastrado(pet.getIsCastrado())
                 .isVacinado(pet.getIsVacinado())
                 .isVermifugo(pet.getIsVermifugo())
-                .isAdotado(pet.getIsAdotado())
+                .ongId(pet.getOng().getId())
+                .status(pet.getStatus())
                 .build();
     }
 }
