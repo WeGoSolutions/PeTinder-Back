@@ -46,7 +46,7 @@ public class PetStatusController {
 
     @GetMapping("/liked/{usuarioId}")
     public ResponseEntity<List<PetStatus>> curtidosPorUsuario(@PathVariable Integer usuarioId) {
-        List<PetStatus> statusPetsCurtidos = statusPetRepository.findLikedStatusPetsByUsuarioId(usuarioId);
+        List<PetStatus> statusPetsCurtidos = statusPetRepository.findLikedStatusPetsByUser_Id(usuarioId);
 
         if (statusPetsCurtidos.isEmpty()) {
             return ResponseEntity.status(204).build();
