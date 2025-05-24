@@ -13,6 +13,8 @@ public class ImagemUser {
     @Lob
     private byte[] dados;
 
+    private String arquivo;
+
     public ImagemUser() {}
 
     public ImagemUser(byte[] dados) {
@@ -33,5 +35,13 @@ public class ImagemUser {
 
     public void setDados(byte[] dados) {
         this.dados = dados;
+    }
+
+    public void setArquivo(String arquivo) {
+        this.arquivo = arquivo;
+    }
+
+    public String getArquivo() {
+        return arquivo;
     }
 }
