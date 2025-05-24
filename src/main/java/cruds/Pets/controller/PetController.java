@@ -82,12 +82,12 @@ public class PetController {
         return ResponseEntity.status(204).build();
     }
 
-    @Operation(summary = "Curtir um pet")
-    @PutMapping("/curtir/{id}")
-    public ResponseEntity<PetResponseCurtirDTO> curtirPet(@PathVariable Integer id, @RequestBody PetRequestCurtirDTO dto) {
-        var petAlterado = petService.curtirPet(id, dto);
-        return ResponseEntity.status(202).body(PetResponseCurtirDTO.toResponse(petAlterado));
-    }
+    //@Operation(summary = "Curtir um pet")
+    //@PutMapping("/curtir/{id}")
+    //public ResponseEntity<PetResponseCurtirDTO> curtirPet(@PathVariable Integer id, @RequestBody PetRequestCurtirDTO dto) {
+    //    var petAlterado = petService.curtirPet(id, dto);
+    //    return ResponseEntity.status(202).body(PetResponseCurtirDTO.toResponse(petAlterado));
+    //}
 
     @Operation(summary = "Apagar uma imagem do pet")
     @DeleteMapping("/{id}/imagens/{indice}")

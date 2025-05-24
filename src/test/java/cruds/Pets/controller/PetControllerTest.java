@@ -163,22 +163,6 @@ class PetControllerTest {
     }
 
     @Test
-    @DisplayName("Testa o ato de curtir ou descurtir o pet via endpoint PUT /pets/curtir/{id}")
-    void testCurtirPet() throws Exception {
-        PetRequestCurtirDTO req = new PetRequestCurtirDTO();
-        Pet pet = new Pet();
-        pet.setId(8);
-        when(petService.curtirPet(eq(8), any())).thenReturn(pet);
-
-        mockMvc.perform(put("/pets/curtir/8")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.id").value(8));
-    }
-
-    @Test
     @DisplayName("Testa remoção de imagem do pet com sucesso via endpoint DELETE /pets/{id}/imagens/{indice}")
     void testApagarImagem() throws Exception {
         doNothing().when(petService).apagarImagem(9, 1);

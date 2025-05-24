@@ -33,7 +33,7 @@ public class Ong {
     @Column(name = "nome")
     private String nome;
 
-    @Column(name = "razaoSocial")
+    @Column(name = "razao_social")
     private String razaoSocial;
 
     @Column(name = "senha")

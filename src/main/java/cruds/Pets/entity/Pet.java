@@ -38,8 +38,6 @@ public class Pet {
 
     private String descricao;
 
-    private Boolean isLiked = false;
-
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Imagem> imagens;
@@ -50,11 +48,13 @@ public class Pet {
 
     private Boolean isVacinado = false;
 
-    private Boolean isAdotado = false;
+    private Boolean isAdopted = false;
 
     @ManyToOne
     @JoinColumn(name = "ong_id", nullable = false)
     private Ong ong;
 
-    private String status = "PENDING";
+    @Column(name = "status")
+    private String status;
+
 }

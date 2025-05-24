@@ -48,6 +48,8 @@ public class PetRequestCriarDTO {
 
     private Boolean isAdotado;
 
+    private String status;
+
     @Size(max = 5)
     @NotEmpty
     private List<String> imagemBase64;
@@ -61,11 +63,11 @@ public class PetRequestCriarDTO {
                 .curtidas(0)
                 .tags(petRequest.getTags())
                 .descricao(petRequest.getDescricao())
-                .isLiked(false)
                 .isCastrado(Boolean.TRUE.equals(petRequest.getIsCastrado()))
                 .isVermifugo(Boolean.TRUE.equals(petRequest.getIsVermifugo()))
                 .isVacinado(Boolean.TRUE.equals(petRequest.getIsVacinado()))
-                .isAdotado(false)
+                .isAdopted(false)
+                .status("PENDING")
                 .build();
     }
 }

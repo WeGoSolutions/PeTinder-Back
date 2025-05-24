@@ -3,6 +3,7 @@ package cruds.Pets.repository;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import java.util.List;
@@ -23,4 +24,6 @@ public interface PetStatusRepository extends JpaRepository<PetStatus, Integer> {
     List<PetStatus> findAllLikedStatusPets();
 
     List<PetStatus> findLikedStatusPetsByUser_Id(Integer userId);
+
+    Optional<PetStatus> findByPet_IdAndUser_Id(@NotNull Integer petId, @NotNull Integer userId);
 }

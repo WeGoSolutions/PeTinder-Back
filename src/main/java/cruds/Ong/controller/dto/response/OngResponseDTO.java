@@ -29,9 +29,12 @@ public class OngResponseDTO {
         return OngResponseDTO.builder()
                 .id(ong.getId())
                 .cnpj(ong.getCnpj())
+                .cpf(ong.getCpf())
                 .nome(ong.getNome())
                 .razaoSocial(ong.getRazaoSocial())
                 .email(ong.getEmail())
+                .senha(ong.getSenha())
+                .link(ong.getLink())
                 .build();
     }
 

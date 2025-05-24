@@ -10,11 +10,14 @@ import cruds.Pets.repository.PetStatusRepository;
 import cruds.Users.entity.User;
 import cruds.Users.repository.UserRepository;
 import cruds.common.exception.NotFoundException;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PetStatusService {
@@ -28,27 +31,23 @@ public class PetStatusService {
     @Autowired
     private UserRepository userRepository;
 
+    @Transactional
     public PetStatus createOrUpdatePetStatus(PetStatusRequestDTO dto) {
-        Pet pet = petRepository.findById(dto.getPetId())
-                .orElseThrow(() -> new NotFoundException("Pet com id " + dto.getPetId() + " não encontrado"));
+        PetStatus status = petStatusRepository.findByPet_IdAndUser_Id(dto.getPetId(), dto.getUserId())
+                .orElse(new PetStatus());
 
-        User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new NotFoundException("Usuário com id " + dto.getUserId() + " não encontrado"));
+        status.setStatus(dto.getStatus());
 
-        Optional<PetStatus> existingStatus = petStatusRepository.findByPetIdAndUserId(dto.getPetId(), dto.getUserId());
+        if (status.getId() == null) {
+            Pet pet = petRepository.findById(dto.getPetId())
+                    .orElseThrow(() -> new EntityNotFoundException("Pet não encontrado"));
+            User user = userRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
-        if (existingStatus.isPresent()) {
-            PetStatus status = existingStatus.get();
-            status.setStatus(dto.getStatus());
-            return petStatusRepository.save(status);
-        } else {
-            PetStatus newStatus = PetStatus.builder()
-                    .pet(pet)
-                    .user(user)
-                    .status(dto.getStatus())
-                    .build();
-            return petStatusRepository.save(newStatus);
+            status.setPet(pet);
+            status.setUser(user);
         }
+        return petStatusRepository.save(status);
     }
 
     public List<PetResponseGeralDTO> listAvailablePetsForUser(Integer userId) {
@@ -57,8 +56,9 @@ public class PetStatusService {
         }
         return petStatusRepository.findPetsNotInteractedByUser(userId)
                 .stream()
+                .filter((Pet pet) -> pet.getIsAdopted() == null || !pet.getIsAdopted())
                 .map(PetResponseGeralDTO::toResponse)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public List<PetStatus> getPetsByUserAndStatus(Integer userId, PetStatusEnum status) {
@@ -83,12 +83,28 @@ public class PetStatusService {
         List<PetResponseGeralDTO> availablePets = petStatusRepository
                 .findPetsNotInteractedByUser(userId)
                 .stream()
+                .filter((Pet pet) -> pet.getIsAdopted() == null || !pet.getIsAdopted())
                 .map(PetResponseGeralDTO::toResponse)
-                .toList();
+                .collect(Collectors.toList());
 
         if (availablePets.isEmpty()) {
             throw new NotFoundException("Nenhum pet default encontrado para o usuário " + userId);
         }
         return availablePets;
+    }
+
+    public void incrementarCurtidasPet(Integer petId) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new EntityNotFoundException("Pet não encontrado"));
+        int atual = pet.getCurtidas() != null ? pet.getCurtidas() : 0;
+        pet.setCurtidas(atual + 1);
+        petRepository.save(pet);
+    }
+
+    public void publicarAdocao(Integer petId) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new EntityNotFoundException("Pet não encontrado"));
+        pet.setIsAdopted(true);
+        petRepository.save(pet);
     }
 }

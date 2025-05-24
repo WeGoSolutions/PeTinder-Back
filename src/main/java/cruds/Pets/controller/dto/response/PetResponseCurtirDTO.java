@@ -21,7 +21,6 @@ public class PetResponseCurtirDTO {
     public static PetResponseCurtirDTO toResponse(Pet pet) {
         return PetResponseCurtirDTO.builder()
                 .id(pet.getId())
-                .isLiked(pet.getIsLiked())
                 .curtidas(pet.getCurtidas())
                 .build();
     }

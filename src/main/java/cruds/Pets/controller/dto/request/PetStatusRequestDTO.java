@@ -14,4 +14,6 @@ public class PetStatusRequestDTO {
 
     @NotNull
     private PetStatusEnum status;
+
+    private Integer curtidas;
 }

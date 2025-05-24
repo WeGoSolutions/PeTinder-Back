@@ -20,6 +20,7 @@ import cruds.common.exception.ConflictException;
 import cruds.common.strategy.ImageStorageStrategy;
 import cruds.common.util.ImageValidationUtil;
 import cruds.config.token.GerenciadorTokenJwt;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -64,7 +65,7 @@ public class OngService {
             throw new ConflictException("Email ja cadastrado");
         }
         Ong ong = OngRequestCriarDTO.toEntity(dto);
-        String senhaCriptografada = dto.getSenha();
+        String senhaCriptografada = passwordEncoder.encode(dto.getSenha());
         ong.setSenha(senhaCriptografada);
         Ong ongCriada = ongRepository.save(ong);
         return ongCriada;
@@ -85,7 +86,6 @@ public class OngService {
         final Authentication authentication = authenticationManager.authenticate(credentials);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = gerenciadorTokenJwt.generateToken(authentication);
-
 
         return OngResponseLoginDTO.builder()
                 .id(ong.getId())

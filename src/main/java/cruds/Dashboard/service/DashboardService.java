@@ -68,7 +68,7 @@ public class DashboardService {
         }
 
         for (Pet pet : pets) {
-            if (Boolean.TRUE.equals(pet.getIsAdotado())) {
+            if (Boolean.TRUE.equals(pet.getIsAdopted())) {
                 adotados++;
             } else {
                 naoAdotados++;

@@ -234,20 +234,20 @@ public class PetService {
 
     }
 
-    public Pet curtirPet(Integer id, PetRequestCurtirDTO dto) {
-        Pet petParaAlterar = petRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Pet com id: " + id + " não encontrado"));
-        petParaAlterar.setIsLiked(dto.getIsLiked());
-        if (petParaAlterar.getIsLiked()) {
-            petParaAlterar.setCurtidas(petParaAlterar.getCurtidas() + 1);
-        } else {
-            petParaAlterar.setCurtidas(petParaAlterar.getCurtidas() - 1);
-            if (petParaAlterar.getCurtidas() <= 0) {
-                petParaAlterar.setCurtidas(0);
-            }
-        }
-        return petRepository.save(petParaAlterar);
-    }
+    //public Pet curtirPet(Integer id, PetRequestCurtirDTO dto) {
+    //    Pet petParaAlterar = petRepository.findById(id)
+    //            .orElseThrow(() -> new NotFoundException("Pet com id: " + id + " não encontrado"));
+    //    petParaAlterar.setIsLiked(dto.getIsLiked());
+    //    if (petParaAlterar.getIsLiked()) {
+    //        petParaAlterar.setCurtidas(petParaAlterar.getCurtidas() + 1);
+    //    } else {
+    //        petParaAlterar.setCurtidas(petParaAlterar.getCurtidas() - 1);
+    //        if (petParaAlterar.getCurtidas() <= 0) {
+    //            petParaAlterar.setCurtidas(0);
+    //        }
+    //    }
+    //    return petRepository.save(petParaAlterar);
+    //}
 
     public void apagarImagem(Integer id, int indice) {
         Pet pet = obterPetPorId(id);
