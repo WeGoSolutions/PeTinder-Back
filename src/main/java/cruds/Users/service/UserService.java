@@ -1,7 +1,5 @@
 package cruds.Users.service;
 
-import cruds.Ong.controller.dto.response.OngResponseUrlDTO;
-import cruds.Ong.entity.Ong;
 import cruds.Users.controller.UsuarioMapper;
 import cruds.Users.controller.dto.request.*;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;

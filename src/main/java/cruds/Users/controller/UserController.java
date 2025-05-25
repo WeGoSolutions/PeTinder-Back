@@ -1,8 +1,6 @@
 package cruds.Users.controller;
 
-import cruds.Ong.controller.dto.response.OngResponseUrlDTO;
 import cruds.Users.controller.dto.response.UserResponseUrlDTO;
-import cruds.Users.entity.User;
 import cruds.Users.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import cruds.Users.controller.dto.request.*;

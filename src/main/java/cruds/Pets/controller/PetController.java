@@ -7,7 +7,9 @@ import cruds.Pets.controller.dto.response.PetResponseCriarDTO;
 import cruds.Pets.controller.dto.response.PetResponseCurtirDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.entity.Pet;
+import cruds.Pets.repository.PetRepository;
 import cruds.Pets.service.PetService;
+import cruds.common.exception.NotFoundException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -17,6 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -26,6 +30,9 @@ public class PetController {
 
     @Autowired
     private PetService petService;
+
+    @Autowired
+    private PetRepository petRepository;
 
     @Operation(summary = "Cadastra um novo pet")
     @PostMapping
@@ -82,12 +89,28 @@ public class PetController {
         return ResponseEntity.status(204).build();
     }
 
-    //@Operation(summary = "Curtir um pet")
-    //@PutMapping("/curtir/{id}")
-    //public ResponseEntity<PetResponseCurtirDTO> curtirPet(@PathVariable Integer id, @RequestBody PetRequestCurtirDTO dto) {
-    //    var petAlterado = petService.curtirPet(id, dto);
-    //    return ResponseEntity.status(202).body(PetResponseCurtirDTO.toResponse(petAlterado));
-    //}
+    @GetMapping("/{id}/imagem/{index}")
+    public ResponseEntity<byte[]> getPetImage(
+            @PathVariable Integer id,
+            @PathVariable int index) {
+
+        Pet pet = petRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Pet não encontrado: " + id));
+
+        if (pet.getImagens() == null || pet.getImagens().size() <= index) {
+            throw new NotFoundException("Imagem não encontrada no índice: " + index);
+        }
+
+        String caminho = pet.getImagens().get(index).getCaminho();
+        try {
+            byte[] data = Files.readAllBytes(Paths.get(caminho));
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(data);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao ler imagem: " + e.getMessage());
+        }
+    }
 
     @Operation(summary = "Apagar uma imagem do pet")
     @DeleteMapping("/{id}/imagens/{indice}")
