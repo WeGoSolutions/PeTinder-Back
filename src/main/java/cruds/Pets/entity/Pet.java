@@ -50,6 +50,8 @@ public class Pet {
 
     private Boolean isAdopted = false;
 
+    private String sexo;
+
     @ManyToOne
     @JoinColumn(name = "ong_id", nullable = false)
     private Ong ong;

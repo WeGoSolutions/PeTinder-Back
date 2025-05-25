@@ -55,6 +55,10 @@ public class PetRequestCriarDTO {
     @NotEmpty
     private List<String> imagemBase64;
 
+    @NotBlank
+    @Pattern(regexp = "MACHO|FEMEA", message = "Sexo deve ser MASCULINO OU FEMININO")
+    private String sexo;
+
     public static Pet toEntity(PetRequestCriarDTO petRequest) {
         return Pet.builder()
                 .nome(petRequest.getNome())
@@ -69,6 +73,7 @@ public class PetRequestCriarDTO {
                 .isVacinado(Boolean.TRUE.equals(petRequest.getIsVacinado()))
                 .isAdopted(false)
                 .status("PENDING")
+                .sexo(petRequest.getSexo())
                 .build();
     }
 }

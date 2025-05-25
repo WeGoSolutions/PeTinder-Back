@@ -7,6 +7,7 @@ import cruds.Ong.controller.dto.request.OngRequestLoginDTO;
 import cruds.Ong.controller.dto.request.OngRequestUpdateDTO;
 import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
+import cruds.Ong.controller.dto.response.OngResponsePetsDTO;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.service.OngService;
 import cruds.common.exception.BadRequestException;
@@ -19,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/ongs")
@@ -85,5 +88,15 @@ public class OngController {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(imageData);
+    }
+
+    @Operation(summary = "Lista todos os pets da ONG")
+    @GetMapping("/{id}/pets")
+    public ResponseEntity<List<OngResponsePetsDTO>> listarPets(@PathVariable Integer id) {
+        var pets = ongService.listarTodosPetsDeOng(id);
+        if (pets.isEmpty()) {
+            return ResponseEntity.status(204).build();
+        }
+        return ResponseEntity.ok(pets);
     }
 }
