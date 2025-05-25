@@ -1,6 +1,5 @@
 package cruds.Ong.controller;
 
-import cruds.Imagem.entity.ImagemOng;
 import cruds.Imagem.service.ImagemOngService;
 import cruds.Ong.controller.dto.request.OngRequestCriarDTO;
 import cruds.Ong.controller.dto.request.OngRequestImagemDTO;
@@ -8,7 +7,6 @@ import cruds.Ong.controller.dto.request.OngRequestLoginDTO;
 import cruds.Ong.controller.dto.request.OngRequestUpdateDTO;
 import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
-import cruds.Ong.controller.dto.response.OngResponseUrlDTO;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.service.OngService;
 import cruds.common.exception.BadRequestException;
@@ -18,12 +16,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Base64;
 
 @RestController
 @RequestMapping("/ongs")
