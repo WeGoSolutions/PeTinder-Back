@@ -83,12 +83,12 @@ public class OngController {
         }
     }
 
-    @Operation(summary = "Retorna a imagem da ONG")
+    @Operation(summary = "Exibe a imagem da ONG")
     @GetMapping("/{id}/imagem/arquivo")
     public ResponseEntity<byte[]> getOngImage(@PathVariable Integer id) {
         byte[] imageData = ongService.getOngImageBytes(id);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_JPEG);
-        return new ResponseEntity<>(imageData, headers, HttpStatus.OK);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(imageData);
     }
 }
