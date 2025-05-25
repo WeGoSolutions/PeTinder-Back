@@ -4,10 +4,12 @@ import cruds.Forms.entity.Forms;
 import cruds.Imagem.repository.ImagemOngRepository;
 import cruds.Ong.entity.Ong;
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Entity
 @Table(name = "imagemOng")
+@Getter
 public class ImagemOng {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -168,17 +168,12 @@ public class OngService {
     public byte[] getOngImageBytes(Integer id) {
         Ong ong = acharPorId(id);
         if (ong.getImagemOng() == null) {
-            throw new NotFoundException("Imagem não encontrada");
-        }
-        String caminhoArquivo = ong.getImagemOng().getArquivo();
-        Path filePath = Paths.get(caminhoArquivo);
-        if (!Files.exists(filePath)) {
-            throw new NotFoundException("Arquivo de imagem não encontrado: " + caminhoArquivo);
+            throw new NotFoundException("Imagem não encontrada para a ONG com id " + id);
         }
         try {
-            return Files.readAllBytes(filePath);
+            return Files.readAllBytes(Paths.get(ong.getImagemOng().getCaminho()));
         } catch (IOException e) {
-            throw new RuntimeException("Erro ao ler a imagem", e);
+            throw new RuntimeException("Erro ao ler imagem da ONG: " + e.getMessage());
         }
     }
 }
