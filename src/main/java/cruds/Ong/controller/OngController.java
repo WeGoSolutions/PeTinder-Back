@@ -18,6 +18,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -81,10 +83,12 @@ public class OngController {
         }
     }
 
-    @Operation(summary = "Pega a imagem da ONG")
-    @GetMapping("/{id}/imagem")
-    public ResponseEntity<OngResponseUrlDTO> getImageOng(@PathVariable Integer id) {
-        OngResponseUrlDTO response = ongService.getImageOng(id);
-        return ResponseEntity.ok(response);
+    @Operation(summary = "Retorna a imagem da ONG")
+    @GetMapping("/{id}/imagem/arquivo")
+    public ResponseEntity<byte[]> getOngImage(@PathVariable Integer id) {
+        byte[] imageData = ongService.getOngImageBytes(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        return new ResponseEntity<>(imageData, headers, HttpStatus.OK);
     }
 }

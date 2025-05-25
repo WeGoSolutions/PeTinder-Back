@@ -35,6 +35,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -132,10 +135,11 @@ public class OngService {
         try {
             ImageValidationUtil.validateOngImage(imagemBytes, nomeArquivo);
 
-            String filePath = UPLOAD_DIR + "/ong_" + UUID.randomUUID() + "." + (extension.isEmpty() ? "jpg" : extension);
+            String imageFileName = "ong_" + UUID.randomUUID() + "." + (extension.isEmpty() ? "jpg" : extension);
+            imageStorageStrategy.salvarImagem(imagemBytes, imageFileName);
+            String caminhoArquivo = imageStorageStrategy.gerarCaminho(imageFileName);
 
-            salvarImagemNoDisco(imagemBytes, filePath);
-            ImagemOng imagemOng = new ImagemOng(filePath, ong);
+            ImagemOng imagemOng = new ImagemOng(caminhoArquivo, ong);
             ong.setImagemOng(imagemOng);
 
             return ongRepository.save(ong);
@@ -144,7 +148,7 @@ public class OngService {
         }
     }
 
-    public Ong acharPorId(Integer id){
+    public Ong acharPorId(Integer id) {
         return ongRepository.findById(id)
                 .orElseThrow(() -> new ConflictException("Ong com id:" + id + " não encontrada"));
     }
@@ -159,5 +163,22 @@ public class OngService {
             throw new ConflictException("Imagem não encontrada");
         }
         return OngResponseUrlDTO.toResponse(ong);
+    }
+
+    public byte[] getOngImageBytes(Integer id) {
+        Ong ong = acharPorId(id);
+        if (ong.getImagemOng() == null) {
+            throw new NotFoundException("Imagem não encontrada");
+        }
+        String caminhoArquivo = ong.getImagemOng().getArquivo();
+        Path filePath = Paths.get(caminhoArquivo);
+        if (!Files.exists(filePath)) {
+            throw new NotFoundException("Arquivo de imagem não encontrado: " + caminhoArquivo);
+        }
+        try {
+            return Files.readAllBytes(filePath);
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao ler a imagem", e);
+        }
     }
 }
