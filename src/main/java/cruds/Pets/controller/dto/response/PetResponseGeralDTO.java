@@ -6,9 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Data
 @NoArgsConstructor
@@ -51,10 +53,15 @@ public class PetResponseGeralDTO {
     }
 
     public static PetResponseGeralDTO toResponse(Pet pet) {
+        String baseUri = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .build()
+                .toUriString();
+
         List<String> imagemUrls = pet.getImagens() == null
                 ? null
-                : pet.getImagens().stream()
-                .map(Imagem::getCaminho)
+                : IntStream.range(0, pet.getImagens().size())
+                .mapToObj(i -> baseUri + "/pets/" + pet.getId() + "/imagens/" + i)
                 .collect(Collectors.toList());
 
         return PetResponseGeralDTO.builder()
@@ -69,8 +76,8 @@ public class PetResponseGeralDTO {
                 .isCastrado(pet.getIsCastrado())
                 .isVermifugo(pet.getIsVermifugo())
                 .isVacinado(pet.getIsVacinado())
-                .imagens(imagemUrls)
                 .status(pet.getStatus())
+                .imagens(imagemUrls)
                 .build();
     }
 }

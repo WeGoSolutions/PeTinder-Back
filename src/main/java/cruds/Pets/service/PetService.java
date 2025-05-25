@@ -59,10 +59,17 @@ public class PetService {
     }
 
     public Pet cadastrarPet(PetRequestCriarDTO dto) {
+        if (dto.getOngId() == null) {
+            throw new BadRequestException("OngId é obrigatório para cadastrar um pet");
+        }
+        if (dto.getImagemBase64() == null || dto.getImagemBase64().isEmpty()) {
+            throw new BadRequestException("É obrigatório enviar pelo menos uma imagem para o pet.");
+        }
+        var ong = ongRepository.findById(dto.getOngId())
+                .orElseThrow(() -> new NotFoundException("Ong com id: " + dto.getOngId() + " não encontrada"));
+
         Pet pet = PetRequestCriarDTO.toEntity(dto);
-        Ong ong = ongRepository.findById(dto.getOngId())
-                .orElseThrow(() -> new NotFoundException("ONG com id " + dto.getOngId() + " não encontrada"));
-        pet.setOng(ong);
+        pet.setOng(ong); // Associar a ONG ao pet
 
         pet = petRepository.save(pet);
 
@@ -98,9 +105,7 @@ public class PetService {
         }
 
         pet.setImagens(imagens);
-
         imagemRepository.saveAll(imagens);
-
         return pet;
     }
 
@@ -155,48 +160,24 @@ public class PetService {
         return petRepository.save(petParaAlterar);
     }
 
-    public Pet uploadPetImages(Integer id, List<String> imagensBase64, List<String> nomesArquivos) {
+    public Pet uploadPetImages(Integer id, List<byte[]> imagensBytes, List<String> nomesArquivos) {
         Pet pet = obterPetPorId(id);
-        List<byte[]> imagensBytes = new ArrayList<>();
-        for (int i = 0; i < imagensBase64.size(); i++) {
-            String base64 = imagensBase64.get(i);
-            String nomeArquivo = nomesArquivos.get(i);
-            if (!base64.startsWith("data:image/")) {
-                base64 = "data:image/jpeg;base64," + base64;
-                nomesArquivos.set(i, nomeArquivo.endsWith(".jpg") || nomeArquivo.endsWith(".jpeg") || nomeArquivo.endsWith(".png") ? nomeArquivo : nomeArquivo + ".jpg");
-            }
-            String base64Data = base64;
-            if (base64Data.startsWith("data:")) {
-                int commaIndex = base64Data.indexOf(",");
-                if (commaIndex != -1) {
-                    base64Data = base64Data.substring(commaIndex + 1);
-                }
-            }
-            imagensBytes.add(Base64.getDecoder().decode(base64Data));
-        }
         try {
             ImageValidationUtil.validatePetImages(imagensBytes, nomesArquivos);
         } catch (IOException e) {
             throw new BadRequestException("Erro ao processar as imagens: " + e.getMessage());
         }
-        List<Imagem> novasImagens = new ArrayList<>();
+        List<Imagem> imagens = new ArrayList<>();
         for (int i = 0; i < imagensBytes.size(); i++) {
             String filePath = UPLOAD_DIR + "/pet_" + UUID.randomUUID() + ".jpg";
             try {
                 salvarImagemNoDisco(imagensBytes.get(i), filePath);
-                novasImagens.add(new Imagem(filePath, pet));
+                imagens.add(new Imagem(filePath, pet));
             } catch (IOException e) {
                 throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage());
             }
         }
-        // Corrige o problema de referência da lista
-        if (pet.getImagens() == null) {
-            pet.setImagens(new ArrayList<>());
-        } else {
-            pet.getImagens().clear();
-        }
-        pet.getImagens().addAll(novasImagens);
-        imagemRepository.saveAll(novasImagens);
+
         return petRepository.save(pet);
     }
 
