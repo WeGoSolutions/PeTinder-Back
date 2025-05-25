@@ -17,7 +17,8 @@ public class OngResponseUrlDTO {
                 .id(ong.getId())
                 .nome(ong.getNome())
                 .email(ong.getEmail())
-                .imageUrl(ong.getImagemOng() != null ? ong.getImagemOng().getArquivo() : null)
+                .imageUrl(ong.getImagemOng() != null ?
+                        ("http://localhost:8080/ongs/" + ong.getId() + "/imagem/arquivo") : null)
                 .build();
     }
 }

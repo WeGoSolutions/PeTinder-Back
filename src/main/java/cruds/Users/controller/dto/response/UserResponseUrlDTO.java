@@ -17,7 +17,8 @@ public class UserResponseUrlDTO {
                 .id(user.getId())
                 .nome(user.getNome())
                 .email(user.getEmail())
-                .imageUrl(user.getImagemUser() != null ? user.getImagemUser().getArquivo() : null)
+                .imageUrl(user.getImagemUser() != null ?
+                        ("http://localhost:8080/users/" + user.getId() + "/imagens/0") : null)
                 .build();
     }
 }
