@@ -38,7 +38,7 @@ public class PetController {
     @PostMapping("/{id}/upload-imagens")
     public ResponseEntity<PetResponseCriarDTO> uploadPetImages(@PathVariable Integer id,
                                                                @RequestBody UploadImagesRequest request) {
-        var petAtualizado = petService.uploadPetImages(id, request.getImagensBase64(), request.getNomesArquivos());
+        var petAtualizado = petService.uploadPetImages(id, request.getImagensBytes(), request.getNomesArquivos());
         return ResponseEntity.status(200).body(PetResponseCriarDTO.toResponse(petAtualizado));
     }
 

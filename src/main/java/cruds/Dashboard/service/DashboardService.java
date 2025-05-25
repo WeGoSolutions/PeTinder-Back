@@ -52,7 +52,7 @@ public class DashboardService {
                 faltas.add("Vacina");
             }
             if (!faltas.isEmpty()) {
-                pendencias.add(new PetResponsePendenciasDTO(pet.getNome(), faltas));
+                pendencias.add(new PetResponsePendenciasDTO(pet.getNome(), faltas, pet.getId()));
             }
         }
         return pendencias;
