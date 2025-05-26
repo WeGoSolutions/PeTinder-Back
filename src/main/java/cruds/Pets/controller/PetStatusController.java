@@ -2,12 +2,14 @@ package cruds.Pets.controller;
 
 import cruds.Pets.controller.dto.request.PetStatusRequestDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
+import cruds.Pets.controller.dto.response.PetResponsePendingOngDTO;
 import cruds.Pets.controller.dto.response.PetStatusResponseDTO;
 import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
 import cruds.Pets.repository.PetStatusRepository;
 import cruds.Pets.service.PetStatusService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -116,20 +118,11 @@ public class PetStatusController {
 
     @Operation(summary = "Define o status de um pet como ADOPTED para um usuário")
     @PostMapping("/adopted/{petId}/{userId}")
-    public ResponseEntity<PetStatusResponseDTO> setAdoptedStatus(
+    public ResponseEntity<PetStatusResponseDTO> adoptPet(
             @PathVariable Integer petId,
             @PathVariable Integer userId) {
 
-        petStatusService.publicarAdocao(petId);
-
-        petStatusService.removerOutrosStatus(petId, userId);
-
-        PetStatusRequestDTO dto = new PetStatusRequestDTO();
-        dto.setPetId(petId);
-        dto.setUserId(userId);
-        dto.setStatus(PetStatusEnum.ADOPTED);
-
-        var petStatus = petStatusService.createOrUpdatePetStatus(dto);
+        PetStatus petStatus = petStatusService.adoptPet(petId, userId);
         return ResponseEntity.ok(new PetStatusResponseDTO(petStatus));
     }
 
@@ -146,5 +139,27 @@ public class PetStatusController {
 
         var petStatus = petStatusService.createOrUpdatePetStatus(dto);
         return ResponseEntity.ok(new PetStatusResponseDTO(petStatus));
+    }
+
+    @Operation(summary = "Lista todos os status de um pet específico")
+    @GetMapping("/pet/{petId}")
+    public ResponseEntity<List<PetStatusEnum>> getPetStatusList(@PathVariable Integer petId) {
+        List<PetStatusEnum> statusList = petStatusService.getPetStatusList(petId);
+        if (statusList.isEmpty()) {
+            return ResponseEntity.status(204).build();
+        }
+        return ResponseEntity.ok(statusList);
+    }
+
+    @Operation(summary = "Lista os pets com status PENDING com informações das ONGs para um usuário específico")
+    @GetMapping("/pending/ong/{userId}")
+    public ResponseEntity<List<PetResponsePendingOngDTO>> listPendingPetsWithOngForUser(
+            HttpServletRequest request,
+            @PathVariable Integer userId) {
+        List<PetResponsePendingOngDTO> pendingPets = petStatusService.listPendingPetsWithOngForUser(userId, request);
+        if (pendingPets.isEmpty()) {
+            return ResponseEntity.status(204).build();
+        }
+        return ResponseEntity.ok(pendingPets);
     }
 }

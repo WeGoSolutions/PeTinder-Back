@@ -13,6 +13,7 @@ import cruds.Ong.entity.Ong;
 import cruds.Ong.repository.OngRepository;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.entity.PetStatus;
+import cruds.Pets.repository.PetRepository;
 import cruds.Pets.repository.PetStatusRepository;
 import cruds.Users.controller.dto.request.UserRequestCriarDTO;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
@@ -54,18 +55,21 @@ public class OngService {
     private AuthenticationManager authenticationManager;
     private GerenciadorTokenJwt gerenciadorTokenJwt;
     private OngRepository ongRepository;
+    private final PetRepository petRepository;
+
     private final PetStatusRepository petStatusRepository;
     private static final String DEFAULT_IMAGE_NAME = "ong.jpg";
     private static final String UPLOAD_DIR = System.getProperty("user.home") + "/Desktop/S3 local/imagens/";
 
 
     @Autowired
-    public OngService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, OngRepository ongRepository, ImageStorageStrategy imageStorageStrategy, PetStatusRepository petStatusRepository) {
+    public OngService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, OngRepository ongRepository, ImageStorageStrategy imageStorageStrategy, PetRepository petRepository, PetStatusRepository petStatusRepository) {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.gerenciadorTokenJwt = gerenciadorTokenJwt;
         this.ongRepository = ongRepository;
         this.imageStorageStrategy = imageStorageStrategy;
+        this.petRepository = petRepository;
         this.petStatusRepository = petStatusRepository;
     }
 
@@ -177,22 +181,15 @@ public class OngService {
     }
 
     public List<OngResponsePetsDTO> listarTodosPetsDeOng(Integer ongId) {
-        Ong ong = acharPorId(ongId);
-        if (ong.getPets() == null || ong.getPets().isEmpty()) {
-            throw new NotFoundException("Nenhum pet encontrado para a ONG com id " + ong.getId());
-        }
-        List<OngResponsePetsDTO> petsDTO = new ArrayList<>();
-        ong.getPets().forEach(pet -> {
-            List<String> statusList = new ArrayList<>();
-            Optional<PetStatus> petStatusOpt = petStatusRepository.findByPet_IdAndUser_Id(pet.getId(), ong.getId());
-            petStatusOpt.ifPresent(petStatus -> {
-                if (petStatus.getStatus() != null) {
-                    statusList.add(petStatus.getStatus().toString());
-                }
-            });
-            petsDTO.add(new OngResponsePetsDTO(ong.getId(), pet, statusList));
-        });
-        return petsDTO;
+        List<Pet> pets = petRepository.findByOngId(ongId);
+        return pets.stream().map(pet -> {
+            List<String> statusList = petStatusRepository.findByPet_Id(pet.getId())
+                    .stream()
+                    .map(status -> status.getStatus().name())
+                    .collect(Collectors.toList());
+
+            return new OngResponsePetsDTO(ongId, pet, statusList);
+        }).collect(Collectors.toList());
     }
 
     public OngResponseUrlDTO getImageOng(Integer id) {

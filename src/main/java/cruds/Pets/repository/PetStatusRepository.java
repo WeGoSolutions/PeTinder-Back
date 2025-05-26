@@ -33,4 +33,6 @@ public interface PetStatusRepository extends JpaRepository<PetStatus, Integer> {
 
     @Query("select ps from PetStatus ps where ps.pet.id = :petId and ps.user.id = :userId")
     Optional<PetStatus> findByPetStatusIdAndUserId(@Param("petId") Integer petId, @Param("userId") Integer userId);
+
+    List<PetStatus> findByPet_Id(Integer petId);
 }
