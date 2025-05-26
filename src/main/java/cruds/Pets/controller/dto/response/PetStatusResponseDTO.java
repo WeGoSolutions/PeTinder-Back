@@ -61,6 +61,4 @@ public class PetStatusResponseDTO {
     public String getImageUrl() {
         return imageUrl;
     }
-
-
 }

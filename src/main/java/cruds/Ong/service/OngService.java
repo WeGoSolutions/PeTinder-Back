@@ -12,6 +12,8 @@ import cruds.Ong.controller.dto.response.OngResponseUrlDTO;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.repository.OngRepository;
 import cruds.Pets.entity.Pet;
+import cruds.Pets.entity.PetStatus;
+import cruds.Pets.repository.PetStatusRepository;
 import cruds.Users.controller.dto.request.UserRequestCriarDTO;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.controller.dto.response.UserResponseLoginDTO;
@@ -52,17 +54,19 @@ public class OngService {
     private AuthenticationManager authenticationManager;
     private GerenciadorTokenJwt gerenciadorTokenJwt;
     private OngRepository ongRepository;
+    private final PetStatusRepository petStatusRepository;
     private static final String DEFAULT_IMAGE_NAME = "ong.jpg";
     private static final String UPLOAD_DIR = System.getProperty("user.home") + "/Desktop/S3 local/imagens/";
 
 
     @Autowired
-    public OngService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, OngRepository ongRepository, ImageStorageStrategy imageStorageStrategy) {
+    public OngService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, OngRepository ongRepository, ImageStorageStrategy imageStorageStrategy, PetStatusRepository petStatusRepository) {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.gerenciadorTokenJwt = gerenciadorTokenJwt;
         this.ongRepository = ongRepository;
         this.imageStorageStrategy = imageStorageStrategy;
+        this.petStatusRepository = petStatusRepository;
     }
 
     public Ong criarOng(@Valid OngRequestCriarDTO dto) {
@@ -131,6 +135,7 @@ public class OngService {
                 .senha(ongRequest.getSenha())
                 .email(ongRequest.getEmail())
                 .link(ongRequest.getLink())
+                .endereco(ongRequest.getEndereco() != null ? ongRequest.getEndereco().toEntity() : ongExistente.getEndereco())
                 .build();
 
         Ong ongAtualizada = ongRepository.save(ongExistente);
@@ -178,7 +183,14 @@ public class OngService {
         }
         List<OngResponsePetsDTO> petsDTO = new ArrayList<>();
         ong.getPets().forEach(pet -> {
-            petsDTO.add(new OngResponsePetsDTO(ong.getId(), pet));
+            List<String> statusList = new ArrayList<>();
+            Optional<PetStatus> petStatusOpt = petStatusRepository.findByPet_IdAndUser_Id(pet.getId(), ong.getId());
+            petStatusOpt.ifPresent(petStatus -> {
+                if (petStatus.getStatus() != null) {
+                    statusList.add(petStatus.getStatus().toString());
+                }
+            });
+            petsDTO.add(new OngResponsePetsDTO(ong.getId(), pet, statusList));
         });
         return petsDTO;
     }

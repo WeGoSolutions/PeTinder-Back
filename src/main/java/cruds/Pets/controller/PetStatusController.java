@@ -92,16 +92,24 @@ public class PetStatusController {
 
     @Operation(summary = "Define o status de um pet como LIKED para um usuário")
     @PostMapping("/liked/{petId}/{userId}")
-    public ResponseEntity<PetStatusResponseDTO> setLikedStatus(
+    public ResponseEntity<?> setLikedStatus(
             @PathVariable Integer petId,
             @PathVariable Integer userId) {
+
+        var existingStatusOpt = petStatusRepository.findByPetIdAndUserId(petId, userId);
+
+        if (existingStatusOpt.isPresent() && existingStatusOpt.get().getStatus() == PetStatusEnum.LIKED) {
+            petStatusService.decrementarCurtidasPet(petId);
+            petStatusService.deletePetStatus(petId, userId);
+            return ResponseEntity.noContent().build();
+        }
+
         PetStatusRequestDTO dto = new PetStatusRequestDTO();
         dto.setPetId(petId);
         dto.setUserId(userId);
-        dto.setStatus(PetStatusEnum.valueOf("LIKED"));
+        dto.setStatus(PetStatusEnum.LIKED);
 
         petStatusService.incrementarCurtidasPet(petId);
-
         var petStatus = petStatusService.createOrUpdatePetStatus(dto);
         return ResponseEntity.ok(new PetStatusResponseDTO(petStatus));
     }
@@ -114,10 +122,27 @@ public class PetStatusController {
 
         petStatusService.publicarAdocao(petId);
 
+        petStatusService.removerOutrosStatus(petId, userId);
+
         PetStatusRequestDTO dto = new PetStatusRequestDTO();
         dto.setPetId(petId);
         dto.setUserId(userId);
         dto.setStatus(PetStatusEnum.ADOPTED);
+
+        var petStatus = petStatusService.createOrUpdatePetStatus(dto);
+        return ResponseEntity.ok(new PetStatusResponseDTO(petStatus));
+    }
+
+    @Operation(summary = "Define o status de um pet como PENDING para um usuário")
+    @PostMapping("/pending/{petId}/{userId}")
+    public ResponseEntity<PetStatusResponseDTO> setPendingStatus(
+            @PathVariable Integer petId,
+            @PathVariable Integer userId) {
+
+        PetStatusRequestDTO dto = new PetStatusRequestDTO();
+        dto.setPetId(petId);
+        dto.setUserId(userId);
+        dto.setStatus(PetStatusEnum.PENDING);
 
         var petStatus = petStatusService.createOrUpdatePetStatus(dto);
         return ResponseEntity.ok(new PetStatusResponseDTO(petStatus));

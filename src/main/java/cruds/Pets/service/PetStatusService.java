@@ -104,6 +104,14 @@ public class PetStatusService {
         petRepository.save(pet);
     }
 
+    public void decrementarCurtidasPet(Integer petId) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new EntityNotFoundException("Pet não encontrado"));
+        int atual = pet.getCurtidas() != null ? pet.getCurtidas() : 0;
+        pet.setCurtidas(atual - 1);
+        petRepository.save(pet);
+    }
+
     public void publicarAdocao(Integer petId) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new EntityNotFoundException("Pet não encontrado"));
@@ -131,5 +139,10 @@ public class PetStatusService {
             }
         }
         return result;
+    }
+
+    @Transactional
+    public void removerOutrosStatus(Integer petId, Integer userId) {
+        petStatusRepository.deleteByPetIdAndUserIdNot(petId, userId);
     }
 }

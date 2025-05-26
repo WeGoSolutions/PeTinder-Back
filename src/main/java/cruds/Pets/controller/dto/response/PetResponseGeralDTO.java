@@ -2,6 +2,7 @@ package cruds.Pets.controller.dto.response;
 
 import cruds.Pets.entity.Pet;
 import cruds.Imagem.entity.Imagem;
+import cruds.Users.controller.dto.response.EnderecoResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,10 +29,13 @@ public class PetResponseGeralDTO {
     private Boolean isCastrado;
     private Boolean isVermifugo;
     private Boolean isVacinado;
-    private String status;
+    //private String status;
     private List<String> imagens;
     private String sexo;
     private Integer ongId;
+    private String nomeOng;
+    private String linkOng;
+    private EnderecoResponseDTO endereco;
 
     public PetResponseGeralDTO(Pet pet) {
         this.id = pet.getId();
@@ -45,7 +49,6 @@ public class PetResponseGeralDTO {
         this.isCastrado = pet.getIsCastrado();
         this.isVermifugo = pet.getIsVermifugo();
         this.isVacinado = pet.getIsVacinado();
-        this.status = pet.getStatus();
         this.sexo = pet.getSexo();
         this.ongId = pet.getOng() != null ? pet.getOng().getId() : null;
 
@@ -80,10 +83,14 @@ public class PetResponseGeralDTO {
                 .isCastrado(pet.getIsCastrado())
                 .isVermifugo(pet.getIsVermifugo())
                 .isVacinado(pet.getIsVacinado())
-                .status(pet.getStatus())
                 .imagens(imagemUrls)
                 .sexo(pet.getSexo())
                 .ongId(pet.getOng() != null ? pet.getOng().getId() : null)
+                .nomeOng(pet.getOng() != null ? pet.getOng().getNome() : null)
+                .linkOng(pet.getOng() != null ? pet.getOng().getLink() : null)
+                .endereco(pet.getOng() != null && pet.getOng().getEndereco() != null
+                        ? EnderecoResponseDTO.toResponse(pet.getOng().getEndereco())
+                        : null)
                 .build();
     }
 }

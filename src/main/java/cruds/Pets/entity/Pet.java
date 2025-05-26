@@ -55,8 +55,4 @@ public class Pet {
     @ManyToOne
     @JoinColumn(name = "ong_id", nullable = false)
     private Ong ong;
-
-    @Column(name = "status")
-    private String status;
-
 }
