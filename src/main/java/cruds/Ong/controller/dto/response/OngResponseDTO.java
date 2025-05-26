@@ -1,14 +1,11 @@
 package cruds.Ong.controller.dto.response;
 
 import cruds.Ong.entity.Ong;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import cruds.Users.controller.dto.response.EnderecoResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -22,20 +19,21 @@ public class OngResponseDTO {
     private String nome;
     private String razaoSocial;
     private String email;
-    private String senha;
     private String link;
+    private EnderecoResponseDTO endereco;
 
     public static OngResponseDTO toResponse(Ong ong) {
+        if (ong == null) return null;
+
         return OngResponseDTO.builder()
                 .id(ong.getId())
+                .nome(ong.getNome())
+                .email(ong.getEmail())
                 .cnpj(ong.getCnpj())
                 .cpf(ong.getCpf())
-                .nome(ong.getNome())
                 .razaoSocial(ong.getRazaoSocial())
-                .email(ong.getEmail())
-                .senha(ong.getSenha())
                 .link(ong.getLink())
+                .endereco(EnderecoResponseDTO.toResponse(ong.getEndereco()))
                 .build();
     }
-
 }
