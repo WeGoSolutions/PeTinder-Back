@@ -32,13 +32,14 @@ public class OngResponsePetsDTO {
     private Boolean isCastrado;
     private Boolean isVermifugo;
     private Boolean isVacinado;
-    private String status;
     private List<String> imageUrl;
     private String sexo;
+    private List<String> status; // Lista de status do pet
 
     public OngResponsePetsDTO() {}
 
-    public OngResponsePetsDTO(Integer ongId, Pet pet) {
+    // Construtor que recebe a lista de status como parâmetro
+    public OngResponsePetsDTO(Integer ongId, Pet pet, List<String> statusList) {
         this.ongId = ongId;
         this.petId = pet.getId();
         this.petNome = pet.getNome();
@@ -51,8 +52,8 @@ public class OngResponsePetsDTO {
         this.isCastrado = pet.getIsCastrado();
         this.isVermifugo = pet.getIsVermifugo();
         this.isVacinado = pet.getIsVacinado();
-        this.status = pet.getStatus() != null ? pet.getStatus().toString() : null;
         this.sexo = pet.getSexo();
+        this.status = statusList;
 
         String baseUri = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
@@ -66,6 +67,11 @@ public class OngResponsePetsDTO {
                 .collect(Collectors.toList());
     }
 
+    public OngResponsePetsDTO(Integer ongId, Pet pet) {
+        this(ongId, pet, null);
+    }
+
+    // Construtor padrão sem status (mantido para compatibilidade)
     public OngResponsePetsDTO(Integer ongId,
                               Integer petId,
                               String petNome,
@@ -78,7 +84,6 @@ public class OngResponsePetsDTO {
                               Boolean isCastrado,
                               Boolean isVermifugo,
                               Boolean isVacinado,
-                              String status,
                               List<String> imageUrl,
                               String sexo) {
         this.ongId = ongId;
@@ -93,8 +98,40 @@ public class OngResponsePetsDTO {
         this.isCastrado = isCastrado;
         this.isVermifugo = isVermifugo;
         this.isVacinado = isVacinado;
-        this.status = status;
         this.imageUrl = imageUrl;
         this.sexo = sexo;
+    }
+
+    // Novo construtor para aceitar o parâmetro extra da lista de status (15 argumentos)
+    public OngResponsePetsDTO(Integer ongId,
+                              Integer petId,
+                              String petNome,
+                              Double idade,
+                              Double peso,
+                              Double altura,
+                              Integer curtidas,
+                              List<String> tags,
+                              String descricao,
+                              Boolean isCastrado,
+                              Boolean isVermifugo,
+                              Boolean isVacinado,
+                              List<String> imageUrl,
+                              String sexo,
+                              List<String> status) {
+        this.ongId = ongId;
+        this.petId = petId;
+        this.petNome = petNome;
+        this.idade = idade;
+        this.peso = peso;
+        this.altura = altura;
+        this.curtidas = curtidas;
+        this.tags = tags;
+        this.descricao = descricao;
+        this.isCastrado = isCastrado;
+        this.isVermifugo = isVermifugo;
+        this.isVacinado = isVacinado;
+        this.imageUrl = imageUrl;
+        this.sexo = sexo;
+        this.status = status;
     }
 }

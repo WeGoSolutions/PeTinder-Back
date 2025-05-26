@@ -1,5 +1,6 @@
 package cruds.Ong.controller.dto.request;
 
+import cruds.Users.controller.dto.request.EnderecoRequestDTO;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -40,4 +41,6 @@ public class OngRequestUpdateDTO {
     @NotBlank
     private String link;
 
+    @NotBlank
+    private EnderecoRequestDTO endereco;
 }

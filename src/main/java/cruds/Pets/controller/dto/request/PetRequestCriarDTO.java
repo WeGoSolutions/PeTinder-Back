@@ -49,7 +49,6 @@ public class PetRequestCriarDTO {
 
     private Boolean isAdotado;
 
-    private String status;
 
     @Size(max = 5)
     @NotEmpty
@@ -72,7 +71,6 @@ public class PetRequestCriarDTO {
                 .isVermifugo(Boolean.TRUE.equals(petRequest.getIsVermifugo()))
                 .isVacinado(Boolean.TRUE.equals(petRequest.getIsVacinado()))
                 .isAdopted(false)
-                .status("PENDING")
                 .sexo(petRequest.getSexo())
                 .build();
     }

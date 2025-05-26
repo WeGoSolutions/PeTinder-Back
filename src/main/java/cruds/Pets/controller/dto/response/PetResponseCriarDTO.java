@@ -26,7 +26,7 @@ public class PetResponseCriarDTO {
     private Boolean isVermifugo;
     private Boolean isVacinado;
     private Integer ongId;
-    private String status;
+    //private String status;
     private String sexo;
 
     public static PetResponseCriarDTO toResponse(Pet pet) {
@@ -42,7 +42,7 @@ public class PetResponseCriarDTO {
                 .isVacinado(pet.getIsVacinado())
                 .isVermifugo(pet.getIsVermifugo())
                 .ongId(pet.getOng().getId())
-                .status(pet.getStatus())
+                //.status(pet.getStatus())
                 .sexo(pet.getSexo())
                 .build();
     }
