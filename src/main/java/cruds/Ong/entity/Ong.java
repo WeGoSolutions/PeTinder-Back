@@ -3,6 +3,7 @@ package cruds.Ong.entity;
 import cruds.Imagem.entity.ImagemForms;
 import cruds.Imagem.entity.ImagemOng;
 import cruds.Pets.entity.Pet;
+import cruds.Users.entity.Endereco;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,4 +52,8 @@ public class Ong {
 
     @Column(name = "link")
     private String link;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "endereco_id")
+    private Endereco endereco;
 }

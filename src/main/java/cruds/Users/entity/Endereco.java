@@ -14,7 +14,6 @@ public class Endereco {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     private String cep;
     private String rua;
     private Integer numero;
@@ -22,6 +21,4 @@ public class Endereco {
     private String uf;
     private String complemento;
 
-    @OneToMany(mappedBy = "endereco")
-    private List<User> usuarios;
 }
