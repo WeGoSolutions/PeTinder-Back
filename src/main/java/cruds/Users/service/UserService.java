@@ -174,6 +174,21 @@ public class UserService {
         return UserResponseCadastroDTO.toResponse(user);
     }
 
+    public UserResponseCadastroDTO updatePassword(Integer id, String senhaAtual, String novaSenha) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User não encontrado"));
+
+        if (!passwordEncoder.matches(senhaAtual, user.getSenha())) {
+            throw new ConflictException("Senha atual não confere");
+        }
+
+        String novaSenhaCriptografada = passwordEncoder.encode(novaSenha);
+        user.setSenha(novaSenhaCriptografada);
+        userRepository.save(user);
+
+        return UserResponseCadastroDTO.toResponse(user);
+    }
+
     public UserResponseCadastroDTO updateUser(Integer id, UserRequestUpdateDTO dto) {
         if (!userRepository.existsById(id)) {
             throw new NotFoundException("Usuário com id: " + id + " não encontrado");

@@ -1,10 +1,7 @@
 package cruds.Ong.controller;
 
 import cruds.Imagem.service.ImagemOngService;
-import cruds.Ong.controller.dto.request.OngRequestCriarDTO;
-import cruds.Ong.controller.dto.request.OngRequestImagemDTO;
-import cruds.Ong.controller.dto.request.OngRequestLoginDTO;
-import cruds.Ong.controller.dto.request.OngRequestUpdateDTO;
+import cruds.Ong.controller.dto.request.*;
 import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
 import cruds.Ong.controller.dto.response.OngResponsePetsDTO;
@@ -39,6 +36,13 @@ public class OngController {
     public ResponseEntity<OngResponseDTO> criarOng(@Valid @RequestBody OngRequestCriarDTO ong) {
         var ongCriada = ongService.criarOng(ong);
         return ResponseEntity.status(201).body(OngResponseDTO.toResponse(ongCriada));
+    }
+
+    @PatchMapping("/{id}/senha")
+    public ResponseEntity<OngResponseDTO> updatePassword(@PathVariable Integer id,
+                                                         @Valid @RequestBody OngRequestUpdatePasswordDTO req) {
+        OngResponseDTO response = ongService.updatePassword(id, req.getSenhaAtual(), req.getNovaSenha());
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Realiza login da ONG")
