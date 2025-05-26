@@ -1,7 +1,8 @@
 package cruds.Ong.controller.dto.request;
 
-import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.entity.Ong;
+import cruds.Users.controller.dto.request.EnderecoRequestDTO;
+import cruds.Users.entity.Endereco;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -42,7 +43,21 @@ public class OngRequestCriarDTO {
     @NotBlank
     private String link;
 
+    private EnderecoRequestDTO endereco;
+
     public static Ong toEntity(OngRequestCriarDTO ongRequest) {
+        Endereco endereco = null;
+        if (ongRequest.getEndereco() != null) {
+            endereco = Endereco.builder()
+                    .cep(ongRequest.getEndereco().getCep())
+                    .rua(ongRequest.getEndereco().getRua())
+                    .numero(ongRequest.getEndereco().getNumero())
+                    .cidade(ongRequest.getEndereco().getCidade())
+                    .uf(ongRequest.getEndereco().getUf())
+                    .complemento(ongRequest.getEndereco().getComplemento())
+                    .build();
+        }
+
         return Ong.builder()
                 .cnpj(ongRequest.getCnpj())
                 .cpf(ongRequest.getCpf())
@@ -51,8 +66,7 @@ public class OngRequestCriarDTO {
                 .senha(ongRequest.getSenha())
                 .email(ongRequest.getEmail())
                 .link(ongRequest.getLink())
+                .endereco(endereco)
                 .build();
     }
-
-
 }
