@@ -7,9 +7,11 @@ import cruds.Ong.controller.dto.request.OngRequestImagemDTO;
 import cruds.Ong.controller.dto.request.OngRequestUpdateDTO;
 import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
+import cruds.Ong.controller.dto.response.OngResponsePetsDTO;
 import cruds.Ong.controller.dto.response.OngResponseUrlDTO;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.repository.OngRepository;
+import cruds.Pets.entity.Pet;
 import cruds.Users.controller.dto.request.UserRequestCriarDTO;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.controller.dto.response.UserResponseLoginDTO;
@@ -40,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OngService {
@@ -153,8 +156,16 @@ public class OngService {
                 .orElseThrow(() -> new ConflictException("Ong com id:" + id + " não encontrada"));
     }
 
-    private void salvarImagemNoDisco(byte[] imagemBytes, String caminhoRelativo) throws IOException {
-        imageStorageStrategy.salvarImagem(imagemBytes, caminhoRelativo);
+    public List<OngResponsePetsDTO> listarTodosPetsDeOng(Integer ongId) {
+        Ong ong = acharPorId(ongId);
+        if (ong.getPets() == null || ong.getPets().isEmpty()) {
+            throw new NotFoundException("Nenhum pet encontrado para a ONG com id " + ong.getId());
+        }
+        List<OngResponsePetsDTO> petsDTO = new ArrayList<>();
+        ong.getPets().forEach(pet -> {
+            petsDTO.add(new OngResponsePetsDTO(ong.getId(), pet));
+        });
+        return petsDTO;
     }
 
     public OngResponseUrlDTO getImageOng(Integer id) {

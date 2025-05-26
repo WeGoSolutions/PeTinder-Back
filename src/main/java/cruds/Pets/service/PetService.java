@@ -9,6 +9,8 @@ import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Imagem.entity.Imagem;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.repository.PetRepository;
+import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
+import cruds.Users.entity.User;
 import cruds.common.exception.BadRequestException;
 import cruds.common.exception.ConflictException;
 import cruds.common.exception.NoContentException;
@@ -276,5 +278,10 @@ public class PetService {
         imageStorageStrategy.salvarImagem(imagemBytes, caminhoRelativo);
     }
 
+    public PetResponseGeralDTO getPetById(Integer id) {
+        Pet pet  = petRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Pet com id: " + id + " não encontrado"));
+        return PetResponseGeralDTO.toResponse(pet);
+    }
 }
 
