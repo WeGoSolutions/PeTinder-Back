@@ -9,6 +9,7 @@ import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.repository.PetRepository;
 import cruds.Pets.service.PetService;
+import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.common.exception.NotFoundException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -118,6 +119,13 @@ public class PetController {
                                              @PathVariable int indice) {
         petService.apagarImagem(id, indice);
         return ResponseEntity.status(204).build();
+    }
+
+    @Operation(summary = "Busca pet por ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<PetResponseGeralDTO> getPetById(@PathVariable Integer id) {
+        var pet = petService.getPetById(id);
+        return ResponseEntity.ok(pet);
     }
 
 }

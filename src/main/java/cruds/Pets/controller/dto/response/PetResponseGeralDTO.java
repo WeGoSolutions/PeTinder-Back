@@ -28,8 +28,10 @@ public class PetResponseGeralDTO {
     private Boolean isCastrado;
     private Boolean isVermifugo;
     private Boolean isVacinado;
-    private  String status;
+    private String status;
     private List<String> imagens;
+    private String sexo;
+    private Integer ongId;
 
     public PetResponseGeralDTO(Pet pet) {
         this.id = pet.getId();
@@ -44,6 +46,8 @@ public class PetResponseGeralDTO {
         this.isVermifugo = pet.getIsVermifugo();
         this.isVacinado = pet.getIsVacinado();
         this.status = pet.getStatus();
+        this.sexo = pet.getSexo();
+        this.ongId = pet.getOng() != null ? pet.getOng().getId() : null;
 
         if (pet.getImagens() != null) {
             this.imagens = pet.getImagens().stream()
@@ -78,6 +82,8 @@ public class PetResponseGeralDTO {
                 .isVacinado(pet.getIsVacinado())
                 .status(pet.getStatus())
                 .imagens(imagemUrls)
+                .sexo(pet.getSexo())
+                .ongId(pet.getOng() != null ? pet.getOng().getId() : null)
                 .build();
     }
 }
