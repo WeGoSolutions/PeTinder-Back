@@ -76,6 +76,21 @@ public class OngService {
         return ongCriada;
     }
 
+    public OngResponseDTO updatePassword(Integer id, String senhaAtual, String novaSenha) {
+        Ong ong = ongRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("ONG não encontrada"));
+
+        if (!passwordEncoder.matches(senhaAtual, ong.getSenha())) {
+            throw new ConflictException("Senha atual não confere");
+        }
+
+        String novaSenhaCriptografada = passwordEncoder.encode(novaSenha);
+        ong.setSenha(novaSenhaCriptografada);
+        ongRepository.save(ong);
+
+        return OngResponseDTO.toResponse(ong);
+    }
+
     public OngResponseLoginDTO login(@Email @NotBlank String email, @NotBlank String senha) {
 
 

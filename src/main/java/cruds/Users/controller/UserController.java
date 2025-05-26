@@ -149,4 +149,11 @@ public class UserController {
         UserResponseUrlDTO response = userService.getUrlImageUser(id);
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/{id}/senha")
+    public ResponseEntity<UserResponseCadastroDTO> updatePassword(@PathVariable Integer id,
+                                                         @Valid @RequestBody UserRequestUpdatePasswordDTO req) {
+        UserResponseCadastroDTO response = userService.updatePassword(id, req.getSenhaAtual(), req.getNovaSenha());
+        return ResponseEntity.ok(response);
+    }
 }
