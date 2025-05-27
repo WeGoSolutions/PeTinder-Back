@@ -5,6 +5,7 @@ import cruds.Ong.entity.Ong;
 import cruds.Pets.controller.dto.request.PetStatusRequestDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.controller.dto.response.PetResponsePendingOngDTO;
+import cruds.Pets.controller.dto.response.PetResponseUserPendenteDTO;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
@@ -46,6 +47,10 @@ public class PetStatusService {
                 .orElse(new PetStatus());
 
         status.setStatus(dto.getStatus());
+
+        if (dto.getStatus() == PetStatusEnum.PENDING) {
+            status.setAlteradoParaPending(java.time.LocalDateTime.now());
+        }
 
         if (status.getId() == null) {
             Pet pet = petRepository.findById(dto.getPetId())
@@ -89,7 +94,6 @@ public class PetStatusService {
                     Pet pet = petStatus.getPet();
                     Ong ong = pet.getOng();
 
-                    // Gerar URLs para as imagens
                     List<String> imageUrls = new ArrayList<>();
                     for (int i = 0; i < pet.getImagens().size(); i++) {
                         imageUrls.add(baseUrl + "/pets/" + pet.getId() + "/imagens/" + i);
@@ -100,13 +104,12 @@ public class PetStatusService {
                             pet.getId(),
                             pet.getNome(),
                             pet.getIdade(),
-                            pet.getPeso(),
-                            pet.getAltura(),
+                            pet.getPorte(),
                             pet.getDescricao(),
                             pet.getIsCastrado(),
                             pet.getIsVermifugo(),
                             pet.getIsVacinado(),
-                            imageUrls, // Usando as URLs geradas
+                            imageUrls,
                             pet.getSexo(),
                             ong.getId(),
                             OngResponseDTO.toResponse(ong)
@@ -244,5 +247,20 @@ public class PetStatusService {
     @Transactional
     public void removerOutrosStatus(Integer petId, Integer userId) {
         petStatusRepository.deleteByPetIdAndUserIdNot(petId, userId);
+    }
+
+    public List<PetResponseUserPendenteDTO> listPendingUsersByPetId(Integer petId) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new NotFoundException("Pet com id " + petId + " não encontrado"));
+
+        List<PetStatus> pendingStatuses = petStatusRepository.findByPet_IdAndStatus(petId, PetStatusEnum.PENDING);
+
+        if (pendingStatuses.isEmpty()) {
+            throw new NotFoundException("Nenhum usuário pendente encontrado para o pet com id " + petId);
+        }
+
+        return pendingStatuses.stream()
+                .map(status -> PetResponseUserPendenteDTO.toResponse(pet, status.getUser()))
+                .collect(Collectors.toList());
     }
 }

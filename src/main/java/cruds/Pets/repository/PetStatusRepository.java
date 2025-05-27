@@ -13,8 +13,6 @@ import java.util.Optional;
 
 public interface PetStatusRepository extends JpaRepository<PetStatus, Integer> {
 
-    List<PetStatus> findByUserId(Integer userId);
-
     List<PetStatus> findByUserIdAndStatus(Integer userId, PetStatusEnum status);
 
     Optional<PetStatus> findByPetIdAndUserId(Integer petId, Integer userId);
@@ -31,8 +29,7 @@ public interface PetStatusRepository extends JpaRepository<PetStatus, Integer> {
 
     void deleteByPetIdAndUserIdNot(Integer petId, Integer userId);
 
-    @Query("select ps from PetStatus ps where ps.pet.id = :petId and ps.user.id = :userId")
-    Optional<PetStatus> findByPetStatusIdAndUserId(@Param("petId") Integer petId, @Param("userId") Integer userId);
-
     List<PetStatus> findByPet_Id(Integer petId);
+
+    List<PetStatus> findByPet_IdAndStatus(Integer petId, PetStatusEnum status);
 }

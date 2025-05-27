@@ -21,15 +21,13 @@ public class PetResponseGeralDTO {
     private Integer id;
     private String nome;
     private Double idade;
-    private Double peso;
-    private Double altura;
+    private String porte;
     private Integer curtidas;
     private String descricao;
     private List<String> tags;
     private Boolean isCastrado;
     private Boolean isVermifugo;
     private Boolean isVacinado;
-    //private String status;
     private List<String> imagens;
     private String sexo;
     private Integer ongId;
@@ -41,8 +39,7 @@ public class PetResponseGeralDTO {
         this.id = pet.getId();
         this.nome = pet.getNome();
         this.idade = pet.getIdade();
-        this.peso = pet.getPeso();
-        this.altura = pet.getAltura();
+        this.porte = pet.getPorte();
         this.curtidas = pet.getCurtidas();
         this.descricao = pet.getDescricao();
         this.tags = pet.getTags();
@@ -75,8 +72,7 @@ public class PetResponseGeralDTO {
                 .id(pet.getId())
                 .nome(pet.getNome())
                 .idade(pet.getIdade())
-                .peso(pet.getPeso())
-                .altura(pet.getAltura())
+                .porte(pet.getPorte())
                 .curtidas(pet.getCurtidas())
                 .descricao(pet.getDescricao())
                 .tags(pet.getTags())

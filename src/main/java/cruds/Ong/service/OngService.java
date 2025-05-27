@@ -5,14 +5,12 @@ import cruds.Imagem.entity.ImagemOng;
 import cruds.Ong.controller.dto.request.OngRequestCriarDTO;
 import cruds.Ong.controller.dto.request.OngRequestImagemDTO;
 import cruds.Ong.controller.dto.request.OngRequestUpdateDTO;
-import cruds.Ong.controller.dto.response.OngResponseDTO;
-import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
-import cruds.Ong.controller.dto.response.OngResponsePetsDTO;
-import cruds.Ong.controller.dto.response.OngResponseUrlDTO;
+import cruds.Ong.controller.dto.response.*;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.repository.OngRepository;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.entity.PetStatus;
+import cruds.Pets.enums.PetStatusEnum;
 import cruds.Pets.repository.PetRepository;
 import cruds.Pets.repository.PetStatusRepository;
 import cruds.Users.controller.dto.request.UserRequestCriarDTO;
@@ -27,6 +25,7 @@ import cruds.common.exception.NotFoundException;
 import cruds.common.strategy.ImageStorageStrategy;
 import cruds.common.util.ImageValidationUtil;
 import cruds.config.token.GerenciadorTokenJwt;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -38,6 +37,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -210,5 +210,29 @@ public class OngService {
         } catch (IOException e) {
             throw new RuntimeException("Erro ao ler imagem da ONG: " + e.getMessage());
         }
+    }
+
+    public List<OngResponseMensagensPendingDTO> listarMensagensPendentes(Integer ongId, HttpServletRequest request) {
+        Ong ong = ongRepository.findById(ongId)
+                .orElseThrow(() -> new NotFoundException("ONG com id " + ongId + " não encontrada"));
+
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath(null)
+                .build()
+                .toUriString();
+
+        List<Pet> petsOng = petRepository.findByOngId(ongId);
+        List<OngResponseMensagensPendingDTO> mensagensPendentes = new ArrayList<>();
+
+        for (Pet pet : petsOng) {
+            List<PetStatus> statusList = petStatusRepository.findByPet_IdAndStatus(pet.getId(), PetStatusEnum.PENDING);
+            for (PetStatus status : statusList) {
+                User user = status.getUser();
+                mensagensPendentes.add(
+                    OngResponseMensagensPendingDTO.toResponse(ongId, pet, user, status.getAlteradoParaPending())
+                );
+            }
+        }
+        return mensagensPendentes;
     }
 }

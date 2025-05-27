@@ -339,7 +339,7 @@ public class UserService {
             throw new ConflictException("Senha não pode ser cadastrada ou não atende aos requisitos de segurança");
         }
         if (user.getNome() == null || user.getNome().isEmpty() || user.getNome().length() < 3
-                || !user.getNome().matches("^[A-Za-zÀ-Ö ]+$")) {
+                || !user.getNome().matches("^[A-Za-zÀ-ÖØ-öø-ÿ ]+$")) {
             throw new ConflictException("Nome não pode ser utilizado");
         }
 

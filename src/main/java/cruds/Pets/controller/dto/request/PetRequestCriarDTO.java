@@ -24,12 +24,7 @@ public class PetRequestCriarDTO {
     private Double idade;
 
     @NotBlank
-    @Positive
-    private Double peso;
-
-    @NotBlank
-    @Positive
-    private Double altura;
+    private String porte;
 
     @PositiveOrZero
     private Integer curtidas;
@@ -62,8 +57,7 @@ public class PetRequestCriarDTO {
         return Pet.builder()
                 .nome(petRequest.getNome())
                 .idade(petRequest.getIdade())
-                .peso(petRequest.getPeso())
-                .altura(petRequest.getAltura())
+                .porte(petRequest.getPorte())
                 .curtidas(0)
                 .tags(petRequest.getTags())
                 .descricao(petRequest.getDescricao())

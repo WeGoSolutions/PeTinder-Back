@@ -4,6 +4,7 @@ import cruds.Imagem.service.ImagemOngService;
 import cruds.Ong.controller.dto.request.*;
 import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
+import cruds.Ong.controller.dto.response.OngResponseMensagensPendingDTO;
 import cruds.Ong.controller.dto.response.OngResponsePetsDTO;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.service.OngService;
@@ -12,6 +13,7 @@ import cruds.common.dto.ImageUploadData;
 import cruds.common.util.ImageUploadUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -102,5 +104,14 @@ public class OngController {
             return ResponseEntity.status(204).build();
         }
         return ResponseEntity.ok(pets);
+    }
+
+    @Operation(summary = "Lista mensagens pendentes para a ONG")
+    @GetMapping("/{id}/mensagens-pendentes")
+    public ResponseEntity<List<OngResponseMensagensPendingDTO>> listarMensagensPendentes(
+            @PathVariable Integer id,
+            HttpServletRequest request) {
+        List<OngResponseMensagensPendingDTO> mensagens = ongService.listarMensagensPendentes(id, request);
+        return ResponseEntity.ok(mensagens);
     }
 }

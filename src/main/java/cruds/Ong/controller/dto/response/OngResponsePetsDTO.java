@@ -21,8 +21,7 @@ public class OngResponsePetsDTO {
     private Integer petId;
     private String petNome;
     private Double idade;
-    private Double peso;
-    private Double altura;
+    private String porte;
     private Integer curtidas;
 
     @ElementCollection
@@ -44,8 +43,7 @@ public class OngResponsePetsDTO {
         this.petId = pet.getId();
         this.petNome = pet.getNome();
         this.idade = pet.getIdade();
-        this.peso = pet.getPeso();
-        this.altura = pet.getAltura();
+        this.porte = pet.getPorte();
         this.curtidas = pet.getCurtidas();
         this.tags = pet.getTags();
         this.descricao = pet.getDescricao();
@@ -76,8 +74,7 @@ public class OngResponsePetsDTO {
                               Integer petId,
                               String petNome,
                               Double idade,
-                              Double peso,
-                              Double altura,
+                              String porte,
                               Integer curtidas,
                               List<String> tags,
                               String descricao,
@@ -90,8 +87,7 @@ public class OngResponsePetsDTO {
         this.petId = petId;
         this.petNome = petNome;
         this.idade = idade;
-        this.peso = peso;
-        this.altura = altura;
+        this.porte = porte;
         this.curtidas = curtidas;
         this.tags = tags;
         this.descricao = descricao;
@@ -107,8 +103,7 @@ public class OngResponsePetsDTO {
                               Integer petId,
                               String petNome,
                               Double idade,
-                              Double peso,
-                              Double altura,
+                              String porte,
                               Integer curtidas,
                               List<String> tags,
                               String descricao,
@@ -122,8 +117,7 @@ public class OngResponsePetsDTO {
         this.petId = petId;
         this.petNome = petNome;
         this.idade = idade;
-        this.peso = peso;
-        this.altura = altura;
+        this.porte = porte;
         this.curtidas = curtidas;
         this.tags = tags;
         this.descricao = descricao;
