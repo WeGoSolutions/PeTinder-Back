@@ -21,7 +21,7 @@ public class UserRequestCriarDTO {
 
     @NotBlank
     @Size(min = 3)
-    @Pattern(regexp = "^[A-Za-zÀ-Ö ]+$")
+    @Pattern(regexp = ("^[A-Za-zÀ-ÖØ-öø-ÿ ]+$"))
     @Schema(description = "Nome do usuário", example = "Petinder")
     private String nome;
 

@@ -18,6 +18,7 @@ public class PetResponseCriarDTO {
     private Integer id;
     private String nome;
     private Double idade;
+    private String porte;
     private Integer curtidas;
     private String descricao;
     private List<String> tags;
@@ -26,7 +27,6 @@ public class PetResponseCriarDTO {
     private Boolean isVermifugo;
     private Boolean isVacinado;
     private Integer ongId;
-    //private String status;
     private String sexo;
 
     public static PetResponseCriarDTO toResponse(Pet pet) {
@@ -34,6 +34,7 @@ public class PetResponseCriarDTO {
                 .id(pet.getId())
                 .nome(pet.getNome())
                 .idade(pet.getIdade())
+                .porte(pet.getPorte())
                 .curtidas(pet.getCurtidas())
                 .descricao(pet.getDescricao())
                 .tags(pet.getTags())
@@ -42,7 +43,6 @@ public class PetResponseCriarDTO {
                 .isVacinado(pet.getIsVacinado())
                 .isVermifugo(pet.getIsVermifugo())
                 .ongId(pet.getOng().getId())
-                //.status(pet.getStatus())
                 .sexo(pet.getSexo())
                 .build();
     }

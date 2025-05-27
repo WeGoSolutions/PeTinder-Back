@@ -1,6 +1,6 @@
 package cruds.Users.service;
 
-import cruds.Users.controller.dto.response.UserResponseDetalhesDto;
+import cruds.Users.controller.dto.response.UserResponseDetalhesDTO;
 import cruds.Users.entity.User;
 import cruds.Users.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +28,6 @@ public class AutenticacaoService implements UserDetailsService {
       throw new UsernameNotFoundException(String.format("usuario: %s nao encontrado", username));
     }
 
-    return new UserResponseDetalhesDto(usuarioOpt.get());
+    return new UserResponseDetalhesDTO(usuarioOpt.get());
   }
 }

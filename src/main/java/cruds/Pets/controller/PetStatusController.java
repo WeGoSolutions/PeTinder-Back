@@ -3,6 +3,7 @@ package cruds.Pets.controller;
 import cruds.Pets.controller.dto.request.PetStatusRequestDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.controller.dto.response.PetResponsePendingOngDTO;
+import cruds.Pets.controller.dto.response.PetResponseUserPendenteDTO;
 import cruds.Pets.controller.dto.response.PetStatusResponseDTO;
 import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
@@ -136,6 +137,7 @@ public class PetStatusController {
         dto.setPetId(petId);
         dto.setUserId(userId);
         dto.setStatus(PetStatusEnum.PENDING);
+        dto.getAlteradoParaPending();
 
         var petStatus = petStatusService.createOrUpdatePetStatus(dto);
         return ResponseEntity.ok(new PetStatusResponseDTO(petStatus));
@@ -161,5 +163,15 @@ public class PetStatusController {
             return ResponseEntity.status(204).build();
         }
         return ResponseEntity.ok(pendingPets);
+    }
+
+    @Operation(summary = "Lista os usuarios que estao com o status PENDING de um pet especifico")
+    @GetMapping("/pending/user/{petId}")
+    public ResponseEntity<List<PetResponseUserPendenteDTO>> listPendingUsersByPetId(@PathVariable Integer petId) {
+        List<PetResponseUserPendenteDTO> userIds = petStatusService.listPendingUsersByPetId(petId);
+        if (userIds.isEmpty()) {
+            return ResponseEntity.status(204).build();
+        }
+        return ResponseEntity.ok(userIds);
     }
 }

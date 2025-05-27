@@ -4,6 +4,8 @@ import cruds.Pets.enums.PetStatusEnum;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class PetStatusRequestDTO {
     @NotNull
@@ -16,4 +18,6 @@ public class PetStatusRequestDTO {
     private PetStatusEnum status;
 
     private Integer curtidas;
+
+    private LocalDateTime alteradoParaPending = LocalDateTime.now();
 }

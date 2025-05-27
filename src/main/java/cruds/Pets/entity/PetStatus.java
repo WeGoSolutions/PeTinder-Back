@@ -5,6 +5,8 @@ import cruds.Users.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -27,4 +29,6 @@ public class PetStatus {
 
     @Enumerated(EnumType.STRING)
     private PetStatusEnum status;
+
+    private LocalDateTime alteradoParaPending;
 }

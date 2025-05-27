@@ -18,8 +18,7 @@ public class PetResponsePendingOngDTO {
     private Integer petId;
     private String petNome;
     private Double idade;
-    private Double peso;
-    private Double altura;
+    private String porte;
     private String descricao;
     private Boolean isCastrado;
     private Boolean isVermifugo;

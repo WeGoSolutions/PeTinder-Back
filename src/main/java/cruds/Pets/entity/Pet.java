@@ -27,9 +27,7 @@ public class Pet {
 
     private Double idade;
 
-    private Double peso;
-
-    private Double altura;
+    private String porte;
 
     private Integer curtidas;
 
