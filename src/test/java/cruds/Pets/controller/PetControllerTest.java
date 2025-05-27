@@ -44,8 +44,7 @@ class PetControllerTest {
         PetRequestCriarDTO req = new PetRequestCriarDTO();
         req.setNome("Rex");
         req.setIdade(3.0);
-        req.setPeso(10.0);
-        req.setAltura(40.0);
+        req.setPorte("grande");
         req.setCurtidas(0);
         req.setTags(List.of("tag1"));
         req.setDescricao("Descrição");
@@ -131,8 +130,7 @@ class PetControllerTest {
         PetRequestCriarDTO req = new PetRequestCriarDTO();
         req.setNome("Max");
         req.setIdade(2.0);
-        req.setPeso(8.0);
-        req.setAltura(35.0);
+        req.setPorte("pesado");
         req.setCurtidas(0);
         req.setTags(List.of("tag2"));
         req.setDescricao("Nova descrição");
