@@ -1,64 +1,75 @@
-Manual de Instalação - Projeto PeTinder
-Pré-requisitos
-Antes de rodar o projeto, instale os seguintes softwares:
+# Manual de Instalação - Projeto PeTinder
 
+## Pré-requisitos
 
-Java JDK 17 ou superior
+Antes de iniciar, certifique-se de instalar os seguintes softwares:
 
+- **Java JDK 17 ou superior**  
+  [Download Java JDK](https://www.oracle.com/java/technologies/downloads/)  
+  Após a instalação, configure a variável de ambiente `JAVA_HOME`.
 
-Download Java JDK
-Após instalar, configure a variável de ambiente JAVA_HOME.
-Apache Maven
+- **Apache Maven**  
+  [Download Maven](https://maven.apache.org/download.cgi)  
+  Adicione o Maven ao `PATH` do sistema.
 
+- **Git** (opcional, para clonar os repositórios)  
+  [Download Git](https://git-scm.com/downloads)
 
-Download Maven
-Adicione o Maven ao PATH do sistema.
-Git (opcional, para clonar os repositórios)
+- **Banco de Dados Relacional (MySQL ou PostgreSQL)**  
+  O projeto utiliza um banco de dados relacional.  
+  Para obter o banco de dados utilizado:
+  ```sh
+  git clone https://github.com/WeGoSolutions/PeTinder-DB.git
+  ```
+  Siga as instruções do repositório acima para configurar o banco.
 
+- **IDE Recomendada:**  
+  - IntelliJ IDEA  
+  - VS Code  
 
-Download Git
-Banco de Dados
+---
 
+## Passos para Instalação
 
-O projeto utiliza um banco de dados relacional (ex: MySQL ou PostgreSQL).
-Para baixar o banco de dados utilizado pelo projeto, clone o repositório:
-git clone https://github.com/WeGoSolutions/PeTinder-DB.git
-Siga as instruções no repositório acima para configurar o banco.
-IDE recomendada:
+### 1. Clone o repositório do projeto
 
-
-IntelliJ IDEA
-ou
-VS Code
-Passos para Instalação
-Clone o repositório do projeto
-
-
+```sh
 git clone https://github.com/WeGoSolutions/PeTinder-Back.git
 cd PeTinder-Back
-Configure o banco de dados
+```
 
+### 2. Configure o banco de dados
 
-Crie um banco de dados no MySQL/PostgreSQL.
-Atualize as configurações de acesso no arquivo src/main/resources/application.properties:
+- Crie um banco de dados no MySQL ou PostgreSQL.
+- Edite o arquivo `src/main/resources/application.properties` com as informações do seu banco:
+
+```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/seu_banco
 spring.datasource.username=seu_usuario
 spring.datasource.password=sua_senha
-Instale as dependências
+```
 
+### 3. Instale as dependências
 
+```sh
 mvn clean install
-Execute o projeto
+```
 
+### 4. Execute o projeto
 
+```sh
 mvn spring-boot:run
-Ou, rode a classe principal pela sua IDE.
+```
+Ou, se preferir, execute a classe principal pela sua IDE.
 
+---
 
-Acesse a API
+## Acesse a API
 
+A documentação da API (Swagger) pode ser acessada em:
 
-Acesse a documentação Swagger em:
-http://localhost:8080/swagger-ui.html
-ou
-http://localhost:8080/swagger-ui/index.html
+- [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)  
+  ou  
+- [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+
+---
