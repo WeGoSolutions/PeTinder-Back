@@ -143,21 +143,26 @@ class OngControllerTest {
     }
 
     @Test
-    @DisplayName("Deve atualizar imagem da ONG com sucesso usando POST /ong/{id}")
+    @DisplayName("Deve atualizar imagem da ONG com sucesso usando POST /ongs/{id}/imagem")
     void testUpdateImageOng() throws Exception {
         OngRequestImagemDTO req = new OngRequestImagemDTO();
         req.setNomeArquivo("imagem.jpg");
-        req.setImagensBytes(Base64.getEncoder().encode("dados-imagem".getBytes()));
+        req.setImagensBytes(Base64.getEncoder().encodeToString("dados-imagem".getBytes()));
 
         Ong ongAtualizada = new Ong();
         ongAtualizada.setId(1);
         ongAtualizada.setNome("ONG Teste");
         ongAtualizada.setEmail("ong@teste.com");
 
-        when(ongService.updateImageOng(eq(1), eq(req.getNomeArquivo()), eq(req.getImagensBytes())))
+        // Parâmetros esperados após parse (feito por ImageUploadUtil no controller)
+        byte[] imageBytes = Base64.getDecoder().decode(req.getImagensBytes());
+        String nomeArquivo = "imagem.jpg";
+        String extension = "jpg";
+
+        when(ongService.uploadOngImage(eq(1), eq(imageBytes), eq(nomeArquivo), eq(extension)))
                 .thenReturn(ongAtualizada);
 
-        mockMvc.perform(post("/ong/1")
+        mockMvc.perform(post("/ongs/1/imagem")  // <- Corrigido o endpoint
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
@@ -167,21 +172,19 @@ class OngControllerTest {
                 .andExpect(jsonPath("$.email").value("ong@teste.com"));
     }
 
+
     @Test
-    @DisplayName("Deve retornar imagem da ONG com sucesso usando GET /ong/{id}/imagem")
+    @DisplayName("Deve retornar imagem da ONG com sucesso usando GET /ongs/{id}/imagem/arquivo")
     void testGetImageOng() throws Exception {
-        OngResponseDTO resp = new OngResponseDTO();
-        resp.setId(1);
-        resp.setNome("ONG Teste");
-        resp.setEmail("ong@teste.com");
+        byte[] imagemMock = "imagem-fake".getBytes();
 
-        when(ongService.getImageOng(1)).thenReturn(resp);
+        when(ongService.getOngImageBytes(1)).thenReturn(imagemMock);
 
-        mockMvc.perform(get("/ong/1/imagem")
+        mockMvc.perform(get("/ongs/1/imagem/arquivo")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.nome").value("ONG Teste"))
-                .andExpect(jsonPath("$.email").value("ong@teste.com"));
+                .andExpect(content().contentType(MediaType.IMAGE_JPEG))
+                .andExpect(content().bytes(imagemMock));
     }
+
 }

@@ -104,7 +104,7 @@ class OngServiceTest {
         ong.setId(2);
         ong.setEmail(email);
         ong.setNome("Nome");
-        when(ongRepository.findByEmailandSenha(email, senha))
+        when(ongRepository.findByEmailAndSenha(email, senha))
                 .thenReturn(Optional.of(ong));
         Authentication auth = mock(Authentication.class);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
@@ -175,7 +175,7 @@ class OngServiceTest {
             doNothing().when(imageStorageStrategy).salvarImagem(eq(imageBytes), anyString());
             when(ongRepository.save(any())).thenReturn(ong);
 
-            Ong result = ongService.updateImageOng(8, imageName, imageBytes);
+            Ong result = ongService.uploadOngImage(8, imageBytes, imageName, "jpg");
             assertEquals(8, result.getId());
         }
     }
@@ -185,15 +185,19 @@ class OngServiceTest {
         Ong ong = new Ong();
         ong.setId(10);
         when(ongRepository.findById(10)).thenReturn(Optional.of(ong));
+
         try (MockedStatic<ImageValidationUtil> util = mockStatic(ImageValidationUtil.class)) {
             util.when(() -> ImageValidationUtil.validateOngImage(imageBytes, imageName))
                     .thenAnswer(invocation -> null);
+
             doThrow(new IOException("disk"))
                     .when(imageStorageStrategy).salvarImagem(eq(imageBytes), anyString());
+
             assertThrows(RuntimeException.class,
-                    () -> ongService.updateImageOng(10, imageName, imageBytes));
+                    () -> ongService.uploadOngImage(10, imageBytes, imageName, ""));
         }
     }
+
 
     @Test
     void getImageOng_success() {
@@ -202,7 +206,7 @@ class OngServiceTest {
         ImagemOng img = new ImagemOng();
         ong.setImagemOng(img);
         when(ongRepository.findById(11)).thenReturn(Optional.of(ong));
-        OngResponseDTO resp = ongService.getImageOng(11);
+        var resp = ongService.getImageOng(11);
         assertEquals(11, resp.getId());
     }
 
