@@ -330,7 +330,7 @@ public class UserService {
             throw new ConflictException("Email não pode ser utilizado");
         }
         if (user.getSenha() == null || user.getSenha().isEmpty() || user.getSenha().length() < 8
-                || !user.getSenha().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$")) {
+                || !user.getSenha().matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\\\":{}|<>])[A-Za-z\\d!@#$%^&*(),.?\\\":{}|<>]+$")) {
             throw new ConflictException("Senha não pode ser cadastrada ou não atende aos requisitos de segurança");
         }
         if (user.getNome() == null || user.getNome().isEmpty() || user.getNome().length() < 3
