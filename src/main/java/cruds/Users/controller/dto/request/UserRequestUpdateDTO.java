@@ -27,9 +27,6 @@ public class UserRequestUpdateDTO {
     private String email;
 
     @NotBlank
-    private String senha;
-
-    @NotBlank
     private LocalDate dataNasc;
 
     @AssertTrue(message = "A pessoa deve ter mais de 21 anos")

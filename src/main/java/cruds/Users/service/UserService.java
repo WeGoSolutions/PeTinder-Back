@@ -200,7 +200,6 @@ public class UserService {
         User user = getUsuarioPorId(id);
         user.setNome(dto.getNome());
         user.setEmail(dto.getEmail());
-        user.setSenha(passwordEncoder.encode(dto.getSenha()));
         user.setDataNasc(dto.getDataNasc());
         user.setCpf(dto.getCpf());
 
