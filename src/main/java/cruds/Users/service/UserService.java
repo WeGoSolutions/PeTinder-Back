@@ -197,10 +197,6 @@ public class UserService {
             throw new NotAllowedException("A pessoa deve ter mais de 21 anos");
         }
 
-        Optional<User> existingUserOptional = userRepository.findByEmail(dto.getEmail());
-        if (existingUserOptional.isPresent() && !existingUserOptional.get().getId().equals(id)) {
-            throw new ConflictException("Email já cadastrado: " + dto.getEmail());
-        }
         User user = getUsuarioPorId(id);
         user.setNome(dto.getNome());
         user.setEmail(dto.getEmail());
