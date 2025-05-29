@@ -114,8 +114,9 @@ public class OngController {
 
     @Operation(summary = "Atualiza a imagem da ONG")
     @PutMapping("/{id}/imagem")
-    public ResponseEntity<OngResponseUrlDTO>getUrlImageOng(@PathVariable Integer id){
-        OngResponseUrlDTO response = ongService.getUrlImageOng(id);
+    public ResponseEntity<OngResponseUrlDTO>updateUrlImageOng(@PathVariable Integer id,
+                                                              @Valid @RequestBody OngRequestImagemPerfilDTO dto){
+        OngResponseUrlDTO response = ongService.updateUrlImageOng(id, dto);
         return ResponseEntity.ok(response);
     }
 

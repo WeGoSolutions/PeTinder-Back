@@ -4,16 +4,19 @@ import cruds.Imagem.entity.Imagem;
 import cruds.Imagem.entity.ImagemOng;
 import cruds.Ong.controller.dto.request.OngRequestCriarDTO;
 import cruds.Ong.controller.dto.request.OngRequestImagemDTO;
+import cruds.Ong.controller.dto.request.OngRequestImagemPerfilDTO;
 import cruds.Ong.controller.dto.request.OngRequestUpdateDTO;
 import cruds.Ong.controller.dto.response.*;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.repository.OngRepository;
 import cruds.Pets.entity.Pet;
+import cruds.common.util.ImageValidationUtil;
 import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
 import cruds.Pets.repository.PetRepository;
 import cruds.Pets.repository.PetStatusRepository;
 import cruds.Users.controller.dto.request.UserRequestCriarDTO;
+import cruds.Users.controller.dto.request.UserRequestImagemPerfilDTO;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.controller.dto.response.UserResponseLoginDTO;
 import cruds.Users.entity.ImagemUser;
@@ -236,12 +239,28 @@ public class OngService {
         return mensagensPendentes;
     }
 
-    public OngResponseUrlDTO getUrlImageOng(Integer id){
-        Ong ong = acharPorId(id);
-        if(ong.getImagemOng() == null) {
-            throw new ConflictException("Imagem não encontrada");
+    public OngResponseUrlDTO updateUrlImageOng(Integer id, OngRequestImagemPerfilDTO dto){
+        byte[] imagemDecodificada = dto.getImagemDecodificada();
+        try {
+            ImageValidationUtil.validateOngImage(imagemDecodificada, DEFAULT_IMAGE_NAME);
+        } catch (IOException e) {
+            throw new BadRequestException("ERRO AO PROCESSAR IMAGEM: " + e.getMessage());
         }
 
+        Ong ong = acharPorId(id);
+        String nomeArquivo = "ong_" + id + "_profile.jpg";
+        String caminhoCompleto = UPLOAD_DIR + nomeArquivo;
+
+        try {
+            imageStorageStrategy.salvarImagem(imagemDecodificada, caminhoCompleto);
+        } catch (IOException e) {
+            throw new BadRequestException("Erro ao salvar imagem: " + e.getMessage());
+        }
+
+        ImagemOng novaImagem = new ImagemOng(caminhoCompleto, ong);
+        ong.setImagemOng(novaImagem);
+
+        ongRepository.save(ong);
         return OngResponseUrlDTO.toResponse(ong);
     }
 }
