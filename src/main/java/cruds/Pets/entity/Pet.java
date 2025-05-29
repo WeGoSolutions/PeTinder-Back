@@ -32,6 +32,8 @@ public class Pet {
     private Integer curtidas;
 
     @ElementCollection
+    @CollectionTable(name = "pet_tags", joinColumns = @JoinColumn(name = "pet_id"))
+    @Column(name = "tag")
     private List<String> tags;
 
     private String descricao;
@@ -51,6 +53,6 @@ public class Pet {
     private String sexo;
 
     @ManyToOne
-    @JoinColumn(name = "ong_id", nullable = false)
+    @JoinColumn(name = "fkOng", nullable = false)
     private Ong ong;
 }

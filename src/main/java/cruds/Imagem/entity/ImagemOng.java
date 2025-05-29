@@ -8,19 +8,18 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Entity
-@Table(name = "imagemOng")
+@Table(name = "imagem_ong")
 @Getter
 public class ImagemOng {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idImagemOng")
+    @Column(name = "id")
     private Integer id;
 
     @Column(name = "link")
     private String caminho;
 
-    @OneToOne
-    @JoinColumn(name = "fkOng")
+    @OneToOne(mappedBy = "imagemOng")
     private Ong ong;
 
     public ImagemOng(String filePath, Ong ong) {
