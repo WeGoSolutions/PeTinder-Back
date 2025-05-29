@@ -116,7 +116,7 @@ public class OngController {
     @PutMapping("/{id}/imagem")
     public ResponseEntity<OngResponseUrlDTO>getUrlImageOng(@PathVariable Integer id){
         OngResponseUrlDTO response = ongService.getUrlImageOng(id);
-        ResponseEntity.ok(response);
+        return ResponseEntity.ok(response);
     }
 
 
