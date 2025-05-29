@@ -54,6 +54,6 @@ public class Ong {
     private String link;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "endereco_id")
+    @JoinColumn(name = "id")
     private Endereco endereco;
 }

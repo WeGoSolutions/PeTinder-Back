@@ -12,11 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
+@Table(name = "dashboard")
 public class Dashboard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne
+    @JoinColumn(name = "fkOng")
+    @OneToOne()
     private Ong ong;
 }

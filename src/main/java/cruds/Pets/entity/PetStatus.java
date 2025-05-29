@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "pet_status")
 public class PetStatus {
 
     @Id
@@ -20,11 +21,11 @@ public class PetStatus {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "pet_id")
+    @JoinColumn(name = "fkPet")
     private Pet pet;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "fkUsuario")
     private User user;
 
     @Enumerated(EnumType.STRING)
