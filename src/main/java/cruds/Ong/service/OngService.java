@@ -235,4 +235,13 @@ public class OngService {
         }
         return mensagensPendentes;
     }
+
+    public OngResponseUrlDTO getUrlImageOng(Integer id){
+        Ong ong = acharPorId(id);
+        if(ong.getImagemOng() == null) {
+            throw new ConflictException("Imagem não encontrada");
+        }
+
+        return OngResponseUrlDTO.toResponse(ong);
+    }
 }

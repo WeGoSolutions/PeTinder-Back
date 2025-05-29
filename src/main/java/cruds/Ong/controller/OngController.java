@@ -2,10 +2,7 @@ package cruds.Ong.controller;
 
 import cruds.Imagem.service.ImagemOngService;
 import cruds.Ong.controller.dto.request.*;
-import cruds.Ong.controller.dto.response.OngResponseDTO;
-import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
-import cruds.Ong.controller.dto.response.OngResponseMensagensPendingDTO;
-import cruds.Ong.controller.dto.response.OngResponsePetsDTO;
+import cruds.Ong.controller.dto.response.*;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.service.OngService;
 import cruds.common.exception.BadRequestException;
@@ -114,4 +111,13 @@ public class OngController {
         List<OngResponseMensagensPendingDTO> mensagens = ongService.listarMensagensPendentes(id, request);
         return ResponseEntity.ok(mensagens);
     }
+
+    @Operation(summary = "Atualiza a imagem da ONG")
+    @PutMapping("/{id}/imagem")
+    public ResponseEntity<OngResponseUrlDTO>getUrlImageOng(@PathVariable Integer id){
+        OngResponseUrlDTO response = ongService.getUrlImageOng(id);
+        ResponseEntity.ok(response);
+    }
+
+
 }
