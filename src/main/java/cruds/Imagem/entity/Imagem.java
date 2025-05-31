@@ -37,6 +37,9 @@ public class Imagem {
         this.pet = pet;
     }
 
+    public Imagem(Integer id, byte[] bytes, Object pet) {
+    }
+
     public void setId(Integer id) {
         this.id = id;
     }
