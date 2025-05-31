@@ -126,15 +126,20 @@ public class PetService {
                 .curtidas(dto.getCurtidas())
                 .tags(dto.getTags())
                 .descricao(dto.getDescricao())
+                .isCastrado(Boolean.TRUE.equals(dto.getIsCastrado()))
+                .isVermifugo(Boolean.TRUE.equals(dto.getIsVermifugo()))
+                .isVacinado(Boolean.TRUE.equals(dto.getIsVacinado()))
+                .isAdopted(Boolean.TRUE.equals(dto.getIsAdotado()))
+                .sexo(dto.getSexo())
                 .build();
 
-        List<byte[]> imagensBytes = new ArrayList<>();
         List<String> nomesArquivos = new ArrayList<>();
-        for (int i = 0; i < dto.getImagemBase64().size(); i++) {
+        List<byte[]> imagensBytes = new ArrayList<>();
+        for (String imagemBase64 : dto.getImagemBase64()) {
             try {
-                byte[] imagemBytes = decodeImage(dto.getImagemBase64().get(i));
+                byte[] imagemBytes = decodeImage(imagemBase64);
                 imagensBytes.add(imagemBytes);
-                nomesArquivos.add("imagem_" + i + ".jpg");
+                nomesArquivos.add("pet_" + UUID.randomUUID() + ".jpg");
             } catch (IllegalArgumentException e) {
                 throw new BadRequestException("Imagem inválida", e);
             }
@@ -148,16 +153,18 @@ public class PetService {
 
         List<Imagem> imagens = new ArrayList<>();
         for (int i = 0; i < imagensBytes.size(); i++) {
-            String filePath = UPLOAD_DIR + "/pet_" + UUID.randomUUID() + ".jpg";
             try {
-                salvarImagemNoDisco(imagensBytes.get(i), filePath);
-                imagens.add(new Imagem(filePath, petParaAlterar));
+                String caminho = imageStorageStrategy.gerarCaminho(nomesArquivos.get(i));
+                imageStorageStrategy.salvarImagem(imagensBytes.get(i), nomesArquivos.get(i));
+                Imagem imagem = new Imagem(caminho, petParaAlterar);
+                imagens.add(imagem);
             } catch (IOException e) {
-                throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage());
+                throw new RuntimeException("Erro ao salvar a imagem: " + e.getMessage());
             }
         }
-        petParaAlterar.setImagens(imagens);
 
+        petParaAlterar.setImagens(imagens);
+        imagemRepository.saveAll(imagens);
         return petRepository.save(petParaAlterar);
     }
 
