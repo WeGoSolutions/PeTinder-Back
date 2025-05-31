@@ -21,11 +21,11 @@ public class PetStatus {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "fkPet")
+    @JoinColumn(name = "fk_pet")
     private Pet pet;
 
     @ManyToOne
-    @JoinColumn(name = "fkUsuario")
+    @JoinColumn(name = "fk_usuario")
     private User user;
 
     @Enumerated(EnumType.STRING)

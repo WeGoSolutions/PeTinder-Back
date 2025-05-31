@@ -60,7 +60,7 @@ public class OngController {
 
     @Operation(summary = "Atualiza a ONG")
     @PatchMapping("/{id}")
-    public ResponseEntity<OngResponseDTO> updateOng(@PathVariable Integer id, @RequestBody OngRequestUpdateDTO ong) {
+    public ResponseEntity<OngResponseDTO> updateOng(@PathVariable Integer id, @Valid @RequestBody OngRequestUpdateDTO ong) {
         OngResponseDTO response = ongService.updateOng(id, ong);
         return ResponseEntity.ok(response);
     }

@@ -22,7 +22,7 @@ public class Imagem {
     private String caminho;
 
     @ManyToOne
-    @JoinColumn(name = "fkPet")
+    @JoinColumn(name = "fk_pet")
     @JsonBackReference
     private Pet pet;
 

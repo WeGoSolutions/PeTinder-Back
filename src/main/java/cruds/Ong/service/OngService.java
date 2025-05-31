@@ -10,6 +10,8 @@ import cruds.Ong.controller.dto.response.*;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.repository.OngRepository;
 import cruds.Pets.entity.Pet;
+import cruds.Users.controller.dto.request.EnderecoRequestDTO;
+import cruds.Users.entity.Endereco;
 import cruds.common.util.ImageValidationUtil;
 import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
@@ -134,15 +136,33 @@ public class OngService {
             throw new ConflictException("Email já cadastrado");
         }
 
+        if (ongRequest.getEndereco() != null) {
+            EnderecoRequestDTO e = ongRequest.getEndereco();
+            if (e.getCep() == null || e.getRua() == null || e.getNumero() == null ||
+                    e.getCidade() == null || e.getUf() == null) {
+                throw new BadRequestException("Campos de endereço obrigatórios estão faltando");
+            }
+        }
+
+        Endereco enderecoAtualizado = null;
+        if (ongRequest.getEndereco() != null) {
+            Endereco enderecoAtual = ongExistente.getEndereco();
+            enderecoAtualizado = ongRequest.getEndereco().toEntityWithId(
+                    enderecoAtual != null ? enderecoAtual.getId() : null
+            );
+        } else {
+            enderecoAtualizado = ongExistente.getEndereco(); // mantém o endereço atual
+        }
+
         ongExistente = ongExistente.toBuilder()
                 .cnpj(ongRequest.getCnpj())
                 .cpf(ongRequest.getCpf())
                 .nome(ongRequest.getNome())
-                .razaoSocial(ongRequest.getRazaoSocial())
-                .senha(ongRequest.getSenha())
+                .razaoSocial(ongRequest.getRazaoSocial() != null ? ongRequest.getRazaoSocial() : ongExistente.getRazaoSocial())
+                .senha(ongRequest.getSenha() != null ? ongRequest.getSenha() : ongExistente.getSenha())
                 .email(ongRequest.getEmail())
                 .link(ongRequest.getLink())
-                .endereco(ongRequest.getEndereco() != null ? ongRequest.getEndereco().toEntity() : ongExistente.getEndereco())
+                .endereco(enderecoAtualizado)
                 .build();
 
         Ong ongAtualizada = ongRepository.save(ongExistente);

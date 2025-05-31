@@ -53,6 +53,6 @@ public class Pet {
     private String sexo;
 
     @ManyToOne
-    @JoinColumn(name = "fkOng", nullable = false)
+    @JoinColumn(name = "fk_ong", nullable = false)
     private Ong ong;
 }
