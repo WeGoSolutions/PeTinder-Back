@@ -255,4 +255,12 @@ public class OngService {
         System.out.println("Imagem ID: " + updatedOng.getImagemOng().getId());
         return OngResponseUrlDTO.toResponse(updatedOng);
     }
+
+    public byte[] getImagemPorIndice(Integer id, int indice) {
+        Ong ong = acharPorId(id);
+        if (ong.getImagemOng() == null || indice != 0) {
+            throw new NotFoundException("Imagem não encontrada para o usuário com id " + id);
+        }
+        return ong.getImagemOng().getDados();
+    }
 }

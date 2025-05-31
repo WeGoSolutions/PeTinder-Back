@@ -105,5 +105,14 @@ public class OngController {
         return ResponseEntity.ok(mensagens);
     }
 
+    @Operation(summary = "Retorna imagem por índice")
+    @GetMapping("/{id}/imagens/{indice}")
+    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer id,
+                                                     @PathVariable int indice) {
+        byte[] dados = ongService.getImagemPorIndice(id, indice);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        return new ResponseEntity<>(dados, headers, HttpStatus.OK);
+    }
 
 }
