@@ -5,6 +5,8 @@ import cruds.Ong.controller.dto.request.*;
 import cruds.Ong.controller.dto.response.*;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.service.OngService;
+import cruds.Users.controller.dto.response.UserResponseUrlDTO;
+import cruds.Users.service.UserService;
 import cruds.common.exception.BadRequestException;
 import cruds.common.dto.ImageUploadData;
 import cruds.common.util.ImageUploadUtil;
@@ -13,6 +15,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +33,8 @@ public class OngController {
 
     @Autowired
     private ImagemOngService imagemOngService;
+    @Autowired
+    private UserService userService;
 
     @Operation(summary = "Criar ONG")
     @PostMapping
@@ -65,32 +71,19 @@ public class OngController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Sobe a imagem da ONG")
-    @PostMapping(value = "/{id}/imagem")
-    public ResponseEntity<OngResponseDTO> updateImageOng(@PathVariable Integer id,
+    @Operation(summary = "Atualiza a imagem da ONG")
+    @PutMapping(value = "/{id}/imagem")
+    public ResponseEntity<OngResponseUrlDTO> updateImageOng(@PathVariable Integer id,
                                                          @RequestBody @Valid OngRequestImagemDTO imagem) {
-        try {
-            ImageUploadData uploadData = ImageUploadUtil.parseImageUploadRequest(imagem.getImagensBytes(),
-                    imagem.getNomeArquivo());
-
-            Ong ongAtualizada = ongService.uploadOngImage(id, uploadData.getImageBytes(), uploadData.getNomeArquivo(),
-                    uploadData.getExtension());
-            return ResponseEntity.ok(OngResponseDTO.toResponse(ongAtualizada));
-        } catch (BadRequestException e) {
-            return ResponseEntity.badRequest().body(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).build();
-        }
+        OngResponseUrlDTO updatedUser = ongService.updateImagem(id, imagem);
+        return ResponseEntity.status(200).body(updatedUser);
     }
 
     @Operation(summary = "Exibe a imagem da ONG")
     @GetMapping("/{id}/imagem/arquivo")
-    public ResponseEntity<byte[]> getOngImage(@PathVariable Integer id) {
-        byte[] imageData = ongService.getOngImageBytes(id);
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(imageData);
+    public ResponseEntity<OngResponseUrlDTO> getOngImage(@PathVariable Integer id) {
+        OngResponseUrlDTO response = ongService.getImageOng(id);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Lista todos os pets da ONG")
@@ -110,14 +103,6 @@ public class OngController {
             HttpServletRequest request) {
         List<OngResponseMensagensPendingDTO> mensagens = ongService.listarMensagensPendentes(id, request);
         return ResponseEntity.ok(mensagens);
-    }
-
-    @Operation(summary = "Atualiza a imagem da ONG")
-    @PutMapping("/{id}/imagem")
-    public ResponseEntity<OngResponseUrlDTO>updateUrlImageOng(@PathVariable Integer id,
-                                                              @Valid @RequestBody OngRequestImagemPerfilDTO dto){
-        OngResponseUrlDTO response = ongService.updateUrlImageOng(id, dto);
-        return ResponseEntity.ok(response);
     }
 
 

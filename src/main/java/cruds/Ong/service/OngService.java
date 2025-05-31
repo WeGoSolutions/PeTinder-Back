@@ -2,6 +2,7 @@ package cruds.Ong.service;
 
 import cruds.Imagem.entity.Imagem;
 import cruds.Imagem.entity.ImagemOng;
+import cruds.Imagem.repository.ImagemOngRepository;
 import cruds.Ong.controller.dto.request.OngRequestCriarDTO;
 import cruds.Ong.controller.dto.request.OngRequestImagemDTO;
 import cruds.Ong.controller.dto.request.OngRequestImagemPerfilDTO;
@@ -11,6 +12,7 @@ import cruds.Ong.entity.Ong;
 import cruds.Ong.repository.OngRepository;
 import cruds.Pets.entity.Pet;
 import cruds.Users.controller.dto.request.EnderecoRequestDTO;
+import cruds.Users.controller.dto.response.UserResponseUrlDTO;
 import cruds.Users.entity.Endereco;
 import cruds.common.util.ImageValidationUtil;
 import cruds.Pets.entity.PetStatus;
@@ -36,12 +38,16 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
@@ -57,6 +63,7 @@ public class OngService {
 
     private final PasswordEncoder passwordEncoder;
     private final ImageStorageStrategy imageStorageStrategy;
+    private final ImagemOngRepository imagemOngRepository;
     private AuthenticationManager authenticationManager;
     private GerenciadorTokenJwt gerenciadorTokenJwt;
     private OngRepository ongRepository;
@@ -68,7 +75,7 @@ public class OngService {
 
 
     @Autowired
-    public OngService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, OngRepository ongRepository, ImageStorageStrategy imageStorageStrategy, PetRepository petRepository, PetStatusRepository petStatusRepository) {
+    public OngService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, OngRepository ongRepository, ImageStorageStrategy imageStorageStrategy, PetRepository petRepository, PetStatusRepository petStatusRepository, ImagemOngRepository imagemOngRepository) {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.gerenciadorTokenJwt = gerenciadorTokenJwt;
@@ -76,6 +83,7 @@ public class OngService {
         this.imageStorageStrategy = imageStorageStrategy;
         this.petRepository = petRepository;
         this.petStatusRepository = petStatusRepository;
+        this.imagemOngRepository = imagemOngRepository;
     }
 
     public Ong criarOng(@Valid OngRequestCriarDTO dto) {
@@ -170,34 +178,6 @@ public class OngService {
     }
 
 
-    @Transactional
-    public Ong uploadOngImage(Integer id, byte[] imagemBytes, String nomeArquivo, String extension) {
-        Ong ong = acharPorId(id);
-
-        if (ong == null) {
-            throw new NotFoundException("ONG com o ID fornecido não foi encontrada.");
-        }
-
-        if (ong.getImagemOng() != null) {
-            throw new ConflictException("A ONG já possui uma imagem cadastrada.");
-        }
-
-        try {
-            ImageValidationUtil.validateOngImage(imagemBytes, nomeArquivo);
-
-            String imageFileName = "ong_" + UUID.randomUUID() + "." + (extension.isEmpty() ? "jpg" : extension);
-            imageStorageStrategy.salvarImagem(imagemBytes, imageFileName);
-            String caminhoArquivo = imageStorageStrategy.gerarCaminho(imageFileName);
-
-            ImagemOng imagemOng = new ImagemOng(caminhoArquivo, ong);
-            ong.setImagemOng(imagemOng);
-
-            return ongRepository.save(ong);
-        } catch (IOException e) {
-            throw new BadRequestException("Erro ao processar a imagem: " + e.getMessage());
-        }
-    }
-
     public Ong acharPorId(Integer id) {
         return ongRepository.findById(id)
                 .orElseThrow(() -> new ConflictException("Ong com id:" + id + " não encontrada"));
@@ -221,18 +201,6 @@ public class OngService {
             throw new ConflictException("Imagem não encontrada");
         }
         return OngResponseUrlDTO.toResponse(ong);
-    }
-
-    public byte[] getOngImageBytes(Integer id) {
-        Ong ong = acharPorId(id);
-        if (ong.getImagemOng() == null) {
-            throw new NotFoundException("Imagem não encontrada para a ONG com id " + id);
-        }
-        try {
-            return Files.readAllBytes(Paths.get(ong.getImagemOng().getCaminho()));
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao ler imagem da ONG: " + e.getMessage());
-        }
     }
 
     public List<OngResponseMensagensPendingDTO> listarMensagensPendentes(Integer ongId, HttpServletRequest request) {
@@ -259,28 +227,32 @@ public class OngService {
         return mensagensPendentes;
     }
 
-    public OngResponseUrlDTO updateUrlImageOng(Integer id, OngRequestImagemPerfilDTO dto){
-        byte[] imagemDecodificada = dto.getImagemDecodificada();
+    @Transactional
+    public OngResponseUrlDTO updateImagem(Integer id, @Valid OngRequestImagemDTO imagem) {
+        byte[] imagemDecodificada = imagem.getImagensBytesDecoded();
         try {
             ImageValidationUtil.validateOngImage(imagemDecodificada, DEFAULT_IMAGE_NAME);
         } catch (IOException e) {
-            throw new BadRequestException("ERRO AO PROCESSAR IMAGEM: " + e.getMessage());
+            throw new BadRequestException("Erro ao processar a imagem: " + e.getMessage());
         }
-
         Ong ong = acharPorId(id);
-        String nomeArquivo = "ong_" + id + "_profile.jpg";
+        String nomeArquivo = "ong_" + id + "_perfil.jpg";
         String caminhoCompleto = UPLOAD_DIR + nomeArquivo;
-
         try {
             imageStorageStrategy.salvarImagem(imagemDecodificada, caminhoCompleto);
         } catch (IOException e) {
-            throw new BadRequestException("Erro ao salvar imagem: " + e.getMessage());
+            throw new BadRequestException("Erro ao salvar a imagem: " + e.getMessage());
         }
-
-        ImagemOng novaImagem = new ImagemOng(caminhoCompleto, ong);
-        ong.setImagemOng(novaImagem);
-
-        ongRepository.save(ong);
-        return OngResponseUrlDTO.toResponse(ong);
+        if (ong.getImagemOng() != null) {
+            ong.getImagemOng().setDados(imagemDecodificada);
+            ong.getImagemOng().setArquivo(caminhoCompleto);
+        } else {
+            ImagemOng imagemOng = new ImagemOng(imagemDecodificada);
+            imagemOng.setArquivo(caminhoCompleto);
+            ong.setImagemOng(imagemOng);
+        }
+        Ong updatedOng = ongRepository.save(ong);
+        System.out.println("Imagem ID: " + updatedOng.getImagemOng().getId());
+        return OngResponseUrlDTO.toResponse(updatedOng);
     }
 }
