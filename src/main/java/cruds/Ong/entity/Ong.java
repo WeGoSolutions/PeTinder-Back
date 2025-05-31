@@ -43,7 +43,7 @@ public class Ong {
     @Column(name = "email")
     private String email;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "fk_imagem_ong")
     private ImagemOng imagemOng;
 

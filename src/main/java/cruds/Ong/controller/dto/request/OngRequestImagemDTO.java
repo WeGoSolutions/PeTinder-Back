@@ -17,7 +17,6 @@ public class OngRequestImagemDTO {
 
     @NotBlank
     private String imagensBytes;
-    private String nomeArquivo;
 
     public byte[] getImagensBytesDecoded() {
         String base64Data = imagensBytes;
