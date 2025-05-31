@@ -32,11 +32,11 @@ public class    User {
     private String cpf;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "endereco_id")
+    @JoinColumn(name = "fk_endereco")
     private Endereco endereco;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "imagemUsuario_id")
+    @JoinColumn(name = "fk_imagem_usuario")
     private ImagemUser imagemUser;
 
     private Boolean userNovo;

@@ -1,6 +1,7 @@
 package cruds.Ong.controller.dto.request;
 
 import cruds.Users.controller.dto.request.EnderecoRequestDTO;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -27,10 +28,8 @@ public class OngRequestUpdateDTO {
     @Pattern(regexp = "^[A-Za-zÀ-Ö ]+$")
     private String nome;
 
-    @NotBlank
     private String razaoSocial;
 
-    @NotBlank
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\\\":{}|<>])[A-Za-z\\d!@#$%^&*(),.?\\\":{}|<>]+$")
     private String senha;
 
@@ -41,6 +40,6 @@ public class OngRequestUpdateDTO {
     @NotBlank
     private String link;
 
-    @NotBlank
+    @Valid
     private EnderecoRequestDTO endereco;
 }

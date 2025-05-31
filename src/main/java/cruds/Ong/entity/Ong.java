@@ -44,7 +44,7 @@ public class Ong {
     private String email;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "fkImagemOng")
+    @JoinColumn(name = "fk_imagem_ong")
     private ImagemOng imagemOng;
 
     @OneToMany(mappedBy = "ong")
@@ -54,6 +54,6 @@ public class Ong {
     private String link;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "fk_endereco")
     private Endereco endereco;
 }
