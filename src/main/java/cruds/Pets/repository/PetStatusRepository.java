@@ -3,8 +3,10 @@ package cruds.Pets.repository;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -32,4 +34,8 @@ public interface PetStatusRepository extends JpaRepository<PetStatus, Integer> {
     List<PetStatus> findByPet_Id(Integer petId);
 
     List<PetStatus> findByPet_IdAndStatus(Integer petId, PetStatusEnum status);
+
+    @Modifying
+    @Transactional
+    void deleteByPetId(Integer id);
 }
