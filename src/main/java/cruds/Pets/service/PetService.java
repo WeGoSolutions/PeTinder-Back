@@ -9,6 +9,7 @@ import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Imagem.entity.Imagem;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.repository.PetRepository;
+import cruds.Pets.repository.PetStatusRepository;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.entity.User;
 import cruds.common.exception.BadRequestException;
@@ -18,6 +19,7 @@ import cruds.common.exception.NotFoundException;
 import cruds.common.strategy.ImageStorageStrategy;
 import cruds.common.util.ImageValidationUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -42,6 +44,9 @@ public class PetService {
 
     @Autowired
     private PetRepository petRepository;
+
+    @Autowired
+    private PetStatusRepository petStatusRepository;
 
     @Autowired
     private ImageStorageStrategy imageStorageStrategy;
@@ -222,10 +227,12 @@ public class PetService {
         return urls;
     }
 
+    @Transactional
     public void deletarPet(Integer id) {
         if (!petRepository.existsById(id)) {
             throw new NotFoundException("Pet com id: " + id + " não encontrado");
         }
+        petStatusRepository.deleteByPetId(id);
         petRepository.deleteById(id);
     }
 
