@@ -144,6 +144,11 @@ public class PetStatusService {
                 .orElseThrow(() -> new NotFoundException("Status não encontrado para pet " + petId + " e usuário " + userId));
 
         petStatusRepository.delete(status);
+
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new NotFoundException("Pet não encontrado com id " + petId));
+        pet.setIsAdopted(false);
+        petRepository.save(pet);
     }
 
     public List<PetResponseGeralDTO> listDefaultPets(Integer userId) {
