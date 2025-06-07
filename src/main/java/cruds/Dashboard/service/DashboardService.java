@@ -66,7 +66,6 @@ public class DashboardService {
         if (pets.isEmpty()) {
             naoExistePet(ongId);
         }
-
         for (Pet pet : pets) {
             if (Boolean.TRUE.equals(pet.getIsAdopted())) {
                 adotados++;
