@@ -254,13 +254,13 @@ class UserServiceTest {
 
     @Test
     void uploadImagemPerfil_success() throws Exception {
-        // ARRANGE
-        Long userId = 1l;
+        Long userId = 1L;
         byte[] imagemDecodificada = new byte[]{1, 2, 3};
-        String expectedCaminho = "C:\\Users\\Cauan/Desktop/S3 local/imagens/user_" + userId + "_perfil.jpg";
+        String userName = System.getProperty("user.name");
+        String expectedCaminho = "C:\\Users\\" + userName + "/Desktop/S3 local/imagens/user_" + userId + "_perfil.jpg";
 
         User user = new User();
-        user.setId(Long.valueOf(userId));
+        user.setId(userId);
 
         UserRequestImagemPerfilDTO dto = mock(UserRequestImagemPerfilDTO.class);
         when(dto.getImagemDecodificada()).thenReturn(imagemDecodificada);
@@ -272,10 +272,8 @@ class UserServiceTest {
         try (MockedStatic<ImageValidationUtil> util = mockStatic(ImageValidationUtil.class)) {
             util.when(() -> ImageValidationUtil.validateUserImage(imagemDecodificada, "default.jpg")).thenAnswer(inv -> null);
 
-            // ACT
             UserResponseCadastroDTO response = userService.uploadImagemPerfil(Math.toIntExact(userId), dto);
 
-            // ASSERT
             assertNotNull(response);
             assertEquals(userId, response.getId());
             assertEquals(expectedCaminho, user.getImagemUser().getArquivo());
