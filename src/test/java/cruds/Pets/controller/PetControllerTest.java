@@ -1,6 +1,7 @@
 package cruds.Pets.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cruds.Imagem.entity.Imagem;
 import cruds.Ong.entity.Ong;
 import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
 import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
@@ -185,4 +186,48 @@ class PetControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    @DisplayName("Testa obtenção de imagem do pet via endpoint GET /pets/{id}/imagem/{index}")
+    void testGetPetImage() throws Exception {
+        int petId = 10;
+        int index = 0;
+        byte[] fakeImage = new byte[]{1, 2, 3};
+
+        Pet pet = new Pet();
+        pet.setId(petId);
+        var imagem = new Imagem();
+        imagem.setCaminho("fake/path/to/image.jpg");
+        pet.setImagens(List.of(imagem));
+
+        when(petRepository.findById(petId)).thenReturn(java.util.Optional.of(pet));
+
+        try (var filesMock = org.mockito.Mockito.mockStatic(java.nio.file.Files.class)) {
+            filesMock.when(() -> java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("fake/path/to/image.jpg")))
+                    .thenReturn(fakeImage);
+
+            mockMvc.perform(get("/pets/{id}/imagem/{index}", petId, index))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.IMAGE_JPEG))
+                    .andExpect(content().bytes(fakeImage));
+        }
+
+    }
+
+    @Test
+    @DisplayName("Testa busca de pet por ID via endpoint GET /pets/{id}")
+    void testGetPetById() throws Exception {
+        int petId = 11;
+        PetResponseGeralDTO dto = new PetResponseGeralDTO();
+        dto.setId(petId);
+        dto.setNome("Bidu");
+
+        when(petService.getPetById(petId)).thenReturn(dto);
+
+        mockMvc.perform(get("/pets/{id}", petId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(petId))
+                .andExpect(jsonPath("$.nome").value("Bidu"));
+    }
+
 }
