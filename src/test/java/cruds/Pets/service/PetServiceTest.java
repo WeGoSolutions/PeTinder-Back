@@ -284,4 +284,59 @@ class PetServiceTest {
         petService.apagarImagem(23, 0);
         verify(petRepository).save(p);
     }
+
+    @Test
+    @DisplayName("Deve retornar PetResponseGeralDTO ao buscar pet existente por id (getPetById)")
+    void getPetById_success() {
+        Pet pet = new Pet();
+        pet.setId(30);
+        when(petRepository.findById(30)).thenReturn(Optional.of(pet));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+        PetResponseGeralDTO dto = petService.getPetById(30);
+        assertNotNull(dto);
+        assertEquals(30, dto.getId());
+        RequestContextHolder.resetRequestAttributes();
+    }
+
+    @Test
+    @DisplayName("Deve lançar NotFoundException ao buscar pet inexistente por id (getPetById)")
+    void getPetById_notFound() {
+        when(petRepository.findById(31)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, () -> petService.getPetById(31));
+    }
+
+    @Test
+    @DisplayName("Deve fazer upload de imagens do pet com sucesso (uploadPetImages)")
+    void uploadPetImages_success() {
+        Pet pet = new Pet();
+        pet.setId(40);
+        when(petRepository.findById(40)).thenReturn(Optional.of(pet));
+        when(petRepository.save(any())).thenReturn(pet);
+        List<byte[]> imagens = List.of("img".getBytes());
+        List<String> nomes = List.of("img.jpg");
+        try (MockedStatic<ImageValidationUtil> util = mockStatic(ImageValidationUtil.class)) {
+            util.when(() -> ImageValidationUtil.validatePetImages(imagens, nomes)).thenCallRealMethod();
+            doNothing().when(imageStorageStrategy).salvarImagem(any(), anyString());
+            Pet result = petService.uploadPetImages(40, imagens, nomes);
+            assertEquals(40, result.getId());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @DisplayName("Deve lançar BadRequestException se validação de imagem falhar (uploadPetImages)")
+    void uploadPetImages_validationError() throws IOException {
+        Pet pet = new Pet();
+        pet.setId(41);
+        when(petRepository.findById(41)).thenReturn(Optional.of(pet));
+        List<byte[]> imagens = List.of("img".getBytes());
+        List<String> nomes = List.of("img.jpg");
+        try (MockedStatic<ImageValidationUtil> util = mockStatic(ImageValidationUtil.class)) {
+            util.when(() -> ImageValidationUtil.validatePetImages(imagens, nomes)).thenThrow(new IOException("fail"));
+            assertThrows(BadRequestException.class, () -> petService.uploadPetImages(41, imagens, nomes));
+        }
+    }
+
 }
