@@ -47,7 +47,7 @@ public class UserService {
 
     @Autowired
     @Qualifier("localImageStorageStrategy")
-    ImageStorageStrategy imageStorageStrategy;
+    private ImageStorageStrategy imageStorageStrategy;
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, EmailService emailService) {
