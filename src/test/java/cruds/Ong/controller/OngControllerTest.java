@@ -1,15 +1,20 @@
 package cruds.Ong.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cruds.Imagem.entity.ImagemOng;
+import cruds.Imagem.repository.ImagemOngRepository;
+import cruds.Imagem.service.ImagemOngService;
 import cruds.Ong.controller.dto.request.OngRequestCriarDTO;
 import cruds.Ong.controller.dto.request.OngRequestImagemDTO;
 import cruds.Ong.controller.dto.request.OngRequestLoginDTO;
 import cruds.Ong.controller.dto.request.OngRequestUpdateDTO;
 import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
+import cruds.Ong.controller.dto.response.OngResponseUrlDTO;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.repository.OngRepository;
 import cruds.Ong.service.OngService;
+import cruds.Users.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +48,18 @@ class OngControllerTest {
     @MockitoBean
     private OngRepository ongRepository;
 
+    @MockitoBean
+    private ImagemOng imagemOng;
+
+    @MockitoBean
+    private ImagemOngRepository imagemOngRepository;
+
+    @MockitoBean
+    private ImagemOngService imagemOngService;
+
+    @MockitoBean
+    private UserService userService;
+
     @Test
     @DisplayName("Deve criar ONG com sucesso usando POST /ong")
     void testCriarOng() throws Exception {
@@ -60,7 +77,7 @@ class OngControllerTest {
 
         when(ongService.criarOng(any())).thenReturn(ongCriada);
 
-        mockMvc.perform(post("/ong")
+        mockMvc.perform(post("/ongs")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
@@ -85,7 +102,7 @@ class OngControllerTest {
 
         when(ongService.login(eq(req.getEmail()), eq(req.getSenha()))).thenReturn(resp);
 
-        mockMvc.perform(post("/ong/login")
+        mockMvc.perform(post("/ongs/login")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
@@ -106,7 +123,7 @@ class OngControllerTest {
 
         when(ongService.getOng(1)).thenReturn(resp);
 
-        mockMvc.perform(get("/ong/1")
+        mockMvc.perform(get("/ongs/1")
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -132,7 +149,7 @@ class OngControllerTest {
 
         when(ongService.updateOng(eq(1), any(OngRequestUpdateDTO.class))).thenReturn(resp);
 
-        mockMvc.perform(patch("/ong/1")
+        mockMvc.perform(patch("/ongs/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
@@ -143,48 +160,50 @@ class OngControllerTest {
     }
 
     @Test
-    @DisplayName("Deve atualizar imagem da ONG com sucesso usando POST /ongs/{id}/imagem")
+    @DisplayName("Deve atualizar imagem da ONG com sucesso usando PUT /ongs/{id}/imagem")
     void testUpdateImageOng() throws Exception {
         OngRequestImagemDTO req = new OngRequestImagemDTO();
-        req.setNomeArquivo("imagem.jpg");
         req.setImagensBytes(Base64.getEncoder().encodeToString("dados-imagem".getBytes()));
 
-        Ong ongAtualizada = new Ong();
-        ongAtualizada.setId(1);
-        ongAtualizada.setNome("ONG Teste");
-        ongAtualizada.setEmail("ong@teste.com");
+        OngResponseUrlDTO resp = OngResponseUrlDTO.builder()
+                .id(1)
+                .nome("ONG Teste")
+                .email("ong@teste.com")
+                .imageUrl("http://localhost:8080/ongs/1/imagens/0")
+                .build();
 
-        // Parâmetros esperados após parse (feito por ImageUploadUtil no controller)
-        byte[] imageBytes = Base64.getDecoder().decode(req.getImagensBytes());
-        String nomeArquivo = "imagem.jpg";
-        String extension = "jpg";
+        when(ongService.updateImagem(eq(1), any(OngRequestImagemDTO.class))).thenReturn(resp);
 
-        when(ongService.uploadOngImage(eq(1), eq(imageBytes), eq(nomeArquivo), eq(extension)))
-                .thenReturn(ongAtualizada);
-
-        mockMvc.perform(post("/ongs/1/imagem")  // <- Corrigido o endpoint
+        mockMvc.perform(put("/ongs/1/imagem")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.nome").value("ONG Teste"))
-                .andExpect(jsonPath("$.email").value("ong@teste.com"));
+                .andExpect(jsonPath("$.email").value("ong@teste.com"))
+                .andExpect(jsonPath("$.imageUrl").value("http://localhost:8080/ongs/1/imagens/0"));
     }
 
-
     @Test
-    @DisplayName("Deve retornar imagem da ONG com sucesso usando GET /ongs/{id}/imagem/arquivo")
+    @DisplayName("Deve retornar URL da imagem da ONG com sucesso usando GET /ongs/{id}/imagem/arquivo")
     void testGetImageOng() throws Exception {
-        byte[] imagemMock = "imagem-fake".getBytes();
+        OngResponseUrlDTO resp = OngResponseUrlDTO.builder()
+                .id(1)
+                .nome("ONG Teste")
+                .email("ong@teste.com")
+                .imageUrl("http://localhost:8080/ongs/1/imagens/0")
+                .build();
 
-        when(ongService.getOngImageBytes(1)).thenReturn(imagemMock);
+        when(ongService.getImageOng(1)).thenReturn(resp);
 
         mockMvc.perform(get("/ongs/1/imagem/arquivo")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.IMAGE_JPEG))
-                .andExpect(content().bytes(imagemMock));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nome").value("ONG Teste"))
+                .andExpect(jsonPath("$.email").value("ong@teste.com"))
+                .andExpect(jsonPath("$.imageUrl").value("http://localhost:8080/ongs/1/imagens/0"));
     }
 
 }

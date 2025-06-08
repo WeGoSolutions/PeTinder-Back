@@ -1,11 +1,13 @@
 package cruds.Pets.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cruds.Ong.entity.Ong;
 import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
 import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
 import cruds.Pets.controller.dto.request.UploadImagesRequest;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.entity.Pet;
+import cruds.Pets.repository.PetRepository;
 import cruds.Pets.service.PetService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -32,11 +34,16 @@ class PetControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private ObjectMapper objectMapper;
 
     @MockitoBean
     private PetService petService;
+
+    @MockitoBean
+    private PetRepository petRepository;
+
 
     @Test
     @DisplayName("Testa criação de pet com sucesso via endpoint POST /pets")
@@ -53,6 +60,9 @@ class PetControllerTest {
         Pet pet = new Pet();
         pet.setId(1);
         pet.setNome("Rex");
+        Ong ong = new Ong();
+        ong.setId(1); // ou qualquer valor válido
+        pet.setOng(ong);
         when(petService.cadastrarPet(any())).thenReturn(pet);
 
         mockMvc.perform(post("/pets")
@@ -75,6 +85,9 @@ class PetControllerTest {
 
         Pet pet = new Pet();
         pet.setId(2);
+        Ong ong = new Ong();
+        ong.setId(1);
+        pet.setOng(ong);
         when(petService.uploadPetImages(eq(2), anyList(), anyList()))
                 .thenReturn(pet);
 
@@ -139,6 +152,9 @@ class PetControllerTest {
         Pet pet = new Pet();
         pet.setId(6);
         pet.setNome("Max");
+        Ong ong = new Ong();
+        ong.setId(1);
+        pet.setOng(ong);
         when(petService.atualizar(eq(6), any())).thenReturn(pet);
 
         mockMvc.perform(put("/pets/6")

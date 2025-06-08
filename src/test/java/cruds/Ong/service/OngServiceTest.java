@@ -2,11 +2,13 @@ package cruds.Ong.service;
 
 import cruds.Imagem.entity.ImagemOng;
 import cruds.Ong.controller.dto.request.OngRequestCriarDTO;
+import cruds.Ong.controller.dto.request.OngRequestImagemDTO;
 import cruds.Ong.controller.dto.request.OngRequestUpdateDTO;
 import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.controller.dto.response.OngResponseLoginDTO;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.repository.OngRepository;
+import cruds.common.exception.BadRequestException;
 import cruds.common.exception.ConflictException;
 import cruds.common.strategy.ImageStorageStrategy;
 import cruds.common.util.ImageValidationUtil;
@@ -99,23 +101,23 @@ class OngServiceTest {
     @Test
     void login_success() {
         String email = "e@e.com";
-        String senha = "s3nh@";
+        String senha = "SenhaForte123!";
+
         Ong ong = new Ong();
         ong.setId(2);
         ong.setEmail(email);
         ong.setNome("Nome");
-        when(ongRepository.findByEmailAndSenha(email, senha))
-                .thenReturn(Optional.of(ong));
-        Authentication auth = mock(Authentication.class);
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(auth);
-        when(gerenciadorTokenJwt.generateToken(auth)).thenReturn("tok");
+        ong.setSenha("senhaCriptografada");
+
+        when(ongRepository.findByEmail(email)).thenReturn(Optional.of(ong));
+        when(passwordEncoder.matches(senha, "senhaCriptografada")).thenReturn(true);
 
         OngResponseLoginDTO resp = ongService.login(email, senha);
+
         assertEquals(2, resp.getId());
         assertEquals(email, resp.getEmail());
-        verify(authenticationManager).authenticate(any());
     }
+
 
     @Test
     void getOng_success() {
@@ -172,10 +174,13 @@ class OngServiceTest {
         try (MockedStatic<ImageValidationUtil> util = mockStatic(ImageValidationUtil.class)) {
             util.when(() -> ImageValidationUtil.validateOngImage(imageBytes, imageName))
                     .thenAnswer(invocation -> null);
-            doNothing().when(imageStorageStrategy).salvarImagem(eq(imageBytes), anyString());
+            doNothing().when(imageStorageStrategy).salvarImagem(any(), anyString());
             when(ongRepository.save(any())).thenReturn(ong);
 
-            Ong result = ongService.uploadOngImage(8, imageBytes, imageName, "jpg");
+            OngRequestImagemDTO imagemDTO = mock(OngRequestImagemDTO.class);
+            when(imagemDTO.getImagensBytesDecoded()).thenReturn(imageBytes);
+
+            var result = ongService.updateImagem(8, imagemDTO);
             assertEquals(8, result.getId());
         }
     }
@@ -185,16 +190,17 @@ class OngServiceTest {
         Ong ong = new Ong();
         ong.setId(10);
         when(ongRepository.findById(10)).thenReturn(Optional.of(ong));
-
         try (MockedStatic<ImageValidationUtil> util = mockStatic(ImageValidationUtil.class)) {
             util.when(() -> ImageValidationUtil.validateOngImage(imageBytes, imageName))
                     .thenAnswer(invocation -> null);
-
             doThrow(new IOException("disk"))
-                    .when(imageStorageStrategy).salvarImagem(eq(imageBytes), anyString());
+                    .when(imageStorageStrategy).salvarImagem(any(), anyString());
 
-            assertThrows(RuntimeException.class,
-                    () -> ongService.uploadOngImage(10, imageBytes, imageName, ""));
+            OngRequestImagemDTO imagemDTO = mock(OngRequestImagemDTO.class);
+            when(imagemDTO.getImagensBytesDecoded()).thenReturn(imageBytes);
+
+            assertThrows(BadRequestException.class,
+                    () -> ongService.updateImagem(10, imagemDTO));
         }
     }
 

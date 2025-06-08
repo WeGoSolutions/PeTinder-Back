@@ -2,11 +2,14 @@ package cruds.Pets.service;
 
 import cruds.Imagem.entity.Imagem;
 import cruds.Imagem.repository.ImagemRepository;
+import cruds.Ong.entity.Ong;
+import cruds.Ong.repository.OngRepository;
 import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
 import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.repository.PetRepository;
+import cruds.Pets.repository.PetStatusRepository;
 import cruds.common.exception.*;
 import cruds.common.strategy.ImageStorageStrategy;
 import cruds.common.util.ImageValidationUtil;
@@ -19,6 +22,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +40,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PetServiceTest {
 
     @Mock
@@ -42,6 +51,10 @@ class PetServiceTest {
     private ImageStorageStrategy imageStorageStrategy;
     @InjectMocks
     private PetService petService;
+    @Mock
+    private PetStatusRepository petStatusRepository;
+    @Mock
+    private OngRepository ongRepository;
 
     private PetRequestCriarDTO criarDto;
     private String validBase64;
@@ -54,6 +67,10 @@ class PetServiceTest {
         criarDto = new PetRequestCriarDTO();
         criarDto.setNome("Pet");
         criarDto.setImagemBase64(List.of(validBase64));
+        criarDto.setOngId(1);
+        Ong ong = new Ong();
+        ong.setId(1);
+        when(ongRepository.findById(1)).thenReturn(Optional.of(ong));
     }
 
     @Test
@@ -83,8 +100,6 @@ class PetServiceTest {
     @Test
     @DisplayName("Deve lançar BadRequestException quando ocorrer erro na validação das imagens")
     void cadastrarPet_validationError_badRequest() throws IOException {
-        Pet saved = new Pet(); saved.setId(2);
-        when(petRepository.save(any())).thenReturn(saved);
         try (MockedStatic<ImageValidationUtil> util = mockStatic(ImageValidationUtil.class)) {
             util.when(() -> ImageValidationUtil.validatePetImages(any(), any()))
                     .thenThrow(new IOException("fail"));
@@ -100,7 +115,6 @@ class PetServiceTest {
         try (MockedStatic<ImageValidationUtil> util = mockStatic(ImageValidationUtil.class)) {
             util.when(() -> ImageValidationUtil.validatePetImages(any(), any()))
                     .thenAnswer(invocation -> null);
-            when(imageStorageStrategy.gerarCaminho(anyString())).thenReturn("p.jpg");
             doThrow(new IOException("disk"))
                     .when(imageStorageStrategy).salvarImagem(any(), anyString());
             assertThrows(RuntimeException.class, () -> petService.cadastrarPet(criarDto));
@@ -162,10 +176,13 @@ class PetServiceTest {
     @Test
     @DisplayName("Deve retornar lista de pets na listagem geral com sucesso")
     void listarGeral_success() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
         Pet p = new Pet(); p.setId(10);
         when(petRepository.findAll()).thenReturn(List.of(p));
         List<PetResponseGeralDTO> list = petService.listarGeral();
         assertEquals(1, list.size());
+        RequestContextHolder.resetRequestAttributes();
     }
 
     @Test

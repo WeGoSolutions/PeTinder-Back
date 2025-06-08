@@ -138,7 +138,6 @@ class UserControllerTest {
     void testUpdateUser() throws Exception {
         UserRequestUpdateDTO req = new UserRequestUpdateDTO();
         req.setEmail("new@e.com");
-        req.setSenha("Pass1@word");
         req.setNome("Nm");
         req.setDataNasc(LocalDate.from(LocalDateTime.now().minusYears(30)));
         req.setCpf("123");
