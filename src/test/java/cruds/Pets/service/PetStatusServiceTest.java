@@ -242,8 +242,11 @@ class PetStatusServiceTest {
         int petId = 10;
         int userId = 20;
         PetStatus status = new PetStatus();
+        Pet pet = new Pet();
+        pet.setId(petId);
 
         when(petStatusRepository.findByPetIdAndUserId(petId, userId)).thenReturn(Optional.of(status));
+        when(petRepository.findById(petId)).thenReturn(Optional.of(pet)); // Mock necessário
 
         assertDoesNotThrow(() -> petStatusService.deletePetStatus(petId, userId));
         verify(petStatusRepository).delete(status);
