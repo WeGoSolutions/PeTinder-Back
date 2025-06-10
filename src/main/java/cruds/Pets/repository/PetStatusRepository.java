@@ -38,4 +38,8 @@ public interface PetStatusRepository extends JpaRepository<PetStatus, Integer> {
     @Modifying
     @Transactional
     void deleteByPetId(Integer id);
+
+    @Modifying
+    @Transactional
+    void deleteByUserId(Integer id);
 }

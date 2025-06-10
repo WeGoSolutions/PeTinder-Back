@@ -9,4 +9,6 @@ public interface PetRepository extends JpaRepository<Pet, Integer> {
     List<Pet> findByOngIdOrderByCurtidasDesc(Integer ongId);
 
     List<Pet> findByOngId(Integer ongId);
+
+    void deleteByOngId(Integer id);
 }
