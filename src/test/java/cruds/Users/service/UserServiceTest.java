@@ -23,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
+import cruds.Pets.repository.PetStatusRepository;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -40,6 +41,7 @@ class UserServiceTest {
     @Mock private AuthenticationManager authenticationManager;
     @Mock private GerenciadorTokenJwt gerenciadorTokenJwt;
     @Mock private ImageStorageStrategy imageStorageStrategy;
+    @Mock private PetStatusRepository petStatusRepository;
 
     @InjectMocks
     private UserService userService;
@@ -51,6 +53,7 @@ class UserServiceTest {
         MockitoAnnotations.openMocks(this);
         userService = new UserService(userRepository, passwordEncoder, eventPublisher, authenticationManager, gerenciadorTokenJwt, emailService);
         userService.imageStorageStrategy = imageStorageStrategy;
+        userService.petStatusRepository = petStatusRepository;
         user = new User();
         user.setId(1L);
         user.setEmail("test@user.com");
@@ -224,8 +227,11 @@ class UserServiceTest {
     @Test
     void deleteUser_success() {
         when(userRepository.existsById(1)).thenReturn(true);
+        doNothing().when(petStatusRepository).deleteByUserId(1); // mock necessário
         doNothing().when(userRepository).deleteById(1);
         assertDoesNotThrow(() -> userService.deleteUser(1));
+        verify(petStatusRepository).deleteByUserId(1);
+        verify(userRepository).deleteById(1);
     }
 
     @Test

@@ -115,4 +115,11 @@ public class OngController {
         return new ResponseEntity<>(dados, headers, HttpStatus.OK);
     }
 
+    @Operation(summary = "deletando a ong")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<OngResponseDTO> deleteOng(@PathVariable Integer id) {
+        ongService.deletarPorId(id);
+        return ResponseEntity.status(204).build();
+    }
+
 }

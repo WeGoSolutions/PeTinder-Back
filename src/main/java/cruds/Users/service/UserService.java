@@ -1,5 +1,6 @@
 package cruds.Users.service;
 
+import cruds.Pets.repository.PetStatusRepository;
 import cruds.Users.controller.UsuarioMapper;
 import cruds.Users.controller.dto.request.*;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
@@ -48,6 +49,8 @@ public class UserService {
     @Autowired
     @Qualifier("localImageStorageStrategy")
     protected ImageStorageStrategy imageStorageStrategy;
+    @Autowired
+    private PetStatusRepository petStatusRepository;
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, EmailService emailService) {
@@ -220,6 +223,7 @@ public class UserService {
         if (!userRepository.existsById(id)) {
             throw new NotFoundException("Usuário com id: " + id + " não encontrado");
         }
+        petStatusRepository.deleteByUserId(id);
         userRepository.deleteById(id);
     }
 

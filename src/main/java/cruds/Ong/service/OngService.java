@@ -1,5 +1,6 @@
 package cruds.Ong.service;
 
+import cruds.Dashboard.repository.DashboardRepository;
 import cruds.Imagem.entity.Imagem;
 import cruds.Imagem.entity.ImagemOng;
 import cruds.Imagem.repository.ImagemOngRepository;
@@ -32,6 +33,7 @@ import cruds.common.exception.NotFoundException;
 import cruds.common.strategy.ImageStorageStrategy;
 import cruds.common.util.ImageValidationUtil;
 import cruds.config.token.GerenciadorTokenJwt;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -64,6 +66,7 @@ public class OngService {
     private final PasswordEncoder passwordEncoder;
     private final ImageStorageStrategy imageStorageStrategy;
     private final ImagemOngRepository imagemOngRepository;
+    private final DashboardRepository dashboardRepository;
     private AuthenticationManager authenticationManager;
     private GerenciadorTokenJwt gerenciadorTokenJwt;
     private OngRepository ongRepository;
@@ -75,7 +78,7 @@ public class OngService {
 
 
     @Autowired
-    public OngService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, OngRepository ongRepository, ImageStorageStrategy imageStorageStrategy, PetRepository petRepository, PetStatusRepository petStatusRepository, ImagemOngRepository imagemOngRepository) {
+    public OngService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, OngRepository ongRepository, ImageStorageStrategy imageStorageStrategy, PetRepository petRepository, PetStatusRepository petStatusRepository, ImagemOngRepository imagemOngRepository, DashboardRepository dashboardRepository) {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.gerenciadorTokenJwt = gerenciadorTokenJwt;
@@ -84,6 +87,7 @@ public class OngService {
         this.petRepository = petRepository;
         this.petStatusRepository = petStatusRepository;
         this.imagemOngRepository = imagemOngRepository;
+        this.dashboardRepository = dashboardRepository;
     }
 
     public Ong criarOng(@Valid OngRequestCriarDTO dto) {
@@ -262,5 +266,16 @@ public class OngService {
             throw new NotFoundException("Imagem não encontrada para o usuário com id " + id);
         }
         return ong.getImagemOng().getDados();
+    }
+
+    @Transactional
+    public void deletarPorId(Integer id) {
+        if (ongRepository.existsById(id)) {
+            petRepository.deleteByOngId(id);
+            dashboardRepository.deleteByOngId(id);
+            ongRepository.deleteById(id);
+            return;
+        }
+        throw new NotFoundException("Ong de id " + id + " não encontrado");
     }
 }
