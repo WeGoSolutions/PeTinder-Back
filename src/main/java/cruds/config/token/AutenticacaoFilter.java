@@ -1,6 +1,6 @@
 package cruds.config.token;
 
-import cruds.Users.service.AutenticacaoService;
+import cruds.Users.service.UserAuthenticationService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,12 +21,12 @@ public class AutenticacaoFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AutenticacaoFilter.class);
 
-    private final AutenticacaoService autenticacaoService;
+    private final UserAuthenticationService userAuthenticationService;
 
     private final GerenciadorTokenJwt jwtTokenManager;
 
-    public AutenticacaoFilter(AutenticacaoService autenticacaoService, GerenciadorTokenJwt jwtTokenManager) {
-        this.autenticacaoService = autenticacaoService;
+    public AutenticacaoFilter(UserAuthenticationService userAuthenticationService, GerenciadorTokenJwt jwtTokenManager) {
+        this.userAuthenticationService = userAuthenticationService;
         this.jwtTokenManager = jwtTokenManager;
     }
 
@@ -63,7 +63,7 @@ public class AutenticacaoFilter extends OncePerRequestFilter {
 
     private void addUsernameInContext(HttpServletRequest request, String username, String jwtToken) {
 
-        UserDetails userDetails = autenticacaoService.loadUserByUsername(username);
+        UserDetails userDetails = userAuthenticationService.loadUserByUsername(username);
 
         if (jwtTokenManager.validateToken(jwtToken, userDetails)) {
 

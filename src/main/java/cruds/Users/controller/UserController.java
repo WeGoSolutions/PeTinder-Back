@@ -1,159 +1,119 @@
 package cruds.Users.controller;
 
-import cruds.Users.controller.dto.response.UserResponseUrlDTO;
-import cruds.Users.repository.UserRepository;
-import io.swagger.v3.oas.annotations.Operation;
 import cruds.Users.controller.dto.request.*;
 import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.Users.controller.dto.response.UserResponseLoginDTO;
-import cruds.Users.service.UserService;
+import cruds.Users.controller.dto.response.UserResponseUrlDTO;
+import cruds.Users.entity.User;
+import cruds.Users.mapper.UserMapper;
+import cruds.Users.service.UserAuthenticationService;
+import cruds.Users.service.UserCommandService;
+import cruds.Users.service.UserQueryService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
 @Tag(name = "Usuario", description = "Endpoints relacionados ao gerenciamento de usuários.")
-@Validated
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserRepository userRepository;
+    private final UserCommandService commandService;
+    private final UserQueryService queryService;
+    private final UserAuthenticationService authService;
+    private final UserMapper mapper;
+    // private final UserImageService imageService; // Seria injetado aqui
 
     @Operation(summary = "Cria um novo usuário")
     @PostMapping
     public ResponseEntity<UserResponseCadastroDTO> createUser(@Valid @RequestBody UserRequestCriarDTO userRequest) {
-        var savedUser = userService.createUser(userRequest);
-        return ResponseEntity.status(201).body(savedUser);
+        User savedUser = commandService.createUser(userRequest);
+        return ResponseEntity.status(201).body(mapper.toCadastroResponse(savedUser));
     }
 
     @Operation(summary = "Realiza login do usuário")
     @PostMapping("/login")
     public ResponseEntity<UserResponseLoginDTO> login(@RequestBody @Valid UserRequestLoginDTO loginDTO) {
-        UserResponseLoginDTO response = userService.login(loginDTO.getEmail(), loginDTO.getSenha());
-        return ResponseEntity.ok(response);
+        User user = queryService.findUserByEmail(loginDTO.getEmail());
+        String token = authService.login(loginDTO.getEmail(), loginDTO.getSenha());
+        return ResponseEntity.ok(mapper.toLoginResponse(user, token));
     }
 
     @Operation(summary = "Atualiza informações opcionais do usuário")
     @PutMapping("/{id}/optional")
     public ResponseEntity<UserResponseCadastroDTO> updateOptionalInfo(
-            @PathVariable Integer id,
-            @Valid @RequestBody UserRequestOptionalDTO optionalDto) {
-        var updatedUser = userService.updateOptionalInfo(id, optionalDto);
-        return ResponseEntity.status(200).body(updatedUser);
+            @PathVariable Integer id, @Valid @RequestBody UserRequestOptionalDTO optionalDto) {
+        User updatedUser = commandService.updateOptionalInfo(id, optionalDto);
+        return ResponseEntity.ok(mapper.toCadastroResponse(updatedUser));
     }
 
     @Operation(summary = "Lista todos os usuários")
     @GetMapping
     public ResponseEntity<List<UserResponseCadastroDTO>> getAllUsers() {
-        var users = userService.getListaUsuarios();
-        return ResponseEntity.status(200).body(users);
+        List<User> users = queryService.findAllUsers();
+        List<UserResponseCadastroDTO> response = users.stream()
+                .map(mapper::toCadastroResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Busca usuário por ID")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseCadastroDTO> getUserById(@PathVariable Integer id) {
-        var user = userService.getUserById(id);
-        return ResponseEntity.ok(user);
+        User user = queryService.findUserById(id);
+        return ResponseEntity.ok(mapper.toCadastroResponse(user));
     }
 
     @Operation(summary = "Atualiza informações do usuário")
     @PatchMapping("/{id}")
     public ResponseEntity<UserResponseCadastroDTO> updateUser(
-            @PathVariable Integer id,
-            @Valid @RequestBody UserRequestUpdateDTO updateDto) {
-        var updatedUser = userService.updateUser(id, updateDto);
-        return ResponseEntity.status(202).body(updatedUser);
+            @PathVariable Integer id, @Valid @RequestBody UserRequestUpdateDTO updateDto) {
+        User updatedUser = commandService.updateUser(id, updateDto);
+        return ResponseEntity.accepted().body(mapper.toCadastroResponse(updatedUser));
     }
 
     @Operation(summary = "Exclui o usuário")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
-        userService.deleteUser(id);
-        return ResponseEntity.status(204).build();
+        commandService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Faz upload da imagem de perfil")
-    @PostMapping("/{id}/imagem")
-    public ResponseEntity<UserResponseCadastroDTO> uploadImagemPerfil(@PathVariable Integer id,
-                                                                      @Valid @RequestBody UserRequestImagemPerfilDTO dto) {
-        var updatedUser = userService.uploadImagemPerfil(id, dto);
-        return ResponseEntity.status(200).body(updatedUser);
-    }
-
-    @Operation(summary = "Atualiza a imagem de perfil")
-    @PutMapping("/{id}/imagem")
-    public ResponseEntity<UserResponseCadastroDTO> updateImagemPerfil(@PathVariable Integer id,
-                                                                      @Valid @RequestBody UserRequestImagemPerfilDTO dto) {
-        var updatedUser = userService.updateImagemPerfil(id, dto);
-        return ResponseEntity.status(200).body(updatedUser);
-    }
-
-    @Operation(summary = "Remove a imagem de perfil")
-    @DeleteMapping("/{id}/imagem")
-    public ResponseEntity<UserResponseCadastroDTO> removerImagemPerfil(@PathVariable Integer id) {
-        var updatedUser = userService.deleteImagemPerfil(id);
-        return ResponseEntity.status(200).body(updatedUser);
-    }
-
-    @Operation(summary = "Retorna imagem por índice")
-    @GetMapping("/{userId}/imagens/{indice}")
-    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer userId,
-                                                     @PathVariable int indice) {
-        byte[] dados = userService.getImagemPorIndice(userId, indice);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_JPEG);
-        return new ResponseEntity<>(dados, headers, HttpStatus.OK);
-    }
+    // endpoints de imagem chamariam o UserImageService
 
     @Operation(summary = "Valida e-mail do usuário")
     @GetMapping("/{email}/validar-email")
     public ResponseEntity<UserResponseCadastroDTO> validarEmail(@PathVariable String email) {
-        var user = userService.validarEmail(email);
-        return ResponseEntity.status(200).body(user);
+        User user = queryService.findUserByEmail(email);
+        return ResponseEntity.ok(mapper.toCadastroResponse(user));
     }
 
     @Operation(summary = "Atualiza a senha do usuário")
-    @PatchMapping("/senha")
-    public ResponseEntity<UserResponseCadastroDTO> updateSenha(@Valid @RequestBody UserRequestSenhaDTO senha,
-                                                               String email) {
-        var updatedUser = userService.updateSenha(email, senha);
-        return ResponseEntity.status(200).body(updatedUser);
+    @PatchMapping("/{id}/senha")
+    public ResponseEntity<Void> updatePassword(
+            @PathVariable Integer id, @Valid @RequestBody UserRequestUpdatePasswordDTO req) {
+        authService.updatePassword(id, req);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Atualiza o campo userNovo para false")
     @PatchMapping("/{id}/user-novo")
     public ResponseEntity<UserResponseCadastroDTO> atualizarUserNovoParaFalse(@PathVariable Integer id) {
-        var updatedUser = userService.atualizarUserNovoParaFalse(id);
-        return ResponseEntity.status(200).body(updatedUser);
+        User updatedUser = commandService.setUserNovoToFalse(id);
+        return ResponseEntity.ok(mapper.toCadastroResponse(updatedUser));
     }
 
-    @DeleteMapping("/teste")
-    public ResponseEntity<Void>deletarTodos(){
-        userRepository.deleteAll();
-        return ResponseEntity.status(204).build();
-    }
-
-    @Operation(summary = "Pega a url da imagem do user")
-    @GetMapping("/{id}/imagem")
-    public ResponseEntity<UserResponseUrlDTO> getUrlImageUser(@PathVariable Integer id) {
-        UserResponseUrlDTO response = userService.getUrlImageUser(id);
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/{id}/senha")
-    public ResponseEntity<UserResponseCadastroDTO> updatePassword(@PathVariable Integer id,
-                                                         @Valid @RequestBody UserRequestUpdatePasswordDTO req) {
-        UserResponseCadastroDTO response = userService.updatePassword(id, req.getSenhaAtual(), req.getNovaSenha());
-        return ResponseEntity.ok(response);
+    @Operation(summary = "(Dev) Deleta todos os usuários")
+    @DeleteMapping("/all")
+    public ResponseEntity<Void> deleteAllUsers() {
+        commandService.deleteAllUsers();
+        return ResponseEntity.noContent().build();
     }
 }

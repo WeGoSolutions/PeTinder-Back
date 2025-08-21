@@ -1,6 +1,6 @@
 package cruds.config.token;
 
-import cruds.Users.service.AutenticacaoService;
+import cruds.Users.service.UserAuthenticationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,10 +30,10 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfiguracao {
 
-    private final AutenticacaoService autenticacaoService;
+    private final UserAuthenticationService autenticacaoService;
 
-    public SecurityConfiguracao(AutenticacaoService autenticacaoService) {
-        this.autenticacaoService = autenticacaoService;
+    public SecurityConfiguracao(UserAuthenticationService userAuthenticationService) {
+        this.autenticacaoService = userAuthenticationService;
     }
 
     private static final AntPathRequestMatcher[] URLS_PERMITIDAS = {
