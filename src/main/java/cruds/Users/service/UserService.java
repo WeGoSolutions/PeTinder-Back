@@ -63,7 +63,10 @@ public class UserService {
     }
 
     public UserResponseCadastroDTO createUser(UserRequestCriarDTO dto) {
-        userRules(dto);
+        dto.isMaiorDe21();
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new ConflictException("Email não pode ser utilizado");
+        }
         User user = UserRequestCriarDTO.toEntity(dto);
         String senhaCriptografada = passwordEncoder.encode(dto.getSenha());
         user.setSenha(senhaCriptografada);
@@ -327,22 +330,6 @@ public class UserService {
     private User getUsuarioPorEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Usuário com email " + email + " não encontrado"));
-    }
-
-    private void userRules(UserRequestCriarDTO user) {
-        if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@") || userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new ConflictException("Email não pode ser utilizado");
-        }
-        if (user.getSenha() == null || user.getSenha().isEmpty() || user.getSenha().length() < 8
-                || !user.getSenha().matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\\\":{}|<>])[A-Za-z\\d!@#$%^&*(),.?\\\":{}|<>]+$")) {
-            throw new ConflictException("Senha não pode ser cadastrada ou não atende aos requisitos de segurança");
-        }
-        if (user.getNome() == null || user.getNome().isEmpty() || user.getNome().length() < 3
-                || !user.getNome().matches("^[A-Za-zÀ-ÖØ-öø-ÿ ]+$")) {
-            throw new ConflictException("Nome não pode ser utilizado");
-        }
-
-        user.isMaiorDe21();
     }
 
     public UserRequestTokenDto autenticar(User usuario) {

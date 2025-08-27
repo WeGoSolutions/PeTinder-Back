@@ -3,7 +3,7 @@ package cruds.Users.controller.dto.request;
 import cruds.Users.entity.User;
 import cruds.common.exception.NotAllowedException;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
+
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,7 +40,7 @@ public class UserRequestCriarDTO {
     @Schema(description = "Data de nascimento do usuário", example = "2000-01-01")
     private LocalDate dataNasc;
 
-    @NotBlank
+    @NotNull
     private Boolean userNovo;
 
     public boolean isMaiorDe21() {
