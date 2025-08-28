@@ -1,20 +1,24 @@
 package cruds.Users.init;
 
+import cruds.Users.application.service.UserManagementService;
 import cruds.Users.controller.dto.request.UserRequestCriarDTO;
-import cruds.Users.service.UserService;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 
 import java.time.LocalDate;
 
+/**
+ * Inicializador responsável por criar usuários padrão no sistema.
+ * Atualizado para usar a nova arquitetura com UserManagementService.
+ */
 @Component
 public class UserInitializer {
 
-    private final UserService userService;
+    private final UserManagementService userManagementService;
 
-    public UserInitializer(UserService userService) {
-        this.userService = userService;
+    public UserInitializer(UserManagementService userManagementService) {
+        this.userManagementService = userManagementService;
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -27,9 +31,9 @@ public class UserInitializer {
         user.setUserNovo(false);
 
         try {
-            userService.createUser(user);
+            userManagementService.createUser(user);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Usuário padrão já existe ou erro na criação: " + e.getMessage());
         }
     }
 }
