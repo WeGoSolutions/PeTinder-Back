@@ -1,10 +1,7 @@
 package cruds.Pets.controller;
 
 import cruds.Pets.controller.dto.request.PetStatusRequestDTO;
-import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
-import cruds.Pets.controller.dto.response.PetResponsePendingOngDTO;
-import cruds.Pets.controller.dto.response.PetResponseUserPendenteDTO;
-import cruds.Pets.controller.dto.response.PetStatusResponseDTO;
+import cruds.Pets.controller.dto.response.*;
 import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
 import cruds.Pets.repository.PetStatusRepository;
@@ -174,5 +171,12 @@ public class PetStatusController {
             return ResponseEntity.status(204).build();
         }
         return ResponseEntity.ok(userIds);
+    }
+
+    @Operation(summary = "Pega todas as informações do pet e do adotante")
+    @GetMapping("/adopted/{petId}")
+    public ResponseEntity<PetResponseAdotanteDTO> getAdoptedInfoByPetId(@PathVariable UUID petId) {
+        PetResponseAdotanteDTO dto = petStatusService.getAdoptedInfoByPetId(petId);
+        return ResponseEntity.ok(dto);
     }
 }

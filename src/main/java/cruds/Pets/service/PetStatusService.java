@@ -3,6 +3,7 @@ package cruds.Pets.service;
 import cruds.Ong.controller.dto.response.OngResponseDTO;
 import cruds.Ong.entity.Ong;
 import cruds.Pets.controller.dto.request.PetStatusRequestDTO;
+import cruds.Pets.controller.dto.response.PetResponseAdotanteDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.controller.dto.response.PetResponsePendingOngDTO;
 import cruds.Pets.controller.dto.response.PetResponseUserPendenteDTO;
@@ -265,5 +266,20 @@ public class PetStatusService {
         return pendingStatuses.stream()
                 .map(status -> PetResponseUserPendenteDTO.toResponse(pet, status.getUser()))
                 .collect(Collectors.toList());
+    }
+
+    public PetResponseAdotanteDTO getAdoptedInfoByPetId(UUID petId) {
+        List<PetStatus> statuses = petStatusRepository.findByPet_Id(petId);
+        Optional<PetStatus> adoptedStatus = statuses.stream()
+                .filter(s -> s.getStatus() == PetStatusEnum.ADOPTED)
+                .findFirst();
+
+        if (adoptedStatus.isEmpty()) {
+            throw new NotFoundException("Pet não está adotado");
+        }
+
+        Pet pet = adoptedStatus.get().getPet();
+        User user = adoptedStatus.get().getUser();
+        return new PetResponseAdotanteDTO(pet, user);
     }
 }
