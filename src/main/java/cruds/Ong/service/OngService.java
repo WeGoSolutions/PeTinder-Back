@@ -101,7 +101,7 @@ public class OngService {
         return ongCriada;
     }
 
-    public OngResponseDTO updatePassword(Integer id, String senhaAtual, String novaSenha) {
+    public OngResponseDTO updatePassword(UUID id, String senhaAtual, String novaSenha) {
         Ong ong = ongRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("ONG não encontrada"));
 
@@ -137,12 +137,12 @@ public class OngService {
     }
 
 
-    public OngResponseDTO getOng(Integer id) {
+    public OngResponseDTO getOng(UUID id) {
         Ong ong = acharPorId(id);
         return OngResponseDTO.toResponse(ong);
     }
 
-    public OngResponseDTO updateOng(Integer id, OngRequestUpdateDTO ongRequest) {
+    public OngResponseDTO updateOng(UUID id, OngRequestUpdateDTO ongRequest) {
         Ong ongExistente = acharPorId(id);
         if (!ongExistente.getEmail().equals(ongRequest.getEmail()) && ongRepository.findByEmail(ongRequest.getEmail()).isPresent()) {
             throw new ConflictException("Email já cadastrado");
@@ -182,12 +182,12 @@ public class OngService {
     }
 
 
-    public Ong acharPorId(Integer id) {
+    public Ong acharPorId(UUID id) {
         return ongRepository.findById(id)
                 .orElseThrow(() -> new ConflictException("Ong com id:" + id + " não encontrada"));
     }
 
-    public List<OngResponsePetsDTO> listarTodosPetsDeOng(Integer ongId) {
+    public List<OngResponsePetsDTO> listarTodosPetsDeOng(UUID ongId) {
         List<Pet> pets = petRepository.findByOngId(ongId);
         return pets.stream().map(pet -> {
             List<String> statusList = petStatusRepository.findByPet_Id(pet.getId())
@@ -199,7 +199,7 @@ public class OngService {
         }).collect(Collectors.toList());
     }
 
-    public OngResponseUrlDTO getImageOng(Integer id) {
+    public OngResponseUrlDTO getImageOng(UUID id) {
         Ong ong = acharPorId(id);
         if (ong.getImagemOng() == null) {
             throw new ConflictException("Imagem não encontrada");
@@ -207,7 +207,7 @@ public class OngService {
         return OngResponseUrlDTO.toResponse(ong);
     }
 
-    public List<OngResponseMensagensPendingDTO> listarMensagensPendentes(Integer ongId, HttpServletRequest request) {
+    public List<OngResponseMensagensPendingDTO> listarMensagensPendentes(UUID ongId, HttpServletRequest request) {
         Ong ong = ongRepository.findById(ongId)
                 .orElseThrow(() -> new NotFoundException("ONG com id " + ongId + " não encontrada"));
 
@@ -232,7 +232,7 @@ public class OngService {
     }
 
     @Transactional
-    public OngResponseUrlDTO updateImagem(Integer id, @Valid OngRequestImagemDTO imagem) {
+    public OngResponseUrlDTO updateImagem(UUID id, @Valid OngRequestImagemDTO imagem) {
         byte[] imagemDecodificada = imagem.getImagensBytesDecoded();
         try {
             ImageValidationUtil.validateOngImage(imagemDecodificada, DEFAULT_IMAGE_NAME);
@@ -260,7 +260,7 @@ public class OngService {
         return OngResponseUrlDTO.toResponse(updatedOng);
     }
 
-    public byte[] getImagemPorIndice(Integer id, int indice) {
+    public byte[] getImagemPorIndice(UUID id, int indice) {
         Ong ong = acharPorId(id);
         if (ong.getImagemOng() == null || indice != 0) {
             throw new NotFoundException("Imagem não encontrada para o usuário com id " + id);
@@ -269,7 +269,7 @@ public class OngService {
     }
 
     @Transactional
-    public void deletarPorId(Integer id) {
+    public void deletarPorId(UUID id) {
         if (ongRepository.existsById(id)) {
             petRepository.deleteByOngId(id);
             dashboardRepository.deleteByOngId(id);

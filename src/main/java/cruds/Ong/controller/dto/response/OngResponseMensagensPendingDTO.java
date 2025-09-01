@@ -7,24 +7,25 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
 @AllArgsConstructor
 public class OngResponseMensagensPendingDTO {
-    private Integer idOng;
-    private Integer idUser;
-    private Integer idPet;
+    private UUID idOng;
+    private UUID idUser;
+    private UUID idPet;
     private String nomeUser;
     private String nomePet;
     private LocalDateTime dataHora;
     private String emailUser;
     private String imageUrl;
 
-    public static OngResponseMensagensPendingDTO toResponse(Integer ongId, Pet pet, User user, LocalDateTime dataHora) {
+    public static OngResponseMensagensPendingDTO toResponse(UUID ongId, Pet pet, User user, LocalDateTime dataHora) {
         return OngResponseMensagensPendingDTO.builder()
                 .idOng(ongId)
-                .idUser(user.getId().intValue())
+                .idUser(user.getId())
                 .idPet(pet.getId())
                 .nomeUser(user.getNome())
                 .nomePet(pet.getNome())

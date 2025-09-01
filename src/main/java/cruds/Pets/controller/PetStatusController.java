@@ -1,10 +1,7 @@
 package cruds.Pets.controller;
 
 import cruds.Pets.controller.dto.request.PetStatusRequestDTO;
-import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
-import cruds.Pets.controller.dto.response.PetResponsePendingOngDTO;
-import cruds.Pets.controller.dto.response.PetResponseUserPendenteDTO;
-import cruds.Pets.controller.dto.response.PetStatusResponseDTO;
+import cruds.Pets.controller.dto.response.*;
 import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
 import cruds.Pets.repository.PetStatusRepository;
@@ -17,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -29,7 +27,7 @@ public class PetStatusController {
 
     @Operation(summary = "Lista os pets curtidos, podendo filtrar por usuário")
     @GetMapping("/liked")
-    public ResponseEntity<List<PetStatusResponseDTO>> listarCurtidos(@RequestParam(required = false) Integer userId) {
+    public ResponseEntity<List<PetStatusResponseDTO>> listarCurtidos(@RequestParam(required = false) UUID userId) {
         List<PetStatus> statusPets = (userId == null)
                 ? petStatusRepository.findAllLikedStatusPets()
                 : petStatusRepository.findLikedStatusPetsByUser_Id(userId);
@@ -61,14 +59,14 @@ public class PetStatusController {
 
     @Operation(summary = "Lista os pets disponíveis para um usuário que ainda não foram interagidos")
     @GetMapping("/disponivel/{userId}")
-    public ResponseEntity<List<PetResponseGeralDTO>> listAvailablePetsForUser(@PathVariable Integer userId) {
+    public ResponseEntity<List<PetResponseGeralDTO>> listAvailablePetsForUser(@PathVariable UUID userId) {
         return ResponseEntity.ok(petStatusService.listAvailablePetsForUser(userId));
     }
 
     @Operation(summary = "Lista os pets de um usuário com um status específico")
     @GetMapping("/{userId}/{status}")
     public ResponseEntity<List<PetStatusResponseDTO>> getPetsByUserAndStatus(
-            @PathVariable Integer userId,
+            @PathVariable UUID userId,
             @PathVariable String status) {
         List<PetStatus> pets = petStatusService.getPetsByUserAndStatus(userId, PetStatusEnum.valueOf(status));
         List<PetStatusResponseDTO> response = pets.stream()
@@ -80,15 +78,15 @@ public class PetStatusController {
     @Operation(summary = "Remove o status de um pet para um usuário específico")
     @DeleteMapping("/{petId}/{userId}")
     public ResponseEntity<Void> deletePetStatus(
-            @PathVariable Integer petId,
-            @PathVariable Integer userId) {
+            @PathVariable UUID petId,
+            @PathVariable UUID userId) {
         petStatusService.deletePetStatus(petId, userId);
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Lista os pets com status padrão para ONGs")
     @GetMapping("/default/{userId}")
-    public ResponseEntity<List<PetResponseGeralDTO>> listDefaultPets(@PathVariable Integer userId) {
+    public ResponseEntity<List<PetResponseGeralDTO>> listDefaultPets(@PathVariable UUID userId) {
         var response = petStatusService.listDefaultPets(userId);
         return ResponseEntity.ok(response);
     }
@@ -96,8 +94,8 @@ public class PetStatusController {
     @Operation(summary = "Define o status de um pet como LIKED para um usuário")
     @PostMapping("/liked/{petId}/{userId}")
     public ResponseEntity<?> setLikedStatus(
-            @PathVariable Integer petId,
-            @PathVariable Integer userId) {
+            @PathVariable UUID petId,
+            @PathVariable UUID userId) {
 
         var existingStatusOpt = petStatusRepository.findByPetIdAndUserId(petId, userId);
 
@@ -120,8 +118,8 @@ public class PetStatusController {
     @Operation(summary = "Define o status de um pet como ADOPTED para um usuário")
     @PostMapping("/adopted/{petId}/{userId}")
     public ResponseEntity<PetStatusResponseDTO> adoptPet(
-            @PathVariable Integer petId,
-            @PathVariable Integer userId) {
+            @PathVariable UUID petId,
+            @PathVariable UUID userId) {
 
         PetStatus petStatus = petStatusService.adoptPet(petId, userId);
         return ResponseEntity.ok(new PetStatusResponseDTO(petStatus));
@@ -130,8 +128,8 @@ public class PetStatusController {
     @Operation(summary = "Define o status de um pet como PENDING para um usuário")
     @PostMapping("/pending/{petId}/{userId}")
     public ResponseEntity<PetStatusResponseDTO> setPendingStatus(
-            @PathVariable Integer petId,
-            @PathVariable Integer userId) {
+            @PathVariable UUID petId,
+            @PathVariable UUID userId) {
 
         PetStatusRequestDTO dto = new PetStatusRequestDTO();
         dto.setPetId(petId);
@@ -145,7 +143,7 @@ public class PetStatusController {
 
     @Operation(summary = "Lista todos os status de um pet específico")
     @GetMapping("/pet/{petId}")
-    public ResponseEntity<List<PetStatusEnum>> getPetStatusList(@PathVariable Integer petId) {
+    public ResponseEntity<List<PetStatusEnum>> getPetStatusList(@PathVariable UUID petId) {
         List<PetStatusEnum> statusList = petStatusService.getPetStatusList(petId);
         if (statusList.isEmpty()) {
             return ResponseEntity.status(204).build();
@@ -157,7 +155,7 @@ public class PetStatusController {
     @GetMapping("/pending/ong/{userId}")
     public ResponseEntity<List<PetResponsePendingOngDTO>> listPendingPetsWithOngForUser(
             HttpServletRequest request,
-            @PathVariable Integer userId) {
+            @PathVariable UUID userId) {
         List<PetResponsePendingOngDTO> pendingPets = petStatusService.listPendingPetsWithOngForUser(userId, request);
         if (pendingPets.isEmpty()) {
             return ResponseEntity.status(204).build();
@@ -167,11 +165,18 @@ public class PetStatusController {
 
     @Operation(summary = "Lista os usuarios que estao com o status PENDING de um pet especifico")
     @GetMapping("/pending/user/{petId}")
-    public ResponseEntity<List<PetResponseUserPendenteDTO>> listPendingUsersByPetId(@PathVariable Integer petId) {
+    public ResponseEntity<List<PetResponseUserPendenteDTO>> listPendingUsersByPetId(@PathVariable UUID petId) {
         List<PetResponseUserPendenteDTO> userIds = petStatusService.listPendingUsersByPetId(petId);
         if (userIds.isEmpty()) {
             return ResponseEntity.status(204).build();
         }
         return ResponseEntity.ok(userIds);
+    }
+
+    @Operation(summary = "Pega todas as informações do pet e do adotante")
+    @GetMapping("/adopted/{petId}")
+    public ResponseEntity<PetResponseAdotanteDTO> getAdoptedInfoByPetId(@PathVariable UUID petId) {
+        PetResponseAdotanteDTO dto = petStatusService.getAdoptedInfoByPetId(petId);
+        return ResponseEntity.ok(dto);
     }
 }

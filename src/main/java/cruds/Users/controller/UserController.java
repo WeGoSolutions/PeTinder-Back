@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
@@ -46,7 +47,7 @@ public class UserController {
     @Operation(summary = "Atualiza informações opcionais do usuário")
     @PutMapping("/{id}/optional")
     public ResponseEntity<UserResponseCadastroDTO> updateOptionalInfo(
-            @PathVariable Integer id,
+            @PathVariable UUID id,
             @Valid @RequestBody UserRequestOptionalDTO optionalDto) {
         var updatedUser = userService.updateOptionalInfo(id, optionalDto);
         return ResponseEntity.status(200).body(updatedUser);
@@ -61,7 +62,7 @@ public class UserController {
 
     @Operation(summary = "Busca usuário por ID")
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseCadastroDTO> getUserById(@PathVariable Integer id) {
+    public ResponseEntity<UserResponseCadastroDTO> getUserById(@PathVariable UUID id) {
         var user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
@@ -69,7 +70,7 @@ public class UserController {
     @Operation(summary = "Atualiza informações do usuário")
     @PatchMapping("/{id}")
     public ResponseEntity<UserResponseCadastroDTO> updateUser(
-            @PathVariable Integer id,
+            @PathVariable UUID id,
             @Valid @RequestBody UserRequestUpdateDTO updateDto) {
         var updatedUser = userService.updateUser(id, updateDto);
         return ResponseEntity.status(202).body(updatedUser);
@@ -77,14 +78,14 @@ public class UserController {
 
     @Operation(summary = "Exclui o usuário")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.status(204).build();
     }
 
     @Operation(summary = "Faz upload da imagem de perfil")
     @PostMapping("/{id}/imagem")
-    public ResponseEntity<UserResponseCadastroDTO> uploadImagemPerfil(@PathVariable Integer id,
+    public ResponseEntity<UserResponseCadastroDTO> uploadImagemPerfil(@PathVariable UUID id,
                                                                       @Valid @RequestBody UserRequestImagemPerfilDTO dto) {
         var updatedUser = userService.uploadImagemPerfil(id, dto);
         return ResponseEntity.status(200).body(updatedUser);
@@ -92,7 +93,7 @@ public class UserController {
 
     @Operation(summary = "Atualiza a imagem de perfil")
     @PutMapping("/{id}/imagem")
-    public ResponseEntity<UserResponseCadastroDTO> updateImagemPerfil(@PathVariable Integer id,
+    public ResponseEntity<UserResponseCadastroDTO> updateImagemPerfil(@PathVariable UUID id,
                                                                       @Valid @RequestBody UserRequestImagemPerfilDTO dto) {
         var updatedUser = userService.updateImagemPerfil(id, dto);
         return ResponseEntity.status(200).body(updatedUser);
@@ -100,14 +101,14 @@ public class UserController {
 
     @Operation(summary = "Remove a imagem de perfil")
     @DeleteMapping("/{id}/imagem")
-    public ResponseEntity<UserResponseCadastroDTO> removerImagemPerfil(@PathVariable Integer id) {
+    public ResponseEntity<UserResponseCadastroDTO> removerImagemPerfil(@PathVariable UUID id) {
         var updatedUser = userService.deleteImagemPerfil(id);
         return ResponseEntity.status(200).body(updatedUser);
     }
 
     @Operation(summary = "Retorna imagem por índice")
     @GetMapping("/{userId}/imagens/{indice}")
-    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer userId,
+    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable UUID userId,
                                                      @PathVariable int indice) {
         byte[] dados = userService.getImagemPorIndice(userId, indice);
         HttpHeaders headers = new HttpHeaders();
@@ -132,7 +133,7 @@ public class UserController {
 
     @Operation(summary = "Atualiza o campo userNovo para false")
     @PatchMapping("/{id}/user-novo")
-    public ResponseEntity<UserResponseCadastroDTO> atualizarUserNovoParaFalse(@PathVariable Integer id) {
+    public ResponseEntity<UserResponseCadastroDTO> atualizarUserNovoParaFalse(@PathVariable UUID id) {
         var updatedUser = userService.atualizarUserNovoParaFalse(id);
         return ResponseEntity.status(200).body(updatedUser);
     }
@@ -145,13 +146,13 @@ public class UserController {
 
     @Operation(summary = "Pega a url da imagem do user")
     @GetMapping("/{id}/imagem")
-    public ResponseEntity<UserResponseUrlDTO> getUrlImageUser(@PathVariable Integer id) {
+    public ResponseEntity<UserResponseUrlDTO> getUrlImageUser(@PathVariable UUID id) {
         UserResponseUrlDTO response = userService.getUrlImageUser(id);
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/senha")
-    public ResponseEntity<UserResponseCadastroDTO> updatePassword(@PathVariable Integer id,
+    public ResponseEntity<UserResponseCadastroDTO> updatePassword(@PathVariable UUID id,
                                                          @Valid @RequestBody UserRequestUpdatePasswordDTO req) {
         UserResponseCadastroDTO response = userService.updatePassword(id, req.getSenhaAtual(), req.getNovaSenha());
         return ResponseEntity.ok(response);

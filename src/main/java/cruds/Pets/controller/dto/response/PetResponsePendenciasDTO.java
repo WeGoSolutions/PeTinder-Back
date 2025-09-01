@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -19,7 +20,7 @@ public class PetResponsePendenciasDTO {
         this.pendencias = pendencias;
     }
 
-    public PetResponsePendenciasDTO(String nome, List<String> pendencias, Integer petId) {
+    public PetResponsePendenciasDTO(String nome, List<String> pendencias, UUID petId) {
         this.nome = nome;
         this.pendencias = pendencias;
         this.imagemPet = "http://localhost:8080/pets/" + petId + "/imagens/0";

@@ -15,7 +15,7 @@ import lombok.*;
 public class ImagemUsuarioEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "UUID")
     private Integer id;
 
     @Lob

@@ -7,13 +7,15 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "imagem_ong")
 @Getter
 public class ImagemOng {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(generator = "UUID")
+    private UUID id;
 
     @Lob
     private byte[] dados;
@@ -26,11 +28,11 @@ public class ImagemOng {
         this.dados = dados;
     }
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

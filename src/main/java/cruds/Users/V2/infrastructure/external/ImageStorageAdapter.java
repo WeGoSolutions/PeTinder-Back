@@ -17,34 +17,37 @@ public class ImageStorageAdapter implements ArmazenamentoImagemGateway {
 
     @Override
     public String salvarImagem(ImagemUsuario imagem) {
-        try {
-            return imageStorageStrategy.upload(imagem.getDados(), imagem.getNomeArquivo());
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage(), e);
-        }
+//        try {
+//            return imageStorageStrategy.upload(imagem.getDados(), imagem.getNomeArquivo());
+//        } catch (Exception e) {
+//            throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage(), e);
+//        }
+        return null;
     }
 
     @Override
     public void removerImagem(String nomeArquivo) {
-        try {
-            imageStorageStrategy.delete(nomeArquivo);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao remover imagem: " + e.getMessage(), e);
-        }
+//        try {
+//            imageStorageStrategy.delete(nomeArquivo);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Erro ao remover imagem: " + e.getMessage(), e);
+//        }
     }
 
     @Override
     public ImagemUsuario buscarImagem(String nomeArquivo) {
-        try {
-            byte[] dados = imageStorageStrategy.download(nomeArquivo);
-            return new ImagemUsuario(dados, nomeArquivo);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao buscar imagem: " + e.getMessage(), e);
-        }
+//        try {
+//            byte[] dados = imageStorageStrategy.download(nomeArquivo);
+//            return new ImagemUsuario(dados, nomeArquivo);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Erro ao buscar imagem: " + e.getMessage(), e);
+//        }
+        return null;
     }
 
     @Override
     public String gerarUrlAcesso(String nomeArquivo) {
-        return imageStorageStrategy.getUrl(nomeArquivo);
+//        return imageStorageStrategy.getUrl(nomeArquivo);
+        return null;
     }
 }

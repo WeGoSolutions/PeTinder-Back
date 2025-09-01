@@ -3,6 +3,7 @@ package cruds.Users.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "endereco")
@@ -12,8 +13,8 @@ import java.util.List;
 @Builder(toBuilder = true)
 public class Endereco {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(generator = "UUID")
+    private UUID id;
     private String cep;
     private String rua;
     private Integer numero;

@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,7 +90,7 @@ public class UserService {
         return UserResponseCadastroDTO.toResponse(savedUser);
     }
 
-    public UserResponseCadastroDTO updateOptionalInfo(Integer id, UserRequestOptionalDTO dto) {
+    public UserResponseCadastroDTO updateOptionalInfo(UUID id, UserRequestOptionalDTO dto) {
         User user = getUsuarioPorId(id);
 
         if (dto.getCpf() != null) {
@@ -171,13 +172,13 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserResponseCadastroDTO getUserById(Integer id) {
+    public UserResponseCadastroDTO getUserById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Usuário com id: " + id + " não encontrado"));
         return UserResponseCadastroDTO.toResponse(user);
     }
 
-    public UserResponseCadastroDTO updatePassword(Integer id, String senhaAtual, String novaSenha) {
+    public UserResponseCadastroDTO updatePassword(UUID id, String senhaAtual, String novaSenha) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User não encontrado"));
 
@@ -192,7 +193,7 @@ public class UserService {
         return UserResponseCadastroDTO.toResponse(user);
     }
 
-    public UserResponseCadastroDTO updateUser(Integer id, UserRequestUpdateDTO dto) {
+    public UserResponseCadastroDTO updateUser(UUID id, UserRequestUpdateDTO dto) {
         if (!userRepository.existsById(id)) {
             throw new NotFoundException("Usuário com id: " + id + " não encontrado");
         }
@@ -219,7 +220,7 @@ public class UserService {
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
 
-    public void deleteUser(Integer id) {
+    public void deleteUser(UUID id) {
         if (!userRepository.existsById(id)) {
             throw new NotFoundException("Usuário com id: " + id + " não encontrado");
         }
@@ -227,7 +228,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public UserResponseCadastroDTO updateImagemPerfil(Integer id, UserRequestImagemPerfilDTO dto) {
+    public UserResponseCadastroDTO updateImagemPerfil(UUID id, UserRequestImagemPerfilDTO dto) {
         byte[] imagemDecodificada = dto.getImagemDecodificada();
         try {
             ImageValidationUtil.validateUserImage(imagemDecodificada, DEFAULT_IMAGE_NAME);
@@ -255,7 +256,7 @@ public class UserService {
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
 
-    public UserResponseCadastroDTO uploadImagemPerfil(Integer id, UserRequestImagemPerfilDTO dto) {
+    public UserResponseCadastroDTO uploadImagemPerfil(UUID id, UserRequestImagemPerfilDTO dto) {
         byte[] imagemDecodificada = dto.getImagemDecodificada();
         try {
             ImageValidationUtil.validateUserImage(imagemDecodificada, DEFAULT_IMAGE_NAME);
@@ -278,7 +279,7 @@ public class UserService {
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
 
-    public UserResponseCadastroDTO deleteImagemPerfil(Integer id) {
+    public UserResponseCadastroDTO deleteImagemPerfil(UUID id) {
         User user = getUsuarioPorId(id);
         if (user.getImagemUser() == null) {
             throw new BadRequestException("Usuário não possui uma imagem de perfil para remover.");
@@ -288,7 +289,7 @@ public class UserService {
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
 
-    public byte[] getImagemPorIndice(Integer userId, int indice) {
+    public byte[] getImagemPorIndice(UUID userId, int indice) {
         User user = getUsuarioPorId(userId);
         if (user.getImagemUser() == null || indice != 0) {
             throw new NotFoundException("Imagem não encontrada para o usuário com id " + userId);
@@ -312,14 +313,14 @@ public class UserService {
         return UserResponseCadastroDTO.toResponse(user);
     }
 
-    public UserResponseCadastroDTO atualizarUserNovoParaFalse(Integer id) {
+    public UserResponseCadastroDTO atualizarUserNovoParaFalse(UUID id) {
         User user = getUsuarioPorId(id);
         user.setUserNovo(false);
         User updatedUser = userRepository.save(user);
         return UserResponseCadastroDTO.toResponse(updatedUser);
     }
 
-    private User getUsuarioPorId(Integer id) {
+    private User getUsuarioPorId(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Usuário com id " + id + " não encontrado"));
     }
@@ -360,7 +361,7 @@ public class UserService {
         return UsuarioMapper.of(usuarioAutenticado, token);
     }
 
-    public UserResponseUrlDTO getUrlImageUser(Integer id) {
+    public UserResponseUrlDTO getUrlImageUser(UUID id) {
         User user = getUsuarioPorId(id);
         if (user.getImagemUser() == null) {
             throw new ConflictException("Imagem não encontrada");

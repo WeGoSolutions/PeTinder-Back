@@ -6,12 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class EnderecoResponseDTO {
-    private Integer id;
+    private UUID id;
     private String cep;
     private String rua;
     private Integer numero;

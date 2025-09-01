@@ -3,18 +3,20 @@ package cruds.Pets.controller.dto.response;
 import cruds.Pets.entity.PetStatus;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.UUID;
+
 public class PetStatusResponseDTO {
 
-    private Integer petId;
+    private UUID petId;
     private String petNome;
-    private Integer usuarioId;
+    private UUID usuarioId;
     private String status;
     private String imageUrl;
 
     public PetStatusResponseDTO(PetStatus petStatus) {
         this.petId = petStatus.getPet().getId();
         this.petNome = petStatus.getPet().getNome();
-        this.usuarioId = Math.toIntExact(petStatus.getUser().getId());
+        this.usuarioId = petStatus.getUser().getId();
         this.status = petStatus.getStatus().name();
         var pet = petStatus.getPet();
         if (pet.getImagens() != null && !pet.getImagens().isEmpty()) {
@@ -26,11 +28,11 @@ public class PetStatusResponseDTO {
         }
     }
 
-    public Integer getPetId() {
+    public UUID getPetId() {
         return petId;
     }
 
-    public void setPetId(Integer petId) {
+    public void setPetId(UUID petId) {
         this.petId = petId;
     }
 
@@ -42,11 +44,11 @@ public class PetStatusResponseDTO {
         this.petNome = petNome;
     }
 
-    public Integer getUsuarioId() {
+    public UUID getUsuarioId() {
         return usuarioId;
     }
 
-    public void setUsuarioId(Integer usuarioId) {
+    public void setUsuarioId(UUID usuarioId) {
         this.usuarioId = usuarioId;
     }
 

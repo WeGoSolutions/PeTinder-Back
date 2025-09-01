@@ -2,13 +2,15 @@ package cruds.Users.entity;
 
 import jakarta.persistence.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "imagem_usuario")
 public class ImagemUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(generator = "UUID")
+    private UUID id;
 
     @Lob
     private byte[] dados;
@@ -21,11 +23,11 @@ public class ImagemUser {
         this.dados = dados;
     }
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

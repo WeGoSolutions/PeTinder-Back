@@ -5,14 +5,15 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 public class PetStatusRequestDTO {
     @NotNull
-    private Integer petId;
+    private UUID petId;
 
     @NotNull
-    private Integer userId;
+    private UUID userId;
 
     @NotNull
     private PetStatusEnum status;

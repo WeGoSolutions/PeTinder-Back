@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -15,7 +16,7 @@ import java.util.List;
 @Builder
 public class PetResponseCriarDTO {
 
-    private Integer id;
+    private UUID id;
     private String nome;
     private Double idade;
     private String porte;
@@ -26,7 +27,7 @@ public class PetResponseCriarDTO {
     private Boolean isCastrado;
     private Boolean isVermifugo;
     private Boolean isVacinado;
-    private Integer ongId;
+    private UUID ongId;
     private String sexo;
 
     public static PetResponseCriarDTO toResponse(Pet pet) {

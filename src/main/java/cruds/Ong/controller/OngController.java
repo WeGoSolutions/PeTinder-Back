@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/ongs")
@@ -44,7 +45,7 @@ public class OngController {
     }
 
     @PatchMapping("/{id}/senha")
-    public ResponseEntity<OngResponseDTO> updatePassword(@PathVariable Integer id,
+    public ResponseEntity<OngResponseDTO> updatePassword(@PathVariable UUID id,
                                                          @Valid @RequestBody OngRequestUpdatePasswordDTO req) {
         OngResponseDTO response = ongService.updatePassword(id, req.getSenhaAtual(), req.getNovaSenha());
         return ResponseEntity.ok(response);
@@ -59,21 +60,21 @@ public class OngController {
 
     @Operation(summary = "Retorna a ong pelo id")
     @GetMapping("/{id}")
-    public ResponseEntity<OngResponseDTO> getOng(@PathVariable Integer id) {
+    public ResponseEntity<OngResponseDTO> getOng(@PathVariable UUID id) {
         OngResponseDTO response = ongService.getOng(id);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Atualiza a ONG")
     @PatchMapping("/{id}")
-    public ResponseEntity<OngResponseDTO> updateOng(@PathVariable Integer id, @Valid @RequestBody OngRequestUpdateDTO ong) {
+    public ResponseEntity<OngResponseDTO> updateOng(@PathVariable UUID id, @Valid @RequestBody OngRequestUpdateDTO ong) {
         OngResponseDTO response = ongService.updateOng(id, ong);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Atualiza a imagem da ONG")
     @PutMapping(value = "/{id}/imagem")
-    public ResponseEntity<OngResponseUrlDTO> updateImageOng(@PathVariable Integer id,
+    public ResponseEntity<OngResponseUrlDTO> updateImageOng(@PathVariable UUID id,
                                                          @RequestBody @Valid OngRequestImagemDTO imagem) {
         OngResponseUrlDTO updatedUser = ongService.updateImagem(id, imagem);
         return ResponseEntity.status(200).body(updatedUser);
@@ -81,14 +82,14 @@ public class OngController {
 
     @Operation(summary = "Exibe a imagem da ONG")
     @GetMapping("/{id}/imagem/arquivo")
-    public ResponseEntity<OngResponseUrlDTO> getOngImage(@PathVariable Integer id) {
+    public ResponseEntity<OngResponseUrlDTO> getOngImage(@PathVariable UUID id) {
         OngResponseUrlDTO response = ongService.getImageOng(id);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Lista todos os pets da ONG")
     @GetMapping("/{id}/pets")
-    public ResponseEntity<List<OngResponsePetsDTO>> listarPets(@PathVariable Integer id) {
+    public ResponseEntity<List<OngResponsePetsDTO>> listarPets(@PathVariable UUID id) {
         var pets = ongService.listarTodosPetsDeOng(id);
         if (pets.isEmpty()) {
             return ResponseEntity.status(204).build();
@@ -99,7 +100,7 @@ public class OngController {
     @Operation(summary = "Lista mensagens pendentes para a ONG")
     @GetMapping("/{id}/mensagens-pendentes")
     public ResponseEntity<List<OngResponseMensagensPendingDTO>> listarMensagensPendentes(
-            @PathVariable Integer id,
+            @PathVariable UUID id,
             HttpServletRequest request) {
         List<OngResponseMensagensPendingDTO> mensagens = ongService.listarMensagensPendentes(id, request);
         return ResponseEntity.ok(mensagens);
@@ -107,7 +108,7 @@ public class OngController {
 
     @Operation(summary = "Retorna imagem por índice")
     @GetMapping("/{id}/imagens/{indice}")
-    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable Integer id,
+    public ResponseEntity<byte[]> getImagemPorIndice(@PathVariable UUID id,
                                                      @PathVariable int indice) {
         byte[] dados = ongService.getImagemPorIndice(id, indice);
         HttpHeaders headers = new HttpHeaders();
@@ -117,7 +118,7 @@ public class OngController {
 
     @Operation(summary = "deletando a ong")
     @DeleteMapping("/{id}")
-    public ResponseEntity<OngResponseDTO> deleteOng(@PathVariable Integer id) {
+    public ResponseEntity<OngResponseDTO> deleteOng(@PathVariable UUID id) {
         ongService.deletarPorId(id);
         return ResponseEntity.status(204).build();
     }

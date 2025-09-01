@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "tb_forms")
@@ -24,8 +25,8 @@ import java.util.List;
 @Builder(toBuilder = true)
 public class Forms {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(generator = "UUID")
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "pet_id")

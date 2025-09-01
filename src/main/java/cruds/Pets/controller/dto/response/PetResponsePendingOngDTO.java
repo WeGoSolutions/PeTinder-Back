@@ -8,14 +8,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PetResponsePendingOngDTO {
-    private Integer userId;
-    private Integer petId;
+    private UUID userId;
+    private UUID petId;
     private String petNome;
     private Double idade;
     private String porte;
@@ -25,6 +26,6 @@ public class PetResponsePendingOngDTO {
     private Boolean isVacinado;
     private List<String> imageUrl;
     private String sexo;
-    private Integer ongId;
+    private UUID ongId;
     private OngResponseDTO ongInfo;
 }

@@ -6,8 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
-public interface OngRepository extends JpaRepository<Ong, Integer> {
+public interface OngRepository extends JpaRepository<Ong, UUID> {
     Optional<Ong> findByEmail(@NotBlank @Email String email);
 
     Optional<Ong> findByEmailAndSenha(@Email @NotBlank String email, @NotBlank String senha);

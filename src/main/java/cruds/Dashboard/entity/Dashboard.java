@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -15,8 +17,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "dashboard")
 public class Dashboard {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(generator = "UUID")
+    private UUID id;
 
     @JoinColumn(name = "fkOng")
     @OneToOne()

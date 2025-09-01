@@ -13,7 +13,7 @@ public class SpringAutenticacaoAdapter implements AutenticacaoGateway {
     private final AuthenticationManager authenticationManager;
     private final GerenciadorTokenJwt gerenciadorTokenJwt;
 
-    public SpringAutenticacaoAdapter(AuthenticationManager authenticationManager, 
+    public SpringAutenticacaoAdapter(AuthenticationManager authenticationManager,
                                    GerenciadorTokenJwt gerenciadorTokenJwt) {
         this.authenticationManager = authenticationManager;
         this.gerenciadorTokenJwt = gerenciadorTokenJwt;
@@ -33,20 +33,23 @@ public class SpringAutenticacaoAdapter implements AutenticacaoGateway {
 
     @Override
     public String gerarToken(String email) {
-        return gerenciadorTokenJwt.generateToken(email);
+//        return gerenciadorTokenJwt.generateToken(email);
+        return null;
     }
 
     @Override
     public boolean validarToken(String token) {
-        try {
-            return gerenciadorTokenJwt.validateToken(token);
-        } catch (Exception e) {
-            return false;
-        }
+//        try {
+//            return gerenciadorTokenJwt.validateToken(token);
+//        } catch (Exception e) {
+//            return false;
+//        }
+        return false;
     }
 
     @Override
     public String extrairEmailDoToken(String token) {
-        return gerenciadorTokenJwt.getUsernameFromToken(token);
+//        return gerenciadorTokenJwt.getUsernameFromToken(token);
+        return null;
     }
 }

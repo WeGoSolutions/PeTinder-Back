@@ -2,10 +2,12 @@ package cruds.Users.controller.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.UUID;
+
 public class UserRequestListarDto {
 
     @Schema(description = "Id do usuário", example = "1")
-    private Long id;
+    private UUID id;
 
     @Schema(description = "Nome do usuário", example = "Petinder")
     private String nome;
@@ -13,11 +15,11 @@ public class UserRequestListarDto {
     @Schema(description = "Email do usuário", example = "petinder@gmail.com")
     private String email;
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
