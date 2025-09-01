@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -36,7 +37,7 @@ public class PetRequestCriarDTO {
     private String descricao;
 
     @NotEmpty
-    private Integer ongId;
+    private UUID ongId;
 
     private Boolean isCastrado;
     private Boolean isVermifugo;

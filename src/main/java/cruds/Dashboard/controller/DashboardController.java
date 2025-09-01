@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/dashs")
@@ -23,7 +24,7 @@ public class DashboardController {
     DashboardService dashboardService;
 
     @GetMapping("/ranking/{ongId}")
-    public ResponseEntity<List<PetResponseGeralDTO>> listarPetsCurtidos(@PathVariable Integer ongId){
+    public ResponseEntity<List<PetResponseGeralDTO>> listarPetsCurtidos(@PathVariable UUID ongId){
         Dashboard dashboard = new Dashboard();
         Ong ong = new Ong();
         ong.setId(ongId);
@@ -34,13 +35,13 @@ public class DashboardController {
     }
 
     @GetMapping("/pendencias/{ongId}")
-    public ResponseEntity<List<PetResponsePendenciasDTO>> listarPendenciasPetsDaOng(@PathVariable Integer ongId) {
+    public ResponseEntity<List<PetResponsePendenciasDTO>> listarPendenciasPetsDaOng(@PathVariable UUID ongId) {
         List<PetResponsePendenciasDTO> pendencias = dashboardService.listarPendenciasPetsDaOng(ongId);
         return ResponseEntity.ok(pendencias);
     }
 
     @GetMapping("/adotados-ou-nao/{ongId}")
-    public ResponseEntity<DashboardResponseQuantidadePetsDTO> obterEstatisticasPets(@PathVariable Integer ongId) {
+    public ResponseEntity<DashboardResponseQuantidadePetsDTO> obterEstatisticasPets(@PathVariable UUID ongId) {
         DashboardResponseQuantidadePetsDTO estatisticas = dashboardService.contarPetsAdotadosENaoAdotados(ongId);
         return ResponseEntity.ok(estatisticas);
     }

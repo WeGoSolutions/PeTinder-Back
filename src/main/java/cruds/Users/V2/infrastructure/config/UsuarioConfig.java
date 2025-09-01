@@ -2,8 +2,6 @@ package cruds.Users.V2.infrastructure.config;
 
 import cruds.Users.V2.core.adapter.*;
 import cruds.Users.V2.core.application.usecase.*;
-import cruds.Users.core.adapter.*;
-import cruds.Users.core.application.usecase.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

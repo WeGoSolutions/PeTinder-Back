@@ -13,9 +13,9 @@ import lombok.*;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 public class EnderecoEntity {
-    
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "UUID")
     private Integer id;
     private String cep;
     private String rua;

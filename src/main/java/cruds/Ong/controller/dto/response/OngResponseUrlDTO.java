@@ -4,10 +4,12 @@ import cruds.Ong.entity.Ong;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Getter
 @Builder
 public class OngResponseUrlDTO {
-    private Integer id;
+    private UUID id;
     private String nome;
     private String email;
     private String imageUrl;

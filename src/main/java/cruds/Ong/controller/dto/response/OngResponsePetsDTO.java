@@ -6,6 +6,7 @@ import cruds.Pets.entity.PetStatus;
 import jakarta.persistence.ElementCollection;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -17,8 +18,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Getter
 @Setter
 public class OngResponsePetsDTO {
-    private Integer ongId;
-    private Integer petId;
+    private UUID ongId;
+    private UUID petId;
     private String petNome;
     private Double idade;
     private String porte;
@@ -38,7 +39,7 @@ public class OngResponsePetsDTO {
     public OngResponsePetsDTO() {}
 
     // Construtor que recebe a lista de status como parâmetro
-    public OngResponsePetsDTO(Integer ongId, Pet pet, List<String> statusList) {
+    public OngResponsePetsDTO(UUID ongId, Pet pet, List<String> statusList) {
         this.ongId = ongId;
         this.petId = pet.getId();
         this.petNome = pet.getNome();
@@ -65,13 +66,13 @@ public class OngResponsePetsDTO {
                 .collect(Collectors.toList());
     }
 
-    public OngResponsePetsDTO(Integer ongId, Pet pet) {
+    public OngResponsePetsDTO(UUID ongId, Pet pet) {
         this(ongId, pet, null);
     }
 
     // Construtor padrão sem status (mantido para compatibilidade)
-    public OngResponsePetsDTO(Integer ongId,
-                              Integer petId,
+    public OngResponsePetsDTO(UUID ongId,
+                              UUID petId,
                               String petNome,
                               Double idade,
                               String porte,
@@ -99,8 +100,8 @@ public class OngResponsePetsDTO {
     }
 
     // Novo construtor para aceitar o parâmetro extra da lista de status (15 argumentos)
-    public OngResponsePetsDTO(Integer ongId,
-                              Integer petId,
+    public OngResponsePetsDTO(UUID ongId,
+                              UUID petId,
                               String petNome,
                               Double idade,
                               String porte,

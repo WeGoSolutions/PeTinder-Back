@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +15,7 @@ import java.util.List;
 @Builder
 
 public class PetResponseCurtirDTO {
-    private Integer id;
+    private UUID id;
     private Boolean isLiked;
     private Integer curtidas;
 

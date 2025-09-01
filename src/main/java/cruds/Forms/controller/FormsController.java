@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -40,7 +41,7 @@ public class FormsController {
 
     @Operation(summary = "Obtém os dados do formulário para preenchimento do usuário")
     @GetMapping("/{id}/dados-formulario")
-    public ResponseEntity<FormResponsePreenchimentoUserDTO> getDadosFormulario(@PathVariable Integer id) {
+    public ResponseEntity<FormResponsePreenchimentoUserDTO> getDadosFormulario(@PathVariable UUID id) {
         FormResponsePreenchimentoUserDTO dados = formsService.getDadosFormulario(id);
         return ResponseEntity.ok(dados);
     }
@@ -54,14 +55,14 @@ public class FormsController {
 
     @Operation(summary = "Atualiza um formulário")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Forms> updateForm(@PathVariable Integer id, @ModelAttribute @Valid FormRequestCriarDTO form) {
+    public ResponseEntity<Forms> updateForm(@PathVariable UUID id, @ModelAttribute @Valid FormRequestCriarDTO form) {
         Forms updatedForm = formsService.updateForm(id, form);
         return ResponseEntity.ok(updatedForm);
     }
 
     @Operation(summary = "Retorna imagens do formulário no formato Base64")
     @GetMapping("/{formId}/imagens")
-    public ResponseEntity<List<String>> getImagens(@PathVariable Integer formId) {
+    public ResponseEntity<List<String>> getImagens(@PathVariable UUID formId) {
         List<ImagemForms> imagens = imagemRepository.findByFormId(formId);
 
         if (imagens.isEmpty()) {

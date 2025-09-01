@@ -45,9 +45,9 @@ public class UsuarioMapper {
             entity.getUserNovo()
         );
 
-        if (entity.getId() != null) {
-            usuario.setId(entity.getId());
-        }
+//        if (entity.getId() != null) {
+//            usuario.setId(entity.getId());
+//        }
 
         if (entity.getEndereco() != null) {
             usuario.atualizarEndereco(toEnderecoDomain(entity.getEndereco()));

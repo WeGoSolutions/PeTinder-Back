@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,7 +38,7 @@ public class EnderecoRequestDTO {
                 .build();
     }
 
-    public Endereco toEntityWithId(Integer id) {
+    public Endereco toEntityWithId(UUID id) {
         return Endereco.builder()
                 .id(id)
                 .cep(this.cep)

@@ -2,8 +2,6 @@ package cruds.Users.V2.infrastructure.web;
 
 import cruds.Users.V2.core.application.usecase.*;
 import cruds.Users.V2.infrastructure.web.dto.*;
-import cruds.Users.core.application.usecase.*;
-import cruds.Users.infrastructure.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

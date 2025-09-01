@@ -117,7 +117,7 @@ public class PetService {
     }
 
 
-    public Pet atualizar(Integer id, PetRequestCriarDTO dto) {
+    public Pet atualizar(UUID id, PetRequestCriarDTO dto) {
         if (!petRepository.existsById(id)) {
             throw new NotFoundException("Pet com id " + id + " não encontrado");
         }
@@ -173,7 +173,7 @@ public class PetService {
         return petRepository.save(petParaAlterar);
     }
 
-    public Pet uploadPetImages(Integer id, List<byte[]> imagensBytes, List<String> nomesArquivos) {
+    public Pet uploadPetImages(UUID id, List<byte[]> imagensBytes, List<String> nomesArquivos) {
         Pet pet = obterPetPorId(id);
         try {
             ImageValidationUtil.validatePetImages(imagensBytes, nomesArquivos);
@@ -205,12 +205,12 @@ public class PetService {
         return responseList;
     }
 
-    public Pet obterPetPorId(Integer id) {
+    public Pet obterPetPorId(UUID id) {
         return petRepository.findById(id)
                 .orElseThrow(() -> new NoContentException("Pet com id: " + id + " não encontrado"));
     }
 
-    public List<String> listarUrlsImagens(HttpServletRequest request, Integer id) {
+    public List<String> listarUrlsImagens(HttpServletRequest request, UUID id) {
         Pet pet = obterPetPorId(id);
         List<Imagem> imagens = pet.getImagens();
         if (imagens == null || imagens.isEmpty()) {
@@ -228,7 +228,7 @@ public class PetService {
     }
 
     @Transactional
-    public void deletarPet(Integer id) {
+    public void deletarPet(UUID id) {
         if (!petRepository.existsById(id)) {
             throw new NotFoundException("Pet com id: " + id + " não encontrado");
         }
@@ -236,7 +236,7 @@ public class PetService {
         petRepository.deleteById(id);
     }
 
-    public byte[] getImagemPorIndice(Integer id, int indice) {
+    public byte[] getImagemPorIndice(UUID id, int indice) {
         Pet pet = obterPetPorId(id);
         List<Imagem> imagens = pet.getImagens();
         if (imagens == null || imagens.isEmpty()) {
@@ -254,7 +254,7 @@ public class PetService {
 
     }
 
-    public void apagarImagem(Integer id, int indice) {
+    public void apagarImagem(UUID id, int indice) {
         Pet pet = obterPetPorId(id);
         List<Imagem> imagens = pet.getImagens();
 
@@ -276,7 +276,7 @@ public class PetService {
         imageStorageStrategy.salvarImagem(imagemBytes, caminhoRelativo);
     }
 
-    public PetResponseGeralDTO getPetById(Integer id) {
+    public PetResponseGeralDTO getPetById(UUID id) {
         Pet pet  = petRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Pet com id: " + id + " não encontrado"));
         return PetResponseGeralDTO.toResponse(pet);

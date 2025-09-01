@@ -1,17 +1,19 @@
 package cruds.Users.controller.dto.request;
 
+import java.util.UUID;
+
 public class UserRequestTokenDto {
 
-  private Long userId;
+  private UUID userId;
   private String nome;
   private String email;
   private String token;
 
-  public Long getUserId() {
+  public UUID getUserId() {
     return userId;
   }
 
-  public void setUserId(Long userId) {
+  public void setUserId(UUID userId) {
     this.userId = userId;
   }
 

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,7 +21,7 @@ public class DashboardService {
     private PetRepository petRepository;
 
     public List<PetResponseGeralDTO> obterRankingPets(Dashboard dashboard) {
-        Integer ongId = dashboard.getOng().getId();
+        UUID ongId = dashboard.getOng().getId();
         List<Pet> pets = petRepository.findByOngIdOrderByCurtidasDesc(ongId);
 
         if (pets.isEmpty()) {
@@ -32,7 +33,7 @@ public class DashboardService {
                 .collect(Collectors.toList());
     }
 
-    public List<PetResponsePendenciasDTO> listarPendenciasPetsDaOng(Integer ongId) {
+    public List<PetResponsePendenciasDTO> listarPendenciasPetsDaOng(UUID ongId) {
         List<Pet> pets = petRepository.findByOngId(ongId);
         if (pets.isEmpty()) {
             naoExistePet(ongId);
@@ -58,7 +59,7 @@ public class DashboardService {
         return pendencias;
     }
 
-    public DashboardResponseQuantidadePetsDTO contarPetsAdotadosENaoAdotados(Integer ongId) {
+    public DashboardResponseQuantidadePetsDTO contarPetsAdotadosENaoAdotados(UUID ongId) {
         List<Pet> pets = petRepository.findByOngId(ongId);
         int adotados = 0;
         int naoAdotados = 0;
@@ -76,7 +77,7 @@ public class DashboardService {
         return new DashboardResponseQuantidadePetsDTO(adotados, naoAdotados);
     }
 
-    private RuntimeException naoExistePet(Integer ongId) {
+    private RuntimeException naoExistePet(UUID ongId) {
         throw new NotFoundException("Nenhum pet encontrado para a ONG com ID: " + ongId);
     }
 }

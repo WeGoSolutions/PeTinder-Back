@@ -40,7 +40,7 @@ public class FormsService {
         this.formsRepository = formsRepository;
     }
 
-    public FormResponsePreenchimentoUserDTO getDadosFormulario(Integer id) {
+    public FormResponsePreenchimentoUserDTO getDadosFormulario(UUID id) {
         UserResponseCadastroDTO userData = userService.getUserById(id);
         FormResponsePreenchimentoUserDTO formDTO = new FormResponsePreenchimentoUserDTO();
         formDTO.setNome(userData.getNome());
@@ -80,7 +80,7 @@ public class FormsService {
         return formsRepository.save(form);
     }
 
-    public Forms updateForm(Integer id, FormRequestCriarDTO formDTO) {
+    public Forms updateForm(UUID id, FormRequestCriarDTO formDTO) {
         Forms existingForm = formsRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Formulário com id " + id + " não encontrado"));
 
@@ -117,7 +117,7 @@ public class FormsService {
         pet.setId(dto.getPetId());
         form.setPet(pet);
         User user = new User();
-        user.setId(Long.valueOf(dto.getUserId()));
+        user.setId(dto.getUserId());
         form.setUser(user);
         form.setNome(dto.getNome());
         form.setCpf(dto.getCpf());
@@ -190,12 +190,12 @@ public class FormsService {
         }
     }
 
-    public Forms obterFormPorId(Integer id) {
+    public Forms obterFormPorId(UUID id) {
         return formsRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Formulário com id " + id + " não encontrado"));
     }
 
-    public byte[] getImagemPorIndice(Integer formId, int indice) {
+    public byte[] getImagemPorIndice(UUID formId, int indice) {
         Forms form = obterFormPorId(formId);
         List<ImagemForms> imagens = form.getImagens();
         if (imagens == null || indice < 0 || indice >= imagens.size()) {

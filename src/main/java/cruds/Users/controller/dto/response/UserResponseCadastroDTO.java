@@ -9,13 +9,14 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class UserResponseCadastroDTO {
-    private Long id;
+    private UUID id;
     private String nome;
     private String email;
     private LocalDate dataNasc;

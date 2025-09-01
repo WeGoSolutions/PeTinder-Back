@@ -3,12 +3,13 @@ package cruds.Forms.controller.dto.response;
 import lombok.Data;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class FormResponseCriarDTO {
-    private Integer id;
-    private Integer petId;
-    private Integer userId;
+    private UUID id;
+    private UUID petId;
+    private UUID userId;
 
     private String nome;
     private String cpf;

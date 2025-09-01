@@ -7,15 +7,17 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class FormRequestCriarDTO {
     @NotNull
-    private Integer petId;
+    private UUID petId;
     @NotNull
-    private Integer userId;
+    private UUID userId;
 
     @NotBlank
     private String nome;

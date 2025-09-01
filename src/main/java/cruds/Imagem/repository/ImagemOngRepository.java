@@ -4,5 +4,7 @@ import cruds.Imagem.entity.ImagemOng;
 import cruds.Ong.entity.Ong;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ImagemOngRepository extends JpaRepository<ImagemOng, Integer> {
+import java.util.UUID;
+
+public interface ImagemOngRepository extends JpaRepository<ImagemOng, UUID> {
 }

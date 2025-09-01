@@ -4,10 +4,12 @@ import cruds.Users.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Getter
 @Builder
 public class UserResponseUrlDTO {
-    private Long id;
+    private UUID id;
     private String nome;
     private String email;
     private String imageUrl;

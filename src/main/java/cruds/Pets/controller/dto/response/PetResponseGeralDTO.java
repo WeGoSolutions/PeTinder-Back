@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -18,7 +19,7 @@ import java.util.stream.IntStream;
 @AllArgsConstructor
 @Builder
 public class PetResponseGeralDTO {
-    private Integer id;
+    private UUID id;
     private String nome;
     private Double idade;
     private String porte;
@@ -30,7 +31,7 @@ public class PetResponseGeralDTO {
     private Boolean isVacinado;
     private List<String> imagens;
     private String sexo;
-    private Integer ongId;
+    private UUID ongId;
     private String nomeOng;
     private String linkOng;
     private EnderecoResponseDTO endereco;

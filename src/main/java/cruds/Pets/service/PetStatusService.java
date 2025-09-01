@@ -24,9 +24,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,7 +62,7 @@ public class PetStatusService {
         return petStatusRepository.save(status);
     }
 
-    public List<PetStatusEnum> getPetStatusList(Integer petId) {
+    public List<PetStatusEnum> getPetStatusList(UUID petId) {
         List<PetStatus> statuses = petStatusRepository.findByPet_Id(petId);
         List<PetStatusEnum> statusList = statuses.stream()
                 .map(PetStatus::getStatus)
@@ -77,7 +75,7 @@ public class PetStatusService {
         return statusList;
     }
 
-    public List<PetResponsePendingOngDTO> listPendingPetsWithOngForUser(Integer userId, HttpServletRequest request) {
+    public List<PetResponsePendingOngDTO> listPendingPetsWithOngForUser(UUID userId, HttpServletRequest request) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Usuário com id " + userId + " não encontrado");
         }
@@ -120,7 +118,7 @@ public class PetStatusService {
                 .collect(Collectors.toList());
     }
 
-    public List<PetResponseGeralDTO> listAvailablePetsForUser(Integer userId) {
+    public List<PetResponseGeralDTO> listAvailablePetsForUser(UUID userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Usuário com id " + userId + " não encontrado");
         }
@@ -131,7 +129,7 @@ public class PetStatusService {
                 .collect(Collectors.toList());
     }
 
-    public List<PetStatus> getPetsByUserAndStatus(Integer userId, PetStatusEnum status) {
+    public List<PetStatus> getPetsByUserAndStatus(UUID userId, PetStatusEnum status) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Usuário com id " + userId + " não encontrado");
         }
@@ -139,7 +137,7 @@ public class PetStatusService {
         return petStatusRepository.findByUserIdAndStatus(userId, status);
     }
 
-    public void deletePetStatus(Integer petId, Integer userId) {
+    public void deletePetStatus(UUID petId, UUID userId) {
         PetStatus status = petStatusRepository.findByPetIdAndUserId(petId, userId)
                 .orElseThrow(() -> new NotFoundException("Status não encontrado para pet " + petId + " e usuário " + userId));
 
@@ -151,7 +149,7 @@ public class PetStatusService {
         petRepository.save(pet);
     }
 
-    public List<PetResponseGeralDTO> listDefaultPets(Integer userId) {
+    public List<PetResponseGeralDTO> listDefaultPets(UUID userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Usuário com id " + userId + " não encontrado");
         }
@@ -168,7 +166,7 @@ public class PetStatusService {
         return availablePets;
     }
 
-    public void incrementarCurtidasPet(Integer petId) {
+    public void incrementarCurtidasPet(UUID petId) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new EntityNotFoundException("Pet não encontrado"));
         int atual = pet.getCurtidas() != null ? pet.getCurtidas() : 0;
@@ -176,7 +174,7 @@ public class PetStatusService {
         petRepository.save(pet);
     }
 
-    public void decrementarCurtidasPet(Integer petId) {
+    public void decrementarCurtidasPet(UUID petId) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new EntityNotFoundException("Pet não encontrado"));
         int atual = pet.getCurtidas() != null ? pet.getCurtidas() : 0;
@@ -184,7 +182,7 @@ public class PetStatusService {
         petRepository.save(pet);
     }
 
-    public void publicarAdocao(Integer petId) {
+    public void publicarAdocao(UUID petId) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new EntityNotFoundException("Pet não encontrado"));
         pet.setIsAdopted(true);
@@ -192,7 +190,7 @@ public class PetStatusService {
     }
 
     @Transactional
-    public PetStatus adoptPet(Integer petId, Integer userId) {
+    public PetStatus adoptPet(UUID petId, UUID userId) {
         petStatusRepository.deleteByPetIdAndUserIdNot(petId, userId);
 
         Optional<PetStatus> optionalStatus = petStatusRepository.findByPet_IdAndUser_Id(petId, userId);
@@ -233,14 +231,14 @@ public class PetStatusService {
         List<Object> result = new java.util.ArrayList<>();
         for (Pet pet : pets) {
             for (User user : users) {
-                PetStatus status = petStatusRepository.findByPet_IdAndUser_Id(pet.getId(), Math.toIntExact(user.getId())).orElse(null);
-                String statusStr = null;
-                if (status != null && status.getStatus() != null) {
-                    statusStr = status.getStatus().toString();
-                }
-                java.util.Map<String, Object> map = new java.util.HashMap<>();
-                map.put("id_pet", pet.getId());
-                map.put("id_user", user.getId());
+                PetStatus status = petStatusRepository.findByPet_IdAndUser_Id(pet.getId(), user.getId()).orElse(null);
+                String statusStr = (status != null && status.getStatus() != null)
+                        ? status.getStatus().toString()
+                        : null;
+
+                Map<String, Object> map = new HashMap<>();
+                map.put("id_pet", pet.getId().toString());   // UUID convertido para String
+                map.put("id_user", user.getId().toString()); // UUID convertido para String
                 map.put("nome_pet", pet.getNome());
                 map.put("status", statusStr);
                 result.add(map);
@@ -250,11 +248,11 @@ public class PetStatusService {
     }
 
     @Transactional
-    public void removerOutrosStatus(Integer petId, Integer userId) {
+    public void removerOutrosStatus(UUID petId, UUID userId) {
         petStatusRepository.deleteByPetIdAndUserIdNot(petId, userId);
     }
 
-    public List<PetResponseUserPendenteDTO> listPendingUsersByPetId(Integer petId) {
+    public List<PetResponseUserPendenteDTO> listPendingUsersByPetId(UUID petId) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new NotFoundException("Pet com id " + petId + " não encontrado"));
 

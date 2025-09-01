@@ -5,6 +5,8 @@ import cruds.Pets.entity.Pet;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "imagem_pet")
 @Getter
@@ -14,9 +16,8 @@ import lombok.*;
 public class Imagem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Integer id;
+    @GeneratedValue(generator = "UUID")
+    private UUID id;
 
     @Column(name = "link")
     private String caminho;
@@ -37,10 +38,10 @@ public class Imagem {
         this.pet = pet;
     }
 
-    public Imagem(Integer id, byte[] bytes, Object pet) {
+    public Imagem(UUID id, byte[] bytes, Object pet) {
     }
 
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
