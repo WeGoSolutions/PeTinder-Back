@@ -11,10 +11,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Tratador de exceções específico para usuários - Web Layer
- */
-@RestControllerAdvice(basePackages = "cruds.Users.infrastructure.web")
+@RestControllerAdvice(basePackages = "cruds.Users.V2.infrastructure.web")
 public class UsuarioExceptionHandler {
 
     @ExceptionHandler(UsuarioException.UsuarioNaoEncontradoException.class)

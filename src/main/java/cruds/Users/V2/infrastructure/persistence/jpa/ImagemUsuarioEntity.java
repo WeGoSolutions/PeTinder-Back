@@ -3,9 +3,6 @@ package cruds.Users.V2.infrastructure.persistence.jpa;
 import jakarta.persistence.*;
 import lombok.*;
 
-/**
- * Entidade JPA para persistência de imagem - Infrastructure Layer
- */
 @Entity
 @Table(name = "imagem_usuario")
 @Data
@@ -15,8 +12,8 @@ import lombok.*;
 public class ImagemUsuarioEntity {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Lob
     private byte[] dados;

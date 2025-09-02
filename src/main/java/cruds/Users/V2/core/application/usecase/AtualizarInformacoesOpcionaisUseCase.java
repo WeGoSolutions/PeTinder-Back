@@ -14,7 +14,7 @@ public class AtualizarInformacoesOpcionaisUseCase {
         this.usuarioGateway = usuarioGateway;
     }
 
-    public Usuario executar(AtualizarInformacoesOpcionaisCommand command) {
+    public Usuario adicionarInfos(AtualizarInformacoesOpcionaisCommand command) {
         Usuario usuario = usuarioGateway.buscarPorId(command.getUsuarioId())
             .orElseThrow(() -> new UsuarioException.UsuarioNaoEncontradoException(
                 "Usuário não encontrado: " + command.getUsuarioId()

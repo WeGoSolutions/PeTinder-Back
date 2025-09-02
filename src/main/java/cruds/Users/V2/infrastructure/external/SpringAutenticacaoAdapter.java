@@ -33,23 +33,25 @@ public class SpringAutenticacaoAdapter implements AutenticacaoGateway {
 
     @Override
     public String gerarToken(String email) {
-//        return gerenciadorTokenJwt.generateToken(email);
-        return null;
+        Authentication auth = new UsernamePasswordAuthenticationToken(email, null);
+        return gerenciadorTokenJwt.generateToken(auth);
     }
 
     @Override
     public boolean validarToken(String token) {
-//        try {
-//            return gerenciadorTokenJwt.validateToken(token);
-//        } catch (Exception e) {
-//            return false;
-//        }
-        return false;
+        try {
+            String email = gerenciadorTokenJwt.getUsernameFromToken(token);
+            org.springframework.security.core.userdetails.User userDetails =
+                new org.springframework.security.core.userdetails.User(
+                    email, "", java.util.Collections.emptyList());
+            return gerenciadorTokenJwt.validateToken(token, userDetails);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
     public String extrairEmailDoToken(String token) {
-//        return gerenciadorTokenJwt.getUsernameFromToken(token);
-        return null;
+        return gerenciadorTokenJwt.getUsernameFromToken(token);
     }
 }

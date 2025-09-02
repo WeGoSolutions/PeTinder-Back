@@ -7,9 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * DTO para upload de imagem - Web Layer
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

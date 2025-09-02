@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.Base64;
 
-/**
- * DTO de response para usuário - Web Layer
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

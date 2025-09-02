@@ -11,7 +11,7 @@ public class RemoverUsuarioUseCase {
         this.usuarioGateway = usuarioGateway;
     }
 
-    public void executar(Long usuarioId) {
+    public void apagarUser(Long usuarioId) {
         if (!usuarioGateway.buscarPorId(usuarioId).isPresent()) {
             throw new UsuarioException.UsuarioNaoEncontradoException(
                 "Usuário não encontrado: " + usuarioId

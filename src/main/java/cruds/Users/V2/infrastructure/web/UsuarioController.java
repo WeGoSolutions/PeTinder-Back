@@ -13,11 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Controller REST para usuários - Web Layer (Clean Architecture)
- */
 @RestController
-@RequestMapping("/api/v2/users")
+@RequestMapping("/v2/users")
 @Tag(name = "Usuario v2", description = "Endpoints Clean Architecture para gerenciamento de usuários")
 @Validated
 public class UsuarioController {
@@ -55,7 +52,7 @@ public class UsuarioController {
     @Operation(summary = "Cria um novo usuário")
     @PostMapping
     public ResponseEntity<UsuarioResponseWebDTO> criarUsuario(@Valid @RequestBody CriarUsuarioWebDTO request) {
-        var usuario = criarUsuarioUseCase.executar(request.toCommand());
+        var usuario = criarUsuarioUseCase.cadastrar(request.toCommand());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(UsuarioResponseWebDTO.fromDomain(usuario));
     }
@@ -63,21 +60,21 @@ public class UsuarioController {
     @Operation(summary = "Realiza login do usuário")
     @PostMapping("/login")
     public ResponseEntity<LoginResponseWebDTO> login(@Valid @RequestBody LoginUsuarioWebDTO request) {
-        var result = loginUsuarioUseCase.executar(request.toCommand());
+        var result = loginUsuarioUseCase.logar(request.toCommand());
         return ResponseEntity.ok(LoginResponseWebDTO.fromResult(result));
     }
 
     @Operation(summary = "Busca usuário por ID")
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseWebDTO> buscarUsuarioPorId(@PathVariable Long id) {
-        var usuario = buscarUsuarioPorIdUseCase.executar(id);
+        var usuario = buscarUsuarioPorIdUseCase.buscar(id);
         return ResponseEntity.ok(UsuarioResponseWebDTO.fromDomain(usuario));
     }
 
     @Operation(summary = "Lista todos os usuários")
     @GetMapping
     public ResponseEntity<List<UsuarioResponseWebDTO>> listarUsuarios() {
-        var usuarios = listarUsuariosUseCase.executar();
+        var usuarios = listarUsuariosUseCase.listar();
         var response = usuarios.stream()
                 .map(UsuarioResponseWebDTO::fromDomain)
                 .collect(Collectors.toList());
@@ -96,7 +93,7 @@ public class UsuarioController {
     public ResponseEntity<UsuarioResponseWebDTO> atualizarInformacoesOpcionais(
             @PathVariable Long id,
             @Valid @RequestBody AtualizarInformacoesOpcionaisWebDTO request) {
-        var usuario = atualizarInformacoesOpcionaisUseCase.executar(request.toCommand(id));
+        var usuario = atualizarInformacoesOpcionaisUseCase.adicionarInfos(request.toCommand(id));
         return ResponseEntity.ok(UsuarioResponseWebDTO.fromDomain(usuario));
     }
 
@@ -105,7 +102,7 @@ public class UsuarioController {
     public ResponseEntity<UsuarioResponseWebDTO> atualizarSenha(
             @PathVariable Long id,
             @Valid @RequestBody AtualizarSenhaWebDTO request) {
-        var usuario = atualizarSenhaUseCase.executar(request.toCommand(id));
+        var usuario = atualizarSenhaUseCase.atualizarSenha(request.toCommand(id));
         return ResponseEntity.ok(UsuarioResponseWebDTO.fromDomain(usuario));
     }
 
@@ -121,7 +118,7 @@ public class UsuarioController {
     @Operation(summary = "Remove usuário")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> removerUsuario(@PathVariable Long id) {
-        removerUsuarioUseCase.executar(id);
+        removerUsuarioUseCase.apagarUser(id);
         return ResponseEntity.noContent().build();
     }
 }

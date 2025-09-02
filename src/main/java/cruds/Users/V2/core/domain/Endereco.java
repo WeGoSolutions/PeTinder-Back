@@ -2,7 +2,7 @@ package cruds.Users.V2.core.domain;
 
 public class Endereco {
     
-    private final Integer id;
+    private final Long id;
     private final String cep;
     private final String rua;
     private final Integer numero;
@@ -10,7 +10,7 @@ public class Endereco {
     private final String uf;
     private final String complemento;
 
-    public Endereco(Integer id, String cep, String rua, Integer numero, 
+    public Endereco(Long id, String cep, String rua, Integer numero, 
                    String cidade, String uf, String complemento) {
         this.id = id;
         this.cep = cep;
@@ -39,7 +39,7 @@ public class Endereco {
     }
 
     // Getters
-    public Integer getId() { return id; }
+    public Long getId() { return id; }
     public String getCep() { return cep; }
     public String getRua() { return rua; }
     public Integer getNumero() { return numero; }
@@ -47,7 +47,7 @@ public class Endereco {
     public String getUf() { return uf; }
     public String getComplemento() { return complemento; }
 
-    public Endereco comNovoId(Integer novoId) {
+    public Endereco comNovoId(Long novoId) {
         return new Endereco(novoId, cep, rua, numero, cidade, uf, complemento);
     }
 

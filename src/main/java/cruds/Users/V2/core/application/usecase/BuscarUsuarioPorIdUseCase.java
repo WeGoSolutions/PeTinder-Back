@@ -12,7 +12,7 @@ public class BuscarUsuarioPorIdUseCase {
         this.usuarioGateway = usuarioGateway;
     }
 
-    public Usuario executar(Long usuarioId) {
+    public Usuario buscar(Long usuarioId) {
         return usuarioGateway.buscarPorId(usuarioId)
             .orElseThrow(() -> new UsuarioException.UsuarioNaoEncontradoException(
                 "Usuário não encontrado: " + usuarioId

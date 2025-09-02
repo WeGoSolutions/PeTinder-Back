@@ -5,10 +5,6 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-/**
- * Entidade JPA para persistência - Infrastructure Layer
- * Esta classe é isolada do domínio
- */
 @Entity
 @Table(name = "usuario")
 @Data
@@ -18,7 +14,8 @@ import java.time.LocalDate;
 public class UsuarioEntity {
 
     @Id
-    @GeneratedValue(generator = "UUID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
     private String nome;

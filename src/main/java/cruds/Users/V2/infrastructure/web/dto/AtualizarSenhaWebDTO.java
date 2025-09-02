@@ -9,9 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * DTO para atualização de senha - Web Layer
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
