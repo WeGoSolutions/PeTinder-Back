@@ -25,6 +25,8 @@ public class PetResponseAdotanteDTO {
     private Boolean isVacinado;
     private String sexoPet;
     private UUID userId;
+    private UUID imagemUsuarioId;
+    private String imagemUsuarioUrl;
     private String nomeUsuario;
     private String email;
     private LocalDate dataNascUsuario;
@@ -43,6 +45,10 @@ public class PetResponseAdotanteDTO {
         this.isVacinado = pet.getIsVacinado();
         this.sexoPet = pet.getSexo();
         this.userId = user.getId();
+        this.imagemUsuarioId = user.getId();
+        if (user.getImagemUser() != null) {
+            this.imagemUsuarioUrl = "http://localhost:8080/users/" + user.getId() + "/imagens/0";
+        }
         this.nomeUsuario = user.getNome();
         this.email = user.getEmail();
         this.dataNascUsuario = user.getDataNasc();
