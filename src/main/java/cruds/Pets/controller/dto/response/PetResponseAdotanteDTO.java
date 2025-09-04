@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ public class PetResponseAdotanteDTO {
     private String sexoPet;
     private UUID userId;
     private UUID imagemUsuarioId;
-    private String imagemUsuarioUrl;
+    private String imagemUrl;
     private String nomeUsuario;
     private String email;
     private LocalDate dataNascUsuario;
@@ -46,8 +47,9 @@ public class PetResponseAdotanteDTO {
         this.sexoPet = pet.getSexo();
         this.userId = user.getId();
         this.imagemUsuarioId = user.getId();
-        if (user.getImagemUser() != null) {
-            this.imagemUsuarioUrl = "http://localhost:8080/users/" + user.getId() + "/imagens/0";
+        if (user.getImagemUser() != null && user.getImagemUser().getDados() != null) {
+            String base64Image = Base64.getEncoder().encodeToString(user.getImagemUser().getDados());
+            this.imagemUrl = "data:image/png;base64," + base64Image;
         }
         this.nomeUsuario = user.getNome();
         this.email = user.getEmail();
