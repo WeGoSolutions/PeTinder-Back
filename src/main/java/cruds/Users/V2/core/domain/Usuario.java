@@ -2,10 +2,11 @@ package cruds.Users.V2.core.domain;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.UUID;
 
 public class Usuario {
 
-    private Long id;
+    private UUID id;
     private String nome;
     private String email;
     private String senha;
@@ -16,7 +17,7 @@ public class Usuario {
     private Boolean usuarioNovo;
 
     // Construtor
-    public Usuario(Long id, String nome, String email, String senha,
+    public Usuario(UUID id, String nome, String email, String senha,
                    LocalDate dataNascimento, String cpf, Boolean usuarioNovo) {
         this.id = id;
         this.nome = nome;
@@ -75,7 +76,7 @@ public class Usuario {
     }
 
     // Getters e Setters
-    public Long getId() { return id; }
+    public UUID getId() { return id; }
     public String getNome() { return nome; }
     public String getEmail() { return email; }
     public String getSenha() { return senha; }
@@ -93,7 +94,7 @@ public class Usuario {
         this.imagemUsuario = imagemUsuario;
     }
 
-    public Usuario comNovoId(Long novoId) {
+    public Usuario comNovoId(UUID novoId) {
         Usuario usuario = new Usuario(novoId, nome, email, senha, dataNascimento, cpf, usuarioNovo);
         usuario.setEndereco(endereco);
         usuario.setImagemUsuario(imagemUsuario);
@@ -115,9 +116,10 @@ public class Usuario {
     }
 
     // Métodos adicionais necessários para o sistema
-    public void setId(Long id) {
+    public void setId(UUID id) {
         // Método para permitir definição do ID após criação (usado no mapper)
         // Em um domínio rico, normalmente seria imutável, mas necessário para persistência
+        this.id = id;
     }
 
     public void atualizarEndereco(Endereco novoEndereco) {

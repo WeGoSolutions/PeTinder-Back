@@ -4,6 +4,8 @@ import cruds.Users.V2.core.adapter.UsuarioGateway;
 import cruds.Users.V2.core.application.exception.UsuarioException;
 import cruds.Users.V2.core.domain.Usuario;
 
+import java.util.UUID;
+
 public class BuscarUsuarioPorIdUseCase {
     
     private final UsuarioGateway usuarioGateway;
@@ -12,7 +14,7 @@ public class BuscarUsuarioPorIdUseCase {
         this.usuarioGateway = usuarioGateway;
     }
 
-    public Usuario buscar(Long usuarioId) {
+    public Usuario buscar(UUID usuarioId) {
         return usuarioGateway.buscarPorId(usuarioId)
             .orElseThrow(() -> new UsuarioException.UsuarioNaoEncontradoException(
                 "Usuário não encontrado: " + usuarioId

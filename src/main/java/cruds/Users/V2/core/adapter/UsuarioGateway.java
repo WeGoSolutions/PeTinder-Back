@@ -3,6 +3,7 @@ package cruds.Users.V2.core.adapter;
 import cruds.Users.V2.core.domain.Usuario;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UsuarioGateway {
 
@@ -10,7 +11,7 @@ public interface UsuarioGateway {
 
     Usuario atualizar(Usuario usuario);
 
-    Optional<Usuario> buscarPorId(Long id);
+    Optional<Usuario> buscarPorId(UUID id);
 
     Optional<Usuario> buscarPorEmail(String email);
 
@@ -18,7 +19,7 @@ public interface UsuarioGateway {
 
     List<Usuario> listarTodos();
 
-    void remover(Long id);
+    void remover(UUID id);
 
     boolean emailJaExiste(String email);
 

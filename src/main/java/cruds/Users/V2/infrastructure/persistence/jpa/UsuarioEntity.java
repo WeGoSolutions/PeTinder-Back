@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(name = "usuario")
@@ -14,9 +15,9 @@ import java.time.LocalDate;
 public class UsuarioEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false, nullable = false)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "BINARY(16)")
+    private UUID id;
 
     private String nome;
 
@@ -32,11 +33,11 @@ public class UsuarioEntity {
     private String cpf;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "fk_endereco")
+    @JoinColumn(name = "fk_endereco", columnDefinition = "BINARY(16)")
     private EnderecoEntity endereco;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "fk_imagem_usuario")
+    @JoinColumn(name = "fk_imagem_usuario", columnDefinition = "BINARY(16)")
     private ImagemUsuarioEntity imagemUser;
 
     private Boolean userNovo;

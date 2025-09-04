@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,7 +38,7 @@ public class AtualizarInformacoesOpcionaisWebDTO {
     @Schema(description = "Complemento", example = "Apto 45")
     private String complemento;
 
-    public AtualizarInformacoesOpcionaisCommand toCommand(Long usuarioId) {
+    public AtualizarInformacoesOpcionaisCommand toCommand(UUID usuarioId) {
         return new AtualizarInformacoesOpcionaisCommand(
             usuarioId, cpf, cep, rua, numero, cidade, uf, complemento
         );

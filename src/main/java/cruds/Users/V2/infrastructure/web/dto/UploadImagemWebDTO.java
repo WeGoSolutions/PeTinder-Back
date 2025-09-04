@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,7 +21,7 @@ public class UploadImagemWebDTO {
     @Schema(description = "Nome do arquivo", example = "perfil.jpg")
     private String nomeArquivo;
 
-    public UploadImagemCommand toCommand(Long usuarioId) {
+    public UploadImagemCommand toCommand(UUID usuarioId) {
         return new UploadImagemCommand(usuarioId, dadosImagem, nomeArquivo);
     }
 }

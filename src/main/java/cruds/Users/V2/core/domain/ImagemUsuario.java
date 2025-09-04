@@ -1,14 +1,15 @@
 package cruds.Users.V2.core.domain;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 public class ImagemUsuario {
 
-    private final Long id;
+    private final UUID id;
     private final byte[] dados;
     private final String nomeArquivo;
 
-    public ImagemUsuario(Long id, byte[] dados, String nomeArquivo) {
+    public ImagemUsuario(UUID id, byte[] dados, String nomeArquivo) {
         this.id = id;
         this.dados = dados;
         this.nomeArquivo = nomeArquivo;
@@ -20,11 +21,11 @@ public class ImagemUsuario {
     }
 
     // Getters
-    public Long getId() { return id; }
+    public UUID getId() { return id; }
     public byte[] getDados() { return dados; }
     public String getNomeArquivo() { return nomeArquivo; }
 
-    public ImagemUsuario comNovoId(Long novoId) {
+    public ImagemUsuario comNovoId(UUID novoId) {
         return new ImagemUsuario(novoId, dados, nomeArquivo);
     }
 

@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -66,7 +67,7 @@ public class UsuarioController {
 
     @Operation(summary = "Busca usuário por ID")
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseWebDTO> buscarUsuarioPorId(@PathVariable Long id) {
+    public ResponseEntity<UsuarioResponseWebDTO> buscarUsuarioPorId(@PathVariable UUID id) {
         var usuario = buscarUsuarioPorIdUseCase.buscar(id);
         return ResponseEntity.ok(UsuarioResponseWebDTO.fromDomain(usuario));
     }
@@ -83,7 +84,7 @@ public class UsuarioController {
 
     @Operation(summary = "Marca usuário como experiente")
     @PatchMapping("/{id}/marcar-experiente")
-    public ResponseEntity<UsuarioResponseWebDTO> marcarUsuarioExperiente(@PathVariable Long id) {
+    public ResponseEntity<UsuarioResponseWebDTO> marcarUsuarioExperiente(@PathVariable UUID id) {
         var usuario = marcarUsuarioExperienteUseCase.executar(id);
         return ResponseEntity.ok(UsuarioResponseWebDTO.fromDomain(usuario));
     }
@@ -91,7 +92,7 @@ public class UsuarioController {
     @Operation(summary = "Atualiza informações opcionais do usuário")
     @PutMapping("/{id}/informacoes-opcionais")
     public ResponseEntity<UsuarioResponseWebDTO> atualizarInformacoesOpcionais(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody AtualizarInformacoesOpcionaisWebDTO request) {
         var usuario = atualizarInformacoesOpcionaisUseCase.adicionarInfos(request.toCommand(id));
         return ResponseEntity.ok(UsuarioResponseWebDTO.fromDomain(usuario));
@@ -100,7 +101,7 @@ public class UsuarioController {
     @Operation(summary = "Atualiza senha do usuário")
     @PatchMapping("/{id}/senha")
     public ResponseEntity<UsuarioResponseWebDTO> atualizarSenha(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody AtualizarSenhaWebDTO request) {
         var usuario = atualizarSenhaUseCase.atualizarSenha(request.toCommand(id));
         return ResponseEntity.ok(UsuarioResponseWebDTO.fromDomain(usuario));
@@ -109,7 +110,7 @@ public class UsuarioController {
     @Operation(summary = "Upload de imagem de perfil")
     @PostMapping("/{id}/imagem")
     public ResponseEntity<UsuarioResponseWebDTO> uploadImagemPerfil(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UploadImagemWebDTO request) {
         var usuario = uploadImagemPerfilUseCase.executar(request.toCommand(id));
         return ResponseEntity.ok(UsuarioResponseWebDTO.fromDomain(usuario));
@@ -117,7 +118,7 @@ public class UsuarioController {
 
     @Operation(summary = "Remove usuário")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removerUsuario(@PathVariable Long id) {
+    public ResponseEntity<Void> removerUsuario(@PathVariable UUID id) {
         removerUsuarioUseCase.apagarUser(id);
         return ResponseEntity.noContent().build();
     }

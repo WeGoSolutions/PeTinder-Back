@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 
@@ -38,6 +39,7 @@ public class CriarUsuarioWebDTO {
     @NotNull(message = "Data de nascimento é obrigatória")
     @Past(message = "A data de nascimento deve ser no passado")
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonProperty(value = "dataNasc", alternate = {"dataNascimento"})
     @Schema(description = "Data de nascimento do usuário", example = "2000-01-01")
     private LocalDate dataNascimento;
 

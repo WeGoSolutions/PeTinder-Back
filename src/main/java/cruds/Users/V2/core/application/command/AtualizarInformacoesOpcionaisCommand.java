@@ -2,9 +2,11 @@ package cruds.Users.V2.core.application.command;
 
 import cruds.Users.V2.core.domain.Endereco;
 
+import java.util.UUID;
+
 public class AtualizarInformacoesOpcionaisCommand {
     
-    private final Long usuarioId;
+    private final UUID usuarioId;
     private final String cpf;
     private final String cep;
     private final String rua;
@@ -13,7 +15,7 @@ public class AtualizarInformacoesOpcionaisCommand {
     private final String uf;
     private final String complemento;
 
-    public AtualizarInformacoesOpcionaisCommand(Long usuarioId, String cpf, String cep, 
+    public AtualizarInformacoesOpcionaisCommand(UUID usuarioId, String cpf, String cep, 
                                               String rua, Integer numero, String cidade, 
                                               String uf, String complemento) {
         this.usuarioId = usuarioId;
@@ -26,7 +28,7 @@ public class AtualizarInformacoesOpcionaisCommand {
         this.complemento = complemento;
     }
 
-    public Long getUsuarioId() {
+    public UUID getUsuarioId() {
         return usuarioId;
     }
 
