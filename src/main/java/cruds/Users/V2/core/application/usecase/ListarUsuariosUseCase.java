@@ -12,7 +12,7 @@ public class ListarUsuariosUseCase {
         this.usuarioGateway = usuarioGateway;
     }
 
-    public List<Usuario> executar() {
+    public List<Usuario> listar() {
         return usuarioGateway.listarTodos();
     }
 }

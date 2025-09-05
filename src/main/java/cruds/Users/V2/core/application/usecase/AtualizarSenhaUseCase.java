@@ -16,7 +16,7 @@ public class AtualizarSenhaUseCase {
         this.criptografiaGateway = criptografiaGateway;
     }
 
-    public Usuario executar(AtualizarSenhaCommand command) {
+    public Usuario atualizarSenha(AtualizarSenhaCommand command) {
         Usuario usuario = usuarioGateway.buscarPorId(command.getUsuarioId())
             .orElseThrow(() -> new UsuarioException.UsuarioNaoEncontradoException(
                 "Usuário não encontrado: " + command.getUsuarioId()

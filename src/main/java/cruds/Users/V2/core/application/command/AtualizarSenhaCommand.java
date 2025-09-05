@@ -1,18 +1,20 @@
 package cruds.Users.V2.core.application.command;
 
+import java.util.UUID;
+
 public class AtualizarSenhaCommand {
     
-    private final Long usuarioId;
+    private final UUID usuarioId;
     private final String senhaAtual;
     private final String novaSenha;
 
-    public AtualizarSenhaCommand(Long usuarioId, String senhaAtual, String novaSenha) {
+    public AtualizarSenhaCommand(UUID usuarioId, String senhaAtual, String novaSenha) {
         this.usuarioId = usuarioId;
         this.senhaAtual = senhaAtual;
         this.novaSenha = novaSenha;
     }
 
-    public Long getUsuarioId() { return usuarioId; }
+    public UUID getUsuarioId() { return usuarioId; }
     public String getSenhaAtual() { return senhaAtual; }
     public String getNovaSenha() { return novaSenha; }
 }

@@ -21,7 +21,7 @@ public class CriarUsuarioUseCase {
         this.emailGateway = emailGateway;
     }
 
-    public Usuario executar(CriarUsuarioCommand command) {
+    public Usuario cadastrar(CriarUsuarioCommand command) {
         if (usuarioGateway.emailJaExiste(command.getEmail())) {
             throw new UsuarioException.EmailJaExisteException(
                 "Email já está em uso: " + command.getEmail()
@@ -40,7 +40,6 @@ public class CriarUsuarioUseCase {
 
         Usuario usuarioSalvo = usuarioGateway.salvar(usuario);
 
-        // Enviar email de boas-vindas (assíncrono)
         try {
             emailGateway.enviarEmailBoasVindas(usuarioSalvo.getEmail(), usuarioSalvo.getNome());
         } catch (Exception e) {

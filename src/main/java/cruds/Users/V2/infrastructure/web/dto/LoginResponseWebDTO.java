@@ -6,9 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * DTO de response para login - Web Layer
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

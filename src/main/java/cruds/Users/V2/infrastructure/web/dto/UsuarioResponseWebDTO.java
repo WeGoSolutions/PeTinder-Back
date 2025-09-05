@@ -8,16 +8,14 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.Base64;
+import java.util.UUID;
 
-/**
- * DTO de response para usuário - Web Layer
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class UsuarioResponseWebDTO {
-    private Long id;
+    private UUID id;
     private String nome;
     private String email;
     private LocalDate dataNascimento;

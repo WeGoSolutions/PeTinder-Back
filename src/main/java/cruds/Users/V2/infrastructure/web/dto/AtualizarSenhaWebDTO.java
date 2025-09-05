@@ -9,9 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * DTO para atualização de senha - Web Layer
- */
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,7 +27,7 @@ public class AtualizarSenhaWebDTO {
     @Schema(description = "Nova senha do usuário", example = "NovaUrubu@456")
     private String novaSenha;
 
-    public AtualizarSenhaCommand toCommand(Long usuarioId) {
+    public AtualizarSenhaCommand toCommand(UUID usuarioId) {
         return new AtualizarSenhaCommand(usuarioId, senhaAtual, novaSenha);
     }
 }

@@ -21,7 +21,7 @@ public class LoginUsuarioUseCase {
         this.autenticacaoGateway = autenticacaoGateway;
     }
 
-    public LoginResult executar(LoginUsuarioCommand command) {
+    public LoginResult logar(LoginUsuarioCommand command) {
         Usuario usuario = usuarioGateway.buscarPorEmail(command.getEmail())
             .orElseThrow(() -> new UsuarioException.CredenciaisInvalidasException(
                 "Credenciais inválidas"

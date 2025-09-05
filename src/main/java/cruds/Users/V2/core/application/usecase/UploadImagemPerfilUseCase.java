@@ -7,9 +7,6 @@ import cruds.Users.V2.core.application.exception.UsuarioException;
 import cruds.Users.V2.core.domain.ImagemUsuario;
 import cruds.Users.V2.core.domain.Usuario;
 
-/**
- * Caso de uso para upload de imagem de perfil - Clean Architecture
- */
 public class UploadImagemPerfilUseCase {
     
     private final UsuarioGateway usuarioGateway;

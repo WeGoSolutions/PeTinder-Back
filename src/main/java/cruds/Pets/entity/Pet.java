@@ -43,13 +43,13 @@ public class Pet {
     @JsonManagedReference
     private List<Imagem> imagens;
 
-    private Boolean isCastrado = false;
+    @Builder.Default    private Boolean isCastrado = false;
 
-    private Boolean isVermifugo = false;
+    @Builder.Default    private Boolean isVermifugo = false;
 
-    private Boolean isVacinado = false;
+    @Builder.Default    private Boolean isVacinado = false;
 
-    private Boolean isAdopted = false;
+    @Builder.Default    private Boolean isAdopted = false;
 
     private String sexo;
 
