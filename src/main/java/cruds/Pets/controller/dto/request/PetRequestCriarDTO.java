@@ -36,7 +36,7 @@ public class PetRequestCriarDTO {
     @NotBlank
     private String descricao;
 
-    @NotEmpty
+    @NotNull
     private UUID ongId;
 
     private Boolean isCastrado;
