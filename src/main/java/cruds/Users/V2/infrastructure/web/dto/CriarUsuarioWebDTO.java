@@ -1,5 +1,6 @@
 package cruds.Users.V2.infrastructure.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import cruds.Users.V2.core.application.command.CriarUsuarioCommand;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
@@ -39,7 +40,8 @@ public class CriarUsuarioWebDTO {
     @NotNull(message = "Data de nascimento é obrigatória")
     @Past(message = "A data de nascimento deve ser no passado")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @JsonProperty(value = "dataNasc", alternate = {"dataNascimento"})
+    @JsonProperty("dataNasc")
+    @JsonAlias({"dataNascimento"})
     @Schema(description = "Data de nascimento do usuário", example = "2000-01-01")
     private LocalDate dataNascimento;
 
