@@ -58,4 +58,19 @@ public class UsuarioConfig {
     public RemoverUsuarioUseCase removerUsuarioUseCase(UsuarioGateway usuarioGateway) {
         return new RemoverUsuarioUseCase(usuarioGateway);
     }
+
+    @Bean
+    public ValidarEmailUseCase validarEmailUseCase(UsuarioGateway usuarioGateway) {
+        return new ValidarEmailUseCase(usuarioGateway);
+    }
+
+    @Bean
+    public AtualizarUsuarioUseCase atualizarUsuarioUseCase(UsuarioGateway usuarioGateway) {
+        return new AtualizarUsuarioUseCase(usuarioGateway);
+    }
+
+    @Bean
+    public RemoverTodosUsuariosUseCase removerTodosUsuariosUseCase(UsuarioGateway usuarioGateway) {
+        return new RemoverTodosUsuariosUseCase(usuarioGateway);
+    }
 }
