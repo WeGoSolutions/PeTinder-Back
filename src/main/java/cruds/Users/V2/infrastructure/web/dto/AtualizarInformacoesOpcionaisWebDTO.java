@@ -14,7 +14,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class AtualizarInformacoesOpcionaisWebDTO {
 
-    @Pattern(regexp = "\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}", message = "CPF deve ter formato válido (000.000.000-00)")
     @Schema(description = "CPF do usuário", example = "123.456.789-00")
     private String cpf;
 

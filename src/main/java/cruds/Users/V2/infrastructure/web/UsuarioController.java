@@ -29,6 +29,9 @@ public class UsuarioController {
     private final UploadImagemPerfilUseCase uploadImagemPerfilUseCase;
     private final MarcarUsuarioExperienteUseCase marcarUsuarioExperienteUseCase;
     private final RemoverUsuarioUseCase removerUsuarioUseCase;
+    private final ValidarEmailUseCase validarEmailUseCase;
+    private final AtualizarUsuarioUseCase atualizarUsuarioUseCase;
+    private final RemoverTodosUsuariosUseCase removerTodosUsuariosUseCase;
 
     public UsuarioController(CriarUsuarioUseCase criarUsuarioUseCase,
                            LoginUsuarioUseCase loginUsuarioUseCase,
@@ -38,7 +41,10 @@ public class UsuarioController {
                            AtualizarSenhaUseCase atualizarSenhaUseCase,
                            UploadImagemPerfilUseCase uploadImagemPerfilUseCase,
                            MarcarUsuarioExperienteUseCase marcarUsuarioExperienteUseCase,
-                           RemoverUsuarioUseCase removerUsuarioUseCase) {
+                           RemoverUsuarioUseCase removerUsuarioUseCase,
+                           ValidarEmailUseCase validarEmailUseCase,
+                           AtualizarUsuarioUseCase atualizarUsuarioUseCase,
+                           RemoverTodosUsuariosUseCase removerTodosUsuariosUseCase) {
         this.criarUsuarioUseCase = criarUsuarioUseCase;
         this.loginUsuarioUseCase = loginUsuarioUseCase;
         this.buscarUsuarioPorIdUseCase = buscarUsuarioPorIdUseCase;
@@ -48,6 +54,9 @@ public class UsuarioController {
         this.uploadImagemPerfilUseCase = uploadImagemPerfilUseCase;
         this.marcarUsuarioExperienteUseCase = marcarUsuarioExperienteUseCase;
         this.removerUsuarioUseCase = removerUsuarioUseCase;
+        this.validarEmailUseCase = validarEmailUseCase;
+        this.atualizarUsuarioUseCase = atualizarUsuarioUseCase;
+        this.removerTodosUsuariosUseCase = removerTodosUsuariosUseCase;
     }
 
     @Operation(summary = "Cria um novo usuário")
@@ -82,15 +91,32 @@ public class UsuarioController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Valida e-mail do usuário")
+    @GetMapping("/{email}/validar-email")
+    public ResponseEntity<UsuarioResponseWebDTO> validarEmail(@PathVariable String email) {
+        var usuario = validarEmailUseCase.validar(email);
+        return ResponseEntity.ok(UsuarioResponseWebDTO.fromDomain(usuario));
+    }
+
+    @Operation(summary = "Atualiza informações do usuário")
+    @PatchMapping("/{id}")
+    public ResponseEntity<UsuarioResponseWebDTO> atualizarUsuario(
+            @PathVariable UUID id,
+            @Valid @RequestBody AtualizarUsuarioWebDTO request) {
+        var usuario = atualizarUsuarioUseCase.atualizar(request.toCommand(id));
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(UsuarioResponseWebDTO.fromDomain(usuario));
+    }
+
     @Operation(summary = "Marca usuário como experiente")
-    @PatchMapping("/{id}/marcar-experiente")
+    @PatchMapping("/{id}/user-novo")
     public ResponseEntity<UsuarioResponseWebDTO> marcarUsuarioExperiente(@PathVariable UUID id) {
         var usuario = marcarUsuarioExperienteUseCase.executar(id);
         return ResponseEntity.ok(UsuarioResponseWebDTO.fromDomain(usuario));
     }
 
     @Operation(summary = "Atualiza informações opcionais do usuário")
-    @PutMapping("/{id}/informacoes-opcionais")
+    @PutMapping("/{id}/optional")
     public ResponseEntity<UsuarioResponseWebDTO> atualizarInformacoesOpcionais(
             @PathVariable UUID id,
             @Valid @RequestBody AtualizarInformacoesOpcionaisWebDTO request) {
@@ -120,6 +146,13 @@ public class UsuarioController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> removerUsuario(@PathVariable UUID id) {
         removerUsuarioUseCase.apagarUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Remove todos os usuários (apenas para teste)")
+    @DeleteMapping("/teste")
+    public ResponseEntity<Void> removerTodosUsuarios() {
+        removerTodosUsuariosUseCase.removerTodos();
         return ResponseEntity.noContent().build();
     }
 }
