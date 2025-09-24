@@ -4,8 +4,10 @@ import cruds.Pets.V2.core.application.usecase.*;
 import cruds.Pets.V2.infrastructure.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,11 @@ public class PetController {
     private final AdotarPetUseCase adotarPetUseCase;
     private final CurtirPetUseCase curtirPetUseCase;
     private final ListarPetsDisponivelParaUsuarioUseCase listarPetsDisponivelParaUsuarioUseCase;
+    private final UploadImagemPetUseCase uploadImagemPetUseCase;
+    private final BuscarImagemPetUseCase buscarImagemPetUseCase;
+    private final RemoverImagemPetUseCase removerImagemPetUseCase;
+    private final CurtirPetStatusUseCase curtirPetStatusUseCase;
+    private final AdotarPetStatusUseCase adotarPetStatusUseCase;
 
     public PetController(CriarPetUseCase criarPetUseCase,
                          BuscarPetPorIdUseCase buscarPetPorIdUseCase,
@@ -36,7 +43,12 @@ public class PetController {
                          RemoverPetUseCase removerPetUseCase,
                          AdotarPetUseCase adotarPetUseCase,
                          CurtirPetUseCase curtirPetUseCase,
-                         ListarPetsDisponivelParaUsuarioUseCase listarPetsDisponivelParaUsuarioUseCase) {
+                         ListarPetsDisponivelParaUsuarioUseCase listarPetsDisponivelParaUsuarioUseCase,
+                         UploadImagemPetUseCase uploadImagemPetUseCase,
+                         BuscarImagemPetUseCase buscarImagemPetUseCase,
+                         RemoverImagemPetUseCase removerImagemPetUseCase,
+                         CurtirPetStatusUseCase curtirPetStatusUseCase,
+                         AdotarPetStatusUseCase adotarPetStatusUseCase) {
         this.criarPetUseCase = criarPetUseCase;
         this.buscarPetPorIdUseCase = buscarPetPorIdUseCase;
         this.listarPetsUseCase = listarPetsUseCase;
@@ -45,6 +57,11 @@ public class PetController {
         this.adotarPetUseCase = adotarPetUseCase;
         this.curtirPetUseCase = curtirPetUseCase;
         this.listarPetsDisponivelParaUsuarioUseCase = listarPetsDisponivelParaUsuarioUseCase;
+        this.uploadImagemPetUseCase = uploadImagemPetUseCase;
+        this.buscarImagemPetUseCase = buscarImagemPetUseCase;
+        this.removerImagemPetUseCase = removerImagemPetUseCase;
+        this.curtirPetStatusUseCase = curtirPetStatusUseCase;
+        this.adotarPetStatusUseCase = adotarPetStatusUseCase;
     }
 
     @Operation(summary = "Cria um novo pet")
@@ -144,5 +161,82 @@ public class PetController {
     public ResponseEntity<PetResponseWebDTO> descurtirPet(@PathVariable UUID id) {
         var pet = curtirPetUseCase.descurtir(id);
         return ResponseEntity.ok(PetResponseWebDTO.fromDomain(pet));
+    }
+
+    // ========== ENDPOINTS DE IMAGEM ==========
+
+    @Operation(summary = "Faz upload de imagens para um pet")
+    @PostMapping("/{id}/upload-imagens")
+    public ResponseEntity<PetResponseWebDTO> uploadImagens(
+            @PathVariable UUID id,
+            @RequestBody UploadImagemPetWebDTO request) {
+        var pet = uploadImagemPetUseCase.uploadImagens(id, request.getImagensBytes(), request.getNomesArquivos());
+        return ResponseEntity.ok(PetResponseWebDTO.fromDomain(pet));
+    }
+
+    @Operation(summary = "Lista URLs das imagens de um pet")
+    @GetMapping("/{id}/imagens")
+    public ResponseEntity<List<String>> listarUrlsImagens(
+            HttpServletRequest request,
+            @PathVariable UUID id) {
+        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
+        var urls = buscarImagemPetUseCase.listarUrlsImagens(id, baseUrl);
+        return ResponseEntity.ok(urls);
+    }
+
+    @Operation(summary = "Busca imagem específica de um pet por índice")
+    @GetMapping("/{id}/imagens/{indice}")
+    public ResponseEntity<byte[]> buscarImagemPorIndice(
+            @PathVariable UUID id,
+            @PathVariable int indice) {
+        byte[] imagem = buscarImagemPetUseCase.buscarImagemPorIndice(id, indice);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(imagem);
+    }
+
+    @Operation(summary = "Remove imagem específica de um pet por índice")
+    @DeleteMapping("/{id}/imagens/{indice}")
+    public ResponseEntity<Void> removerImagem(
+            @PathVariable UUID id,
+            @PathVariable int indice) {
+        removerImagemPetUseCase.removerImagem(id, indice);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ========== ENDPOINTS DE STATUS ==========
+
+    @Operation(summary = "Curtir um pet")
+    @PostMapping("/{petId}/curtir/{userId}")
+    public ResponseEntity<Void> curtirPet(
+            @PathVariable UUID petId,
+            @PathVariable UUID userId) {
+        curtirPetStatusUseCase.curtir(petId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Descurtir um pet")
+    @DeleteMapping("/{petId}/curtir/{userId}")
+    public ResponseEntity<Void> descurtirPet(
+            @PathVariable UUID petId,
+            @PathVariable UUID userId) {
+        curtirPetStatusUseCase.descurtir(petId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Adotar um pet")
+    @PostMapping("/{petId}/adotar/{userId}")
+    public ResponseEntity<Void> adotarPetStatus(
+            @PathVariable UUID petId,
+            @PathVariable UUID userId) {
+        adotarPetStatusUseCase.adotar(petId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Cancelar adoção de um pet")
+    @DeleteMapping("/{petId}/adotar")
+    public ResponseEntity<Void> cancelarAdocaoStatus(@PathVariable UUID petId) {
+        adotarPetStatusUseCase.cancelarAdocao(petId);
+        return ResponseEntity.noContent().build();
     }
 }

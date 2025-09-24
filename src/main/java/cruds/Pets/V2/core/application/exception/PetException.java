@@ -34,4 +34,16 @@ public class PetException extends RuntimeException {
             super(message);
         }
     }
+
+    public static class ImagemInvalidaException extends PetException {
+        public ImagemInvalidaException(String message) {
+            super(message);
+        }
+    }
+
+    public static class ImagemNaoEncontradaException extends PetException {
+        public ImagemNaoEncontradaException(String message) {
+            super(message);
+        }
+    }
 }

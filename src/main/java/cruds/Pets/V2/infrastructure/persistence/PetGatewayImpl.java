@@ -1,5 +1,6 @@
 package cruds.Pets.V2.infrastructure.persistence;
 
+import cruds.Pets.V2.core.adapter.ImagemPetGateway;
 import cruds.Pets.V2.core.adapter.PetGateway;
 import cruds.Pets.V2.core.domain.Pet;
 import cruds.Pets.V2.infrastructure.persistence.jpa.PetJpaRepository;
@@ -17,10 +18,14 @@ public class PetGatewayImpl implements PetGateway {
 
     private final PetJpaRepository petJpaRepository;
     private final PetStatusRepository petStatusRepository;
+    private final ImagemPetGateway imagemPetGateway;
 
-    public PetGatewayImpl(PetJpaRepository petJpaRepository, PetStatusRepository petStatusRepository) {
+    public PetGatewayImpl(PetJpaRepository petJpaRepository, 
+                          PetStatusRepository petStatusRepository,
+                          ImagemPetGateway imagemPetGateway) {
         this.petJpaRepository = petJpaRepository;
         this.petStatusRepository = petStatusRepository;
+        this.imagemPetGateway = imagemPetGateway;
     }
 
     @Override
@@ -40,14 +45,24 @@ public class PetGatewayImpl implements PetGateway {
     @Override
     public Optional<Pet> buscarPorId(UUID id) {
         return petJpaRepository.findById(id)
-                .map(PetMapper::toDomain);
+                .map(entity -> {
+                    Pet pet = PetMapper.toDomain(entity);
+                    // Carregar imagens
+                    pet.setImagens(imagemPetGateway.buscarPorPetId(id));
+                    return pet;
+                });
     }
 
     @Override
     public List<Pet> listarTodos() {
         return petJpaRepository.findAll()
                 .stream()
-                .map(PetMapper::toDomain)
+                .map(entity -> {
+                    Pet pet = PetMapper.toDomain(entity);
+                    // Carregar imagens
+                    pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId()));
+                    return pet;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -55,7 +70,12 @@ public class PetGatewayImpl implements PetGateway {
     public List<Pet> listarPorOng(UUID ongId) {
         return petJpaRepository.findByOngIdOrderByCurtidasDesc(ongId)
                 .stream()
-                .map(PetMapper::toDomain)
+                .map(entity -> {
+                    Pet pet = PetMapper.toDomain(entity);
+                    // Carregar imagens
+                    pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId()));
+                    return pet;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -63,7 +83,12 @@ public class PetGatewayImpl implements PetGateway {
     public List<Pet> listarDisponiveis() {
         return petJpaRepository.findByIsAdotadoFalseOrIsAdotadoIsNull()
                 .stream()
-                .map(PetMapper::toDomain)
+                .map(entity -> {
+                    Pet pet = PetMapper.toDomain(entity);
+                    // Carregar imagens
+                    pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId()));
+                    return pet;
+                })
                 .collect(Collectors.toList());
     }
 

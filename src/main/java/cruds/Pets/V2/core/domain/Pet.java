@@ -1,6 +1,7 @@
 package cruds.Pets.V2.core.domain;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ public class Pet {
     private String sexo;
     private UUID ongId;
     private LocalDateTime dataCriacao;
+    private List<ImagemPet> imagens;
     
     // Construtor principal
     public Pet(UUID id, String nome, Double idade, String porte, List<String> tags, 
@@ -39,6 +41,7 @@ public class Pet {
         this.sexo = sexo;
         this.ongId = ongId;
         this.dataCriacao = LocalDateTime.now();
+        this.imagens = new ArrayList<>();
         validarDados();
     }
     
@@ -100,7 +103,25 @@ public class Pet {
         pet.setCurtidas(curtidas);
         pet.setDataCriacao(dataCriacao);
         pet.setIsAdotado(isAdotado);
+        pet.setImagens(new ArrayList<>(imagens != null ? imagens : new ArrayList<>()));
         return pet;
+    }
+    
+    public void adicionarImagem(ImagemPet imagem) {
+        if (this.imagens == null) {
+            this.imagens = new ArrayList<>();
+        }
+        this.imagens.add(imagem);
+    }
+    
+    public void removerImagem(int indice) {
+        if (this.imagens != null && indice >= 0 && indice < this.imagens.size()) {
+            this.imagens.remove(indice);
+        }
+    }
+    
+    public boolean temImagens() {
+        return this.imagens != null && !this.imagens.isEmpty();
     }
     
     // Getters
@@ -118,10 +139,12 @@ public class Pet {
     public String getSexo() { return sexo; }
     public UUID getOngId() { return ongId; }
     public LocalDateTime getDataCriacao() { return dataCriacao; }
+    public List<ImagemPet> getImagens() { return imagens; }
     
     // Setters necessários para persistência
     public void setId(UUID id) { this.id = id; }
     public void setCurtidas(Integer curtidas) { this.curtidas = curtidas; }
     public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
     public void setIsAdotado(Boolean isAdotado) { this.isAdotado = isAdotado; }
+    public void setImagens(List<ImagemPet> imagens) { this.imagens = imagens; }
 }
