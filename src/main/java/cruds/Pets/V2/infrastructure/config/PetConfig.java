@@ -4,6 +4,7 @@ import cruds.Pets.V2.core.adapter.ArmazenamentoImagemPetGateway;
 import cruds.Pets.V2.core.adapter.ImagemPetGateway;
 import cruds.Pets.V2.core.adapter.OngGateway;
 import cruds.Pets.V2.core.adapter.PetGateway;
+import cruds.Pets.V2.core.adapter.PetStatusGateway;
 import cruds.Users.V2.core.adapter.UsuarioGateway;
 import cruds.Pets.V2.core.application.usecase.*;
 import org.springframework.context.annotation.Bean;
@@ -77,5 +78,23 @@ public class PetConfig {
             ImagemPetGateway imagemPetGateway,
             ArmazenamentoImagemPetGateway armazenamentoImagemPetGateway) {
         return new RemoverImagemPetUseCase(petGateway, imagemPetGateway, armazenamentoImagemPetGateway);
+    }
+
+    // ========== USE CASES DE STATUS ==========
+
+    @Bean
+    public CurtirPetStatusUseCase curtirPetStatusUseCase(
+            PetStatusGateway petStatusGateway,
+            PetGateway petGateway,
+            UsuarioGateway usuarioGateway) {
+        return new CurtirPetStatusUseCase(petStatusGateway, petGateway, usuarioGateway);
+    }
+
+    @Bean
+    public AdotarPetStatusUseCase adotarPetStatusUseCase(
+            PetStatusGateway petStatusGateway,
+            PetGateway petGateway,
+            UsuarioGateway usuarioGateway) {
+        return new AdotarPetStatusUseCase(petStatusGateway, petGateway, usuarioGateway);
     }
 }
