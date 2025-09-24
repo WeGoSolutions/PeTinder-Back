@@ -72,6 +72,11 @@ public class UsuarioJpaAdapter implements UsuarioGateway {
     }
 
     @Override
+    public boolean existePorId(UUID id) {
+        return repository.existsById(id);
+    }
+
+    @Override
     public void removerTodos() {
         repository.deleteAll();
     }

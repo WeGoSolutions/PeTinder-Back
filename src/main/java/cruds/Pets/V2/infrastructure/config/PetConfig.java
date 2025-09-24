@@ -1,5 +1,7 @@
 package cruds.Pets.V2.infrastructure.config;
 
+import cruds.Pets.V2.core.adapter.ArmazenamentoImagemPetGateway;
+import cruds.Pets.V2.core.adapter.ImagemPetGateway;
 import cruds.Pets.V2.core.adapter.OngGateway;
 import cruds.Pets.V2.core.adapter.PetGateway;
 import cruds.Users.V2.core.adapter.UsuarioGateway;
@@ -49,5 +51,31 @@ public class PetConfig {
     public ListarPetsDisponivelParaUsuarioUseCase listarPetsDisponivelParaUsuarioUseCase(
             PetGateway petGateway, UsuarioGateway usuarioGateway) {
         return new ListarPetsDisponivelParaUsuarioUseCase(petGateway, usuarioGateway);
+    }
+
+    // ========== USE CASES DE IMAGEM ==========
+
+    @Bean
+    public UploadImagemPetUseCase uploadImagemPetUseCase(
+            PetGateway petGateway, 
+            ImagemPetGateway imagemPetGateway,
+            ArmazenamentoImagemPetGateway armazenamentoImagemPetGateway) {
+        return new UploadImagemPetUseCase(petGateway, imagemPetGateway, armazenamentoImagemPetGateway);
+    }
+
+    @Bean
+    public BuscarImagemPetUseCase buscarImagemPetUseCase(
+            PetGateway petGateway,
+            ImagemPetGateway imagemPetGateway,
+            ArmazenamentoImagemPetGateway armazenamentoImagemPetGateway) {
+        return new BuscarImagemPetUseCase(petGateway, imagemPetGateway, armazenamentoImagemPetGateway);
+    }
+
+    @Bean
+    public RemoverImagemPetUseCase removerImagemPetUseCase(
+            PetGateway petGateway,
+            ImagemPetGateway imagemPetGateway,
+            ArmazenamentoImagemPetGateway armazenamentoImagemPetGateway) {
+        return new RemoverImagemPetUseCase(petGateway, imagemPetGateway, armazenamentoImagemPetGateway);
     }
 }

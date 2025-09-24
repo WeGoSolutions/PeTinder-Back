@@ -30,8 +30,21 @@ public class PetResponseWebDTO {
     private String sexo;
     private UUID ongId;
     private LocalDateTime dataCriacao;
+    private List<String> imagensUrls;
+    private Integer totalImagens;
 
     public static PetResponseWebDTO fromDomain(Pet pet) {
+        List<String> imagensUrls = null;
+        Integer totalImagens = 0;
+        
+        if (pet.getImagens() != null) {
+            totalImagens = pet.getImagens().size();
+            imagensUrls = pet.getImagens().stream()
+                    .map(imagem -> "/v2/pets/" + pet.getId() + "/imagens/" + 
+                         pet.getImagens().indexOf(imagem))
+                    .toList();
+        }
+        
         return PetResponseWebDTO.builder()
                 .id(pet.getId())
                 .nome(pet.getNome())
@@ -47,6 +60,8 @@ public class PetResponseWebDTO {
                 .sexo(pet.getSexo())
                 .ongId(pet.getOngId())
                 .dataCriacao(pet.getDataCriacao())
+                .imagensUrls(imagensUrls)
+                .totalImagens(totalImagens)
                 .build();
     }
 }
