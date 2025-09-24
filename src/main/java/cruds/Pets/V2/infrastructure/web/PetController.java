@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@RestController
+@RestController("petControllerV2")
 @RequestMapping("/v2/pets")
 @Tag(name = "Pet v2", description = "Endpoints Clean Architecture para gerenciamento de pets")
 @Validated
