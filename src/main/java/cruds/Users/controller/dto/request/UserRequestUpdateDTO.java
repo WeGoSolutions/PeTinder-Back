@@ -4,6 +4,7 @@ import cruds.common.exception.NotAllowedException;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +27,7 @@ public class UserRequestUpdateDTO {
 
     private String email;
 
-    @NotBlank
+    @NotNull
     private LocalDate dataNasc;
 
     @AssertTrue(message = "A pessoa deve ter mais de 21 anos")
@@ -51,7 +52,7 @@ public class UserRequestUpdateDTO {
     @NotBlank
     private String rua;
 
-    @NotBlank
+    @NotNull
     private Integer numero;
 
     @NotBlank
