@@ -3,6 +3,7 @@ package cruds.Users.V2.core.domain;
 import java.util.Arrays;
 import java.util.UUID;
 
+
 public class ImagemUsuario {
 
     private final UUID id;

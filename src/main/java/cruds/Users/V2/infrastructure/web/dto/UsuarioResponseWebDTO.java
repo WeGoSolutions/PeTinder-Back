@@ -50,7 +50,7 @@ public class UsuarioResponseWebDTO {
 
         if (usuario.getImagemUsuario() != null && usuario.getImagemUsuario().temImagem()) {
             String base64Image = Base64.getEncoder().encodeToString(usuario.getImagemUsuario().getDados());
-            dto.setImagemUrl("data:image/jpeg;base64," + base64Image);
+            dto.setImagemUrl(base64Image);
         }
 
         return dto;
