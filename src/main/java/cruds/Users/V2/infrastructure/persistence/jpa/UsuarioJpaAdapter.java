@@ -3,6 +3,7 @@ package cruds.Users.V2.infrastructure.persistence.jpa;
 import cruds.Users.V2.core.adapter.UsuarioGateway;
 import cruds.Users.V2.core.domain.Usuario;
 import cruds.Users.V2.infrastructure.persistence.jpa.mapper.UsuarioMapper;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
+@Primary
 public class UsuarioJpaAdapter implements UsuarioGateway {
 
     private final UsuarioJpaRepository repository;
@@ -69,6 +71,11 @@ public class UsuarioJpaAdapter implements UsuarioGateway {
     @Override
     public boolean cpfJaExiste(String cpf) {
         return repository.existsByCpf(cpf);
+    }
+
+    @Override
+    public boolean existePorId(UUID id) {
+        return repository.existsById(id);
     }
 
     @Override

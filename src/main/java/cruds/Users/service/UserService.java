@@ -12,6 +12,8 @@ import cruds.Users.entity.User;
 import cruds.Users.repository.UserRepository;
 import cruds.common.exception.*;
 import cruds.common.service.EmailService;
+import cruds.common.service.IEmailService;
+import cruds.common.config.EmailTemplateConfig;
 import cruds.common.strategy.ImageStorageStrategy;
 import cruds.common.util.ImageValidationUtil;
 import cruds.config.token.GerenciadorTokenJwt;
@@ -41,9 +43,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
-    private final EmailService emailService;
+    private final IEmailService emailService;
     private AuthenticationManager authenticationManager;
     private GerenciadorTokenJwt gerenciadorTokenJwt;
+
+    @Autowired
+    private EmailTemplateConfig emailTemplateConfig;
+
     private static final String DEFAULT_IMAGE_NAME = "perfil.jpg"; //alterar para a imagem default
     private static final String UPLOAD_DIR = System.getProperty("user.home") + "/Desktop/S3 local/imagens/";
 
@@ -54,7 +60,7 @@ public class UserService {
     private PetStatusRepository petStatusRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, EmailService emailService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher, AuthenticationManager authenticationManager, GerenciadorTokenJwt gerenciadorTokenJwt, IEmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
@@ -69,24 +75,14 @@ public class UserService {
         String senhaCriptografada = passwordEncoder.encode(dto.getSenha());
         user.setSenha(senhaCriptografada);
         User savedUser = userRepository.save(user);
-        emailService.enviarEmail(savedUser.getEmail(),
-                "Bem-vindo ao PeTinder, %s!".formatted(user.getNome()),
-                """
-                            <div style="font-family: Arial, sans-serif; background-color: #fefefe; padding: 20px; border-radius: 10px; border: 1px solid #ddd;">
-                                <h1 style="color: #ff6f61;">🐾 Bem-vindo ao PeTinder, %s!</h1>
-                        
-                                <p style="font-size: 16px; color: #333;">
-                                    Estamos super felizes por ter você com a gente! <br>
-                                    Aqui no <strong>PeTinder</strong>, acreditamos que todo pet merece um lar cheio de amor, e toda pessoa merece um pet que mude sua vida. 💕
-                                </p>
-                        
-                                <p style="font-size: 16px; color: #333;">
-                                    Prepare-se para conhecer novos amigos peludos, descobrir histórias emocionantes e, quem sabe, encontrar seu novo companheiro de quatro patas.
-                                </p>
-                        
-                                <p style="font-size: 14px; color: #666;">Com carinho,<br>Equipe PeTinder 🐶🐱</p>
-                            </div>
-                        """.formatted(user.getNome()));
+
+        // Email de boas-vindas usando template configurável
+        emailService.enviarEmail(
+            savedUser.getEmail(),
+            emailTemplateConfig.getWelcomeEmailSubject(user.getNome()),
+            emailTemplateConfig.getWelcomeEmailTemplate(user.getNome())
+        );
+
         return UserResponseCadastroDTO.toResponse(savedUser);
     }
 
@@ -128,29 +124,13 @@ public class UserService {
         String token = gerenciadorTokenJwt.generateToken(authentication);
 
         LocalDateTime loginTime = LocalDateTime.now();
+        String dataHoraFormatada = loginTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm"));
 
+        // Email de notificação de login usando template configurável
         emailService.enviarEmail(
-                user.getEmail(),
-                "🔒 Novo login no PeTinder, " + user.getNome() + "!",
-                """
-                        <div style="font-family: Arial, sans-serif; background-color: #ffffff; padding: 20px; border-radius: 8px; border:1px solid #e0e0e0;">
-                          <h2 style="color: #4a90e2;">🔒 Olá, %s!</h2>
-                          <p style="font-size: 16px; color: #333;">
-                            Detectamos um <strong>novo acesso</strong> à sua conta em <em>%s</em>.
-                          </p>
-                          <p style="font-size: 15px; color: #333;">
-                            Se foi você, continue aproveitando o PeTinder. 😊<br>
-                            Caso não reconheça este acesso, <strong>recomendamos</strong> trocar sua senha imediatamente.
-                          </p>
-                          <p style="font-size: 14px; color: #777;">
-                            Abraços,<br>
-                            Equipe PeTinder 🐶🐱
-                          </p>
-                        </div>
-                        """.formatted(
-                        user.getNome(),
-                        loginTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm"))
-                )
+            user.getEmail(),
+            emailTemplateConfig.getLoginNotificationSubject(user.getNome()),
+            emailTemplateConfig.getLoginNotificationTemplate(user.getNome(), dataHoraFormatada)
         );
 
         return UserResponseLoginDTO.builder()
@@ -369,4 +349,3 @@ public class UserService {
         return UserResponseUrlDTO.toResponse(user);
     }
 }
-

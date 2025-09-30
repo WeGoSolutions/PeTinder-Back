@@ -17,7 +17,7 @@
     <description>Demo project for Spring Boot</description>
 
     <properties>
-        <!-- CORRIGIDO: Java 24 compatível -->
+        <!-- CORRIGIDO: Java 17 compatível -->
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -214,7 +214,7 @@
                 </configuration>
             </plugin>
             
-            <!-- ADICIONADO: Plugin do compilador para forçar Java 21 -->
+            <!-- ADICIONADO: Plugin do compilador para forçar Java 17 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

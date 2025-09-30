@@ -25,5 +25,7 @@ public interface UsuarioGateway {
 
     boolean cpfJaExiste(String cpf);
 
+    boolean existePorId(UUID id);
+
     void removerTodos();
 }
