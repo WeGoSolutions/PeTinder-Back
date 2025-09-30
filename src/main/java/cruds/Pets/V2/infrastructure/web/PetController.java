@@ -33,8 +33,6 @@ public class PetController {
     private final UploadImagemPetUseCase uploadImagemPetUseCase;
     private final BuscarImagemPetUseCase buscarImagemPetUseCase;
     private final RemoverImagemPetUseCase removerImagemPetUseCase;
-    private final CurtirPetStatusUseCase curtirPetStatusUseCase;
-    private final AdotarPetStatusUseCase adotarPetStatusUseCase;
 
     public PetController(CriarPetUseCase criarPetUseCase,
                          BuscarPetPorIdUseCase buscarPetPorIdUseCase,
@@ -46,9 +44,7 @@ public class PetController {
                          ListarPetsDisponivelParaUsuarioUseCase listarPetsDisponivelParaUsuarioUseCase,
                          UploadImagemPetUseCase uploadImagemPetUseCase,
                          BuscarImagemPetUseCase buscarImagemPetUseCase,
-                         RemoverImagemPetUseCase removerImagemPetUseCase,
-                         CurtirPetStatusUseCase curtirPetStatusUseCase,
-                         AdotarPetStatusUseCase adotarPetStatusUseCase) {
+                         RemoverImagemPetUseCase removerImagemPetUseCase) {
         this.criarPetUseCase = criarPetUseCase;
         this.buscarPetPorIdUseCase = buscarPetPorIdUseCase;
         this.listarPetsUseCase = listarPetsUseCase;
@@ -60,8 +56,6 @@ public class PetController {
         this.uploadImagemPetUseCase = uploadImagemPetUseCase;
         this.buscarImagemPetUseCase = buscarImagemPetUseCase;
         this.removerImagemPetUseCase = removerImagemPetUseCase;
-        this.curtirPetStatusUseCase = curtirPetStatusUseCase;
-        this.adotarPetStatusUseCase = adotarPetStatusUseCase;
     }
 
     @Operation(summary = "Cria um novo pet")
@@ -201,42 +195,6 @@ public class PetController {
             @PathVariable UUID id,
             @PathVariable int indice) {
         removerImagemPetUseCase.removerImagem(id, indice);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ========== ENDPOINTS DE STATUS ==========
-
-    @Operation(summary = "Curtir um pet")
-    @PostMapping("/{petId}/curtir/{userId}")
-    public ResponseEntity<Void> curtirPet(
-            @PathVariable UUID petId,
-            @PathVariable UUID userId) {
-        curtirPetStatusUseCase.curtir(petId, userId);
-        return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "Descurtir um pet")
-    @DeleteMapping("/{petId}/curtir/{userId}")
-    public ResponseEntity<Void> descurtirPet(
-            @PathVariable UUID petId,
-            @PathVariable UUID userId) {
-        curtirPetStatusUseCase.descurtir(petId, userId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "Adotar um pet")
-    @PostMapping("/{petId}/adotar/{userId}")
-    public ResponseEntity<Void> adotarPetStatus(
-            @PathVariable UUID petId,
-            @PathVariable UUID userId) {
-        adotarPetStatusUseCase.adotar(petId, userId);
-        return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "Cancelar adoção de um pet")
-    @DeleteMapping("/{petId}/adotar")
-    public ResponseEntity<Void> cancelarAdocaoStatus(@PathVariable UUID petId) {
-        adotarPetStatusUseCase.cancelarAdocao(petId);
         return ResponseEntity.noContent().build();
     }
 }
