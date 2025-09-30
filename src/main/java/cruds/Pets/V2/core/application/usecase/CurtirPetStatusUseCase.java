@@ -47,17 +47,21 @@ public class CurtirPetStatusUseCase {
         if (statusExistente.isPresent()) {
             PetStatus status = statusExistente.get();
             if (!status.isLiked()) {
+                // Se não estava curtido, curtir
                 status.alterarStatus(PetStatusEnum.LIKED);
-                // Incrementar curtidas no pet
                 pet.curtir();
                 petGateway.atualizar(pet);
                 return petStatusGateway.atualizar(status);
+            } else {
+                // Se já estava curtido, descurtir (toggle behavior)
+                pet.descurtir();
+                petGateway.atualizar(pet);
+                petStatusGateway.remover(status.getId());
+                return null; // ou retorne um status indicando que foi removido
             }
-            return status; // Já está curtido
         } else {
             // Criar novo status
             PetStatus novoStatus = new PetStatus(petId, userId, PetStatusEnum.LIKED);
-            // Incrementar curtidas no pet
             pet.curtir();
             petGateway.atualizar(pet);
             return petStatusGateway.salvar(novoStatus);
