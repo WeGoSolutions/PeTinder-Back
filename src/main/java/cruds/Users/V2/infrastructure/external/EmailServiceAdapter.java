@@ -2,9 +2,11 @@ package cruds.Users.V2.infrastructure.external;
 
 import cruds.Users.V2.core.adapter.EmailGateway;
 import cruds.common.service.EmailService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(name = "spring.mail.host", havingValue = "true", matchIfMissing = true)
 public class EmailServiceAdapter implements EmailGateway {
 
     private final EmailService emailService;
