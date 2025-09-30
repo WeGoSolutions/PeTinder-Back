@@ -7,6 +7,7 @@ import cruds.Pets.V2.core.domain.Pet;
 import cruds.Pets.V2.core.domain.PetStatus;
 import cruds.Pets.V2.core.domain.PetStatusEnum;
 import cruds.Users.V2.core.adapter.UsuarioGateway;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -25,6 +26,7 @@ public class CurtirPetStatusUseCase {
         this.usuarioGateway = usuarioGateway;
     }
 
+    @Transactional
     public PetStatus curtir(UUID petId, UUID userId) {
         // Validar se pet existe
         Pet pet = petGateway.buscarPorId(petId)
@@ -46,20 +48,35 @@ public class CurtirPetStatusUseCase {
             PetStatus status = statusExistente.get();
             if (!status.isLiked()) {
                 status.alterarStatus(PetStatusEnum.LIKED);
+                // Incrementar curtidas no pet
+                pet.curtir();
+                petGateway.atualizar(pet);
                 return petStatusGateway.atualizar(status);
             }
             return status; // Já está curtido
         } else {
             // Criar novo status
             PetStatus novoStatus = new PetStatus(petId, userId, PetStatusEnum.LIKED);
+            // Incrementar curtidas no pet
+            pet.curtir();
+            petGateway.atualizar(pet);
             return petStatusGateway.salvar(novoStatus);
         }
     }
 
+    @Transactional
     public void descurtir(UUID petId, UUID userId) {
         Optional<PetStatus> status = petStatusGateway.buscarPorPetEUsuario(petId, userId);
         
         if (status.isPresent() && status.get().isLiked()) {
+            // Buscar o pet e decrementar curtidas
+            Pet pet = petGateway.buscarPorId(petId)
+                    .orElseThrow(() -> new PetException.PetNaoEncontradoException(
+                            "Pet com ID " + petId + " não encontrado"
+                    ));
+
+            pet.descurtir();
+            petGateway.atualizar(pet);
             petStatusGateway.remover(status.get().getId());
         }
     }

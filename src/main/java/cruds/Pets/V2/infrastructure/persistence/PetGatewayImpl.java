@@ -7,6 +7,7 @@ import cruds.Pets.V2.infrastructure.persistence.jpa.PetJpaRepository;
 import cruds.Pets.V2.infrastructure.persistence.jpa.mapper.PetMapper;
 import cruds.Pets.repository.PetStatusRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,7 @@ public class PetGatewayImpl implements PetGateway {
     }
 
     @Override
+    @Transactional
     public Pet atualizar(Pet pet) {
         var entity = PetMapper.toEntity(pet);
         var updatedEntity = petJpaRepository.save(entity);
