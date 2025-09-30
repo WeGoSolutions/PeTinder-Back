@@ -1,15 +1,12 @@
 package cruds.Pets.controller;
 
 import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
-import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
 import cruds.Pets.controller.dto.request.UploadImagesRequest;
 import cruds.Pets.controller.dto.response.PetResponseCriarDTO;
-import cruds.Pets.controller.dto.response.PetResponseCurtirDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.repository.PetRepository;
 import cruds.Pets.service.PetService;
-import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.common.exception.NotFoundException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -59,11 +56,22 @@ public class PetController {
         return ResponseEntity.status(200).body(urls);
     }
 
-    @Operation(summary = "Lista todos os pets")
+    @Operation(summary = "Lista todos os pets com paginação")
     @GetMapping
-    public ResponseEntity<List<PetResponseGeralDTO>> listarGeral() {
-        var pets = petService.listarGeral();
-        return ResponseEntity.status(200).body(pets);
+    public ResponseEntity<List<PetResponseGeralDTO>> listarGeral(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        List<PetResponseGeralDTO> pets = petService.listarGeral(page, size);
+        long totalPets = petService.contarTotalPets();
+        int totalPages = (int) Math.ceil((double) totalPets / size);
+
+        return ResponseEntity.status(200)
+                .header("Total-Pets", String.valueOf(totalPets))
+                .header("Total-Paginas", String.valueOf(totalPages))
+                .header("Pagina-Atual", String.valueOf(page))
+                .header("Tamanho-Pagina", String.valueOf(size))
+                .body(pets);
     }
 
     @Operation(summary = "Exibe a imagem especifica do pet")
