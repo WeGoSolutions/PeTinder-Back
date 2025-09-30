@@ -13,11 +13,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
-public class OngGatewayImpl implements OngGateway {
+public class OngJpaGatewayImpl implements OngGateway {
 
     private final OngJpaRepository ongJpaRepository;
 
-    public OngGatewayImpl(OngJpaRepository ongJpaRepository) {
+    public OngJpaGatewayImpl(OngJpaRepository ongJpaRepository) {
         this.ongJpaRepository = ongJpaRepository;
     }
 
