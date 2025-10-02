@@ -3,7 +3,6 @@ package cruds.Pets.V2.infrastructure.persistence.jpa;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,7 +46,4 @@ public class PetEntity {
 
     @Column(name = "fk_ong", columnDefinition = "BINARY(16)")
     private UUID ongId;
-
-
-    private LocalDateTime dataCriacao;
 }

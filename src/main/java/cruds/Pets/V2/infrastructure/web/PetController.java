@@ -1,6 +1,7 @@
 package cruds.Pets.V2.infrastructure.web;
 
 import cruds.Pets.V2.core.application.usecase.*;
+import cruds.Pets.enums.PetStatusEnum;
 import cruds.Pets.V2.infrastructure.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +34,8 @@ public class PetController {
     private final UploadImagemPetUseCase uploadImagemPetUseCase;
     private final BuscarImagemPetUseCase buscarImagemPetUseCase;
     private final RemoverImagemPetUseCase removerImagemPetUseCase;
+    private final cruds.Pets.repository.PetStatusRepository petStatusRepository;
+    private final cruds.Pets.service.PetStatusService petStatusService;
 
     public PetController(CriarPetUseCase criarPetUseCase,
                          BuscarPetPorIdUseCase buscarPetPorIdUseCase,
@@ -44,7 +47,9 @@ public class PetController {
                          ListarPetsDisponivelParaUsuarioUseCase listarPetsDisponivelParaUsuarioUseCase,
                          UploadImagemPetUseCase uploadImagemPetUseCase,
                          BuscarImagemPetUseCase buscarImagemPetUseCase,
-                         RemoverImagemPetUseCase removerImagemPetUseCase) {
+                         RemoverImagemPetUseCase removerImagemPetUseCase,
+                         cruds.Pets.repository.PetStatusRepository petStatusRepository,
+                         cruds.Pets.service.PetStatusService petStatusService) {
         this.criarPetUseCase = criarPetUseCase;
         this.buscarPetPorIdUseCase = buscarPetPorIdUseCase;
         this.listarPetsUseCase = listarPetsUseCase;
@@ -56,6 +61,8 @@ public class PetController {
         this.uploadImagemPetUseCase = uploadImagemPetUseCase;
         this.buscarImagemPetUseCase = buscarImagemPetUseCase;
         this.removerImagemPetUseCase = removerImagemPetUseCase;
+        this.petStatusRepository = petStatusRepository;
+        this.petStatusService = petStatusService;
     }
 
     @Operation(summary = "Cria um novo pet")
@@ -154,6 +161,38 @@ public class PetController {
     @PatchMapping("/{id}/descurtir")
     public ResponseEntity<PetResponseWebDTO> descurtirPet(@PathVariable UUID id) {
         var pet = curtirPetUseCase.descurtir(id);
+        return ResponseEntity.ok(PetResponseWebDTO.fromDomain(pet));
+    }
+
+    @Operation(summary = "Curtir um pet (compatibilidade com rota antiga)")
+    @PostMapping("/{petId}/curtir/{userId}")
+    public ResponseEntity<?> curtirPetComUsuario(
+            @PathVariable UUID petId,
+            @PathVariable UUID userId) {
+        // Delegar para o PetStatusController que tem toda a lógica
+        var existingStatusOpt = petStatusRepository.findByPetIdAndUserId(petId, userId);
+
+        if (existingStatusOpt.isPresent() && existingStatusOpt.get().getStatus() == PetStatusEnum.LIKED) {
+            curtirPetUseCase.descurtir(petId);
+            petStatusService.deletePetStatus(petId, userId);
+            return ResponseEntity.noContent().build();
+        }
+
+        var pet = curtirPetUseCase.curtir(petId);
+
+        // Criar o status LIKED
+        PetStatusRequestWebDTO dto = new PetStatusRequestWebDTO();
+        dto.setPetId(petId);
+        dto.setUserId(userId);
+        dto.setStatus(PetStatusEnum.LIKED);
+
+        cruds.Pets.controller.dto.request.PetStatusRequestDTO v1Dto = new cruds.Pets.controller.dto.request.PetStatusRequestDTO();
+        v1Dto.setPetId(dto.getPetId());
+        v1Dto.setUserId(dto.getUserId());
+        v1Dto.setStatus(dto.getStatus());
+
+        petStatusService.createOrUpdatePetStatus(v1Dto);
+
         return ResponseEntity.ok(PetResponseWebDTO.fromDomain(pet));
     }
 
