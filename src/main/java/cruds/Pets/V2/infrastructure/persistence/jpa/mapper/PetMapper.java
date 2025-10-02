@@ -22,7 +22,6 @@ public class PetMapper {
                 .isAdotado(pet.getIsAdotado())
                 .sexo(pet.getSexo())
                 .ongId(pet.getOngId())
-                .dataCriacao(pet.getDataCriacao())
                 .build();
     }
 
@@ -44,7 +43,6 @@ public class PetMapper {
         );
 
         pet.setCurtidas(entity.getCurtidas());
-        pet.setDataCriacao(entity.getDataCriacao());
         pet.setIsAdotado(entity.getIsAdotado());
 
         return pet;
