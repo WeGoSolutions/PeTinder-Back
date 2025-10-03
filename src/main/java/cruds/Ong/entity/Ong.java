@@ -1,6 +1,5 @@
 package cruds.Ong.entity;
 
-import cruds.Imagem.entity.ImagemForms;
 import cruds.Imagem.entity.ImagemOng;
 import cruds.Pets.entity.Pet;
 import cruds.Users.entity.Endereco;
