@@ -6,59 +6,44 @@ import cruds.Imagem.entity.ImagemOng;
 import cruds.Imagem.repository.ImagemOngRepository;
 import cruds.Ong.controller.dto.request.OngRequestCriarDTO;
 import cruds.Ong.controller.dto.request.OngRequestImagemDTO;
-import cruds.Ong.controller.dto.request.OngRequestImagemPerfilDTO;
 import cruds.Ong.controller.dto.request.OngRequestUpdateDTO;
 import cruds.Ong.controller.dto.response.*;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.repository.OngRepository;
+import cruds.Pets.controller.dto.response.OngResponsePetsComImagensDTO;
 import cruds.Pets.entity.Pet;
 import cruds.Users.controller.dto.request.EnderecoRequestDTO;
-import cruds.Users.controller.dto.response.UserResponseUrlDTO;
 import cruds.Users.entity.Endereco;
+import cruds.common.exception.NoContentException;
 import cruds.common.util.ImageValidationUtil;
 import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
 import cruds.Pets.repository.PetRepository;
 import cruds.Pets.repository.PetStatusRepository;
-import cruds.Users.controller.dto.request.UserRequestCriarDTO;
-import cruds.Users.controller.dto.request.UserRequestImagemPerfilDTO;
-import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
-import cruds.Users.controller.dto.response.UserResponseLoginDTO;
-import cruds.Users.entity.ImagemUser;
 import cruds.Users.entity.User;
-import cruds.common.event.UserLoggedInEvent;
 import cruds.common.exception.BadRequestException;
 import cruds.common.exception.ConflictException;
 import cruds.common.exception.NotFoundException;
 import cruds.common.strategy.ImageStorageStrategy;
-import cruds.common.util.ImageValidationUtil;
 import cruds.config.token.GerenciadorTokenJwt;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class OngService {
@@ -187,17 +172,40 @@ public class OngService {
                 .orElseThrow(() -> new ConflictException("Ong com id:" + id + " não encontrada"));
     }
 
-    public List<OngResponsePetsDTO> listarTodosPetsDeOng(UUID ongId) {
-        List<Pet> pets = petRepository.findByOngId(ongId);
-        return pets.stream().map(pet -> {
+    public Page<OngResponsePetsComImagensDTO> listarTodosPetsDeOng(UUID ongId, Pageable pageable) {
+        if (!ongRepository.existsById(ongId)) {
+            throw new EntityNotFoundException("ONG não encontrada com ID: " + ongId);
+        }
+
+        Page<Pet> petsPage = petRepository.findByOng_Id(ongId, pageable);
+
+        if (petsPage.isEmpty()) {
+            throw new NoContentException("Nenhum pet encontrado para esta ONG");
+        }
+
+        return petsPage.map(pet -> {
             List<String> statusList = petStatusRepository.findByPet_Id(pet.getId())
                     .stream()
                     .map(status -> status.getStatus().name())
                     .collect(Collectors.toList());
 
-            return new OngResponsePetsDTO(ongId, pet, statusList);
-        }).collect(Collectors.toList());
+            List<String> imagensUrls = gerarUrlsImagens(pet.getId(), pet.getImagens());
+
+            return new OngResponsePetsComImagensDTO(ongId, pet, statusList, imagensUrls);
+        });
     }
+
+    private List<String> gerarUrlsImagens(UUID petId, List<Imagem> imagens) {
+        if (imagens == null || imagens.isEmpty()) {
+            return List.of();
+        }
+
+        return IntStream.range(0, imagens.size())
+                .mapToObj(indice -> String.format("/api/pets/%s/imagens/%d", petId, indice))
+                .collect(Collectors.toList());
+    }
+
+
 
     public OngResponseUrlDTO getImageOng(UUID id) {
         Ong ong = acharPorId(id);

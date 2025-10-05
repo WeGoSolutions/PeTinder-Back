@@ -5,6 +5,7 @@ import cruds.Ong.controller.dto.request.*;
 import cruds.Ong.controller.dto.response.*;
 import cruds.Ong.entity.Ong;
 import cruds.Ong.service.OngService;
+import cruds.Pets.controller.dto.response.OngResponsePetsComImagensDTO;
 import cruds.Users.controller.dto.response.UserResponseUrlDTO;
 import cruds.Users.service.UserService;
 import cruds.common.exception.BadRequestException;
@@ -15,6 +16,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -87,14 +91,17 @@ public class OngController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Lista todos os pets da ONG")
+    @Operation(summary = "Lista todos os pets da ONG com paginação")
     @GetMapping("/{id}/pets")
-    public ResponseEntity<List<OngResponsePetsDTO>> listarPets(@PathVariable UUID id) {
-        var pets = ongService.listarTodosPetsDeOng(id);
-        if (pets.isEmpty()) {
-            return ResponseEntity.status(204).build();
-        }
-        return ResponseEntity.ok(pets);
+    public ResponseEntity<Page<OngResponsePetsComImagensDTO>> listarPets(
+            @PathVariable UUID id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<OngResponsePetsComImagensDTO> petsPage = ongService.listarTodosPetsDeOng(id, pageable);
+
+        return ResponseEntity.status(200).body(petsPage);
     }
 
     @Operation(summary = "Lista mensagens pendentes para a ONG")

@@ -13,6 +13,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -58,20 +61,14 @@ public class PetController {
 
     @Operation(summary = "Lista todos os pets com paginação")
     @GetMapping
-    public ResponseEntity<List<PetResponseGeralDTO>> listarGeral(
+    public ResponseEntity<Page<PetResponseGeralDTO>> listarGeral(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        List<PetResponseGeralDTO> pets = petService.listarGeral(page, size);
-        long totalPets = petService.contarTotalPets();
-        int totalPages = (int) Math.ceil((double) totalPets / size);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PetResponseGeralDTO> petsPage = petService.listarGeral(pageable);
 
-        return ResponseEntity.status(200)
-                .header("Total-Pets", String.valueOf(totalPets))
-                .header("Total-Paginas", String.valueOf(totalPages))
-                .header("Pagina-Atual", String.valueOf(page))
-                .header("Tamanho-Pagina", String.valueOf(size))
-                .body(pets);
+        return ResponseEntity.status(200).body(petsPage);
     }
 
     @Operation(summary = "Exibe a imagem especifica do pet")

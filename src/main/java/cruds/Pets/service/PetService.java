@@ -21,6 +21,7 @@ import cruds.common.util.ImageValidationUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -196,18 +197,14 @@ public class PetService {
         return petRepository.save(pet);
     }
 
-    public List<PetResponseGeralDTO> listarGeral(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<PetResponseGeralDTO> listarGeral(Pageable pageable) {
+        Page<Pet> petsPage = petRepository.findAll(pageable);
 
-        List<Pet> pets = petRepository.findAllWithPagination(pageable);
-
-        if (pets.isEmpty()) {
+        if (petsPage.isEmpty()) {
             throw new NoContentException("Nenhum pet encontrado");
         }
 
-        return pets.stream()
-                .map(PetResponseGeralDTO::toResponse)
-                .collect(Collectors.toList());
+        return petsPage.map(PetResponseGeralDTO::toResponse);
     }
 
     public long contarTotalPets() {
