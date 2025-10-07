@@ -62,8 +62,8 @@ public class Pet {
         if (porte == null || porte.trim().isEmpty()) {
             throw new IllegalArgumentException("Porte é obrigatório");
         }
-        if (!List.of("PEQUENO", "MEDIO", "GRANDE").contains(porte)) {
-            throw new IllegalArgumentException("Porte deve ser PEQUENO, MEDIO ou GRANDE");
+        if (!List.of("Pequeno", "Médio", "Grande").contains(porte)) {
+            throw new IllegalArgumentException("Porte deve ser Pequeno, Médio ou Grande");
         }
         if (sexo == null || (!sexo.equals("MACHO") && !sexo.equals("FEMEA"))) {
             throw new IllegalArgumentException("Sexo deve ser MACHO ou FEMEA");
