@@ -43,11 +43,9 @@ jobs:
         runs-on: self-hosted
         steps:
             - name: Pull image do Docker Hub
-              # use a single tag; match the tag used in build (username/petinder:back)
-              run: docker pull ${{ secrets.DOCKER_USERNAME }}/petinder:back
+              run: sudo docker pull ${{ secrets.DOCKER_USERNAME }}/petinder:back
 
             - name: Stop and remove existing container (if any)
-              # optional: evita erro se o container já existir
               run: |
                 if [ "$(docker ps -aq -f name=deploy-back)" ]; then
                   docker stop deploy-back || true

@@ -101,3 +101,51 @@ Opções rápidas:
   - Windows (cmd): mvnw.cmd -B clean package -DskipTests
 
 Se preferir eu adiciono o Maven Wrapper (mvnw) ao repositório para evitar necessidade de instalação local.
+
+---
+
+## Erro: permission denied ao acessar /var/run/docker.sock (self-hosted runner)
+
+Causa: o usuário que executa o self-hosted runner não tem permissão para acessar o socket do Docker.
+
+Solução recomendada (executar no host onde o runner está instalado):
+
+1) Identifique o usuário do runner (ex.: `runner`, `ubuntu`, `deploy`, etc.) e execute:
+   ```sh
+   sudo usermod -aG docker <runner_user>
+   ```
+
+2) Reinicie o Docker:
+   ```sh
+   sudo systemctl restart docker
+   ```
+
+3) Reinicie o self-hosted runner para que a nova membership do grupo seja aplicada. Exemplo (dependendo da instalação):
+   - Se o runner foi instalado como serviço systemd:
+     ```sh
+     sudo systemctl restart actions.runner.<OWNER>-<REPO>.<RUNNER_NAME>.service
+     ```
+     (substitua OWNER/REPO/RUNNER_NAME pelos valores corretos)
+   - Ou, no diretório do runner:
+     ```sh
+     cd /path/to/actions-runner
+     ./svc.sh stop
+     ./svc.sh start
+     ```
+
+4) Teste como o usuário do runner:
+   ```sh
+   docker ps
+   docker pull <seu_usuario>/petinder:back
+   ```
+
+Alternativas temporárias (menos recomendadas)
+- Permitir uso de sudo nas etapas do workflow (só se o runner aceitar sudo sem senha):
+  - Exemplo de step no workflow:
+    ```yaml
+    - name: Pull image (com sudo)
+      run: sudo docker pull ${{ secrets.DOCKER_USERNAME }}/petinder:back
+    ```
+- Usar SSH para executar docker pull no servidor de destino em vez de executar diretamente no runner.
+
+CUIDADO: alterar permissões do socket (ex.: chmod 666 /var/run/docker.sock) resolve o problema rapidamente, mas reduz a segurança. Prefira adicionar o usuário ao grupo docker.
