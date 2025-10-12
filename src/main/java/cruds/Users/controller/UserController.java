@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/a/users")
 @Tag(name = "Usuario", description = "Endpoints relacionados ao gerenciamento de usuários.")
 @Validated
 public class UserController {

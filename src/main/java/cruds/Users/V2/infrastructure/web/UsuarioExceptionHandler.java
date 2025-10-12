@@ -19,6 +19,11 @@ public class UsuarioExceptionHandler {
         return createErrorResponse(HttpStatus.NOT_FOUND, "Usuário não encontrado", ex.getMessage());
     }
 
+    @ExceptionHandler(UsuarioException.ErroArmazenamentoException.class)
+    public ResponseEntity<Map<String, Object>> handleErroArmazenamento(UsuarioException.ErroArmazenamentoException ex) {
+        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro de armazenamento", ex.getMessage());
+    }
+
     @ExceptionHandler(UsuarioException.EmailJaExisteException.class)
     public ResponseEntity<Map<String, Object>> handleEmailJaExiste(UsuarioException.EmailJaExisteException ex) {
         return createErrorResponse(HttpStatus.CONFLICT, "Email já existe", ex.getMessage());

@@ -10,40 +10,55 @@ public interface PetOngGateway {
     void removerPetsPorOng(UUID ongId);
 
     public static class PetOngInfo {
-        private UUID id;
-        private String nome;
-        private String raca;
+        private UUID ongId;
+        private UUID petId;
+        private String petNome;
+        private Double idade;
         private String porte;
-        private Integer idade;
-        private String sexo;
+        private Integer curtidas;
+        private List<String> tags;
         private String descricao;
-        private Boolean adotado;
+        private Boolean isCastrado;
+        private Boolean isVermifugo;
+        private Boolean isVacinado;
+        private List<String> imageUrl;
+        private String sexo;
         private List<String> status;
 
-        public PetOngInfo(UUID id, String nome, String raca, String porte,
-                         Integer idade, String sexo, String descricao,
-                         Boolean adotado, List<String> status) {
-            this.id = id;
-            this.nome = nome;
-            this.raca = raca;
-            this.porte = porte;
+        public PetOngInfo(UUID ongId, UUID petId, String petNome, Double idade, String porte,
+                         Integer curtidas, List<String> tags, String descricao,
+                         Boolean isCastrado, Boolean isVermifugo, Boolean isVacinado,
+                         List<String> imageUrl, String sexo, List<String> status) {
+            this.ongId = ongId;
+            this.petId = petId;
+            this.petNome = petNome;
             this.idade = idade;
-            this.sexo = sexo;
+            this.porte = porte;
+            this.curtidas = curtidas;
+            this.tags = tags;
             this.descricao = descricao;
-            this.adotado = adotado;
+            this.isCastrado = isCastrado;
+            this.isVermifugo = isVermifugo;
+            this.isVacinado = isVacinado;
+            this.imageUrl = imageUrl;
+            this.sexo = sexo;
             this.status = status;
         }
 
         // Getters
-        public UUID getId() { return id; }
-        public String getNome() { return nome; }
-        public String getRaca() { return raca; }
+        public UUID getOngId() { return ongId; }
+        public UUID getPetId() { return petId; }
+        public String getPetNome() { return petNome; }
+        public Double getIdade() { return idade; }
         public String getPorte() { return porte; }
-        public Integer getIdade() { return idade; }
-        public String getSexo() { return sexo; }
+        public Integer getCurtidas() { return curtidas; }
+        public List<String> getTags() { return tags; }
         public String getDescricao() { return descricao; }
-        public Boolean getAdotado() { return adotado; }
+        public Boolean getIsCastrado() { return isCastrado; }
+        public Boolean getIsVermifugo() { return isVermifugo; }
+        public Boolean getIsVacinado() { return isVacinado; }
+        public List<String> getImageUrl() { return imageUrl; }
+        public String getSexo() { return sexo; }
         public List<String> getStatus() { return status; }
     }
 }
-
