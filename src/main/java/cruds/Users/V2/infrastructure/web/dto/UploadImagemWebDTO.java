@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UploadImagemWebDTO {
-    
+
     @NotBlank
     private String imagemUsuario;
 
@@ -22,7 +22,7 @@ public class UploadImagemWebDTO {
         String nomeArquivo = "user_" + usuarioId + "_perfil.jpg";
         return new UploadImagemCommand(usuarioId, dadosImagem, nomeArquivo);
     }
-    
+
     public byte[] getImagemDecodificada() {
         String base64Data = imagemUsuario;
         if (base64Data.startsWith("data:")) {

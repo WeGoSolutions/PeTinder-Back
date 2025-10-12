@@ -2,15 +2,18 @@ package cruds.Users.V2.infrastructure.external.AWS;
 
 import cruds.Users.V2.core.adapter.ArmazenamentoImagemGateway;
 import cruds.Users.V2.core.domain.ImagemUsuario;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import cruds.Users.V2.infrastructure.external.AesCriptografiaAdapter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
+import java.time.Duration;
 import java.util.UUID;
 
 @Component
@@ -19,25 +22,31 @@ public class S3StorageAdapter implements ArmazenamentoImagemGateway {
 
     private final S3Client s3Client;
     private final String bucketName;
+    private final AesCriptografiaAdapter criptografiaAdapter;
 
     public S3StorageAdapter(S3Client s3Client,
-                            @Value("${aws.s3.bucket}") String bucketName) {
+                            @Value("${aws.s3.bucket}") String bucketName,
+                            AesCriptografiaAdapter criptografiaAdapter) {
         this.s3Client = s3Client;
         this.bucketName = bucketName;
+        this.criptografiaAdapter = criptografiaAdapter;
     }
 
     @Override
     public String salvarImagem(ImagemUsuario imagemUsuario) {
-        String nomeArquivo = imagemUsuario.getNomeArquivo();
+        UUID id = imagemUsuario.getId() != null ? imagemUsuario.getId() : UUID.randomUUID();
+        String key = imagemUsuario.getNomeArquivo() + "-" + id;
+
+        byte[] imagemCriptografada = criptografiaAdapter.criptografarImagem(imagemUsuario.getDados());
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(nomeArquivo)
+                .key(key)
                 .build();
 
         s3Client.putObject(
                 putObjectRequest,
-                RequestBody.fromBytes(imagemUsuario.getDados())
+                RequestBody.fromBytes(imagemCriptografada)
         );
 
         String region = "us-east-1";
@@ -45,26 +54,24 @@ public class S3StorageAdapter implements ArmazenamentoImagemGateway {
         return String.format("https://%s.s3.%s.amazonaws.com/%s",
                 bucketName,
                 region,
-                nomeArquivo);
+                key);
     }
 
     @Override
-    public void removerImagem(String nomeArquivo) {
-        s3Client.deleteObject(b -> b.bucket(bucketName).key("usuarios/" + nomeArquivo));
+    public void removerImagem(String nomeArquivo, UUID idImagem) {
+        String key = nomeArquivo + "-" + idImagem;
+        s3Client.deleteObject(b -> b.bucket(bucketName).key(key));
     }
 
     @Override
-    public ImagemUsuario buscarImagem(String nomeArquivo) {
-        var response = s3Client.getObjectAsBytes(r -> r.bucket(bucketName).key(nomeArquivo));
+    public ImagemUsuario buscarImagem(String nomeArquivo, UUID idImagem) {
+        String key = nomeArquivo + "-" + idImagem;
 
-        return new ImagemUsuario(UUID.randomUUID(), response.asByteArray(), nomeArquivo);
+        var response = s3Client.getObjectAsBytes(r ->
+                r.bucket(bucketName).key(key));
 
-    }
+        byte[] imagemDescriptografada = criptografiaAdapter.descriptografarImagem(response.asByteArray());
 
-    @Override
-    public String gerarUrlAcesso(String nomeArquivo) {
-        return String.format("https://%s.s3.%s.amazonaws.com/%s",
-                bucketName,
-                nomeArquivo);
+        return new ImagemUsuario(idImagem, imagemDescriptografada, nomeArquivo);
     }
 }
