@@ -1,0 +1,23 @@
+name: Deploy Petinder-Back
+
+on:
+    push:
+        branches: [develop, devops/test-gh-actions]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        # expose the GitHub Secret as an environment variable for all steps in this job
+        env:
+            SENHA_PETINDER_EMAIL: ${{ secrets.SENHA_PETINDER_EMAIL }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+            - name: Set up JDK
+              uses: actions/setup-java@v3
+              with:
+                  distribution: temurin
+                  java-version: '17'
+                  cache: 'maven'
+            - name: Build with Maven
+              run: mvn -B -DskipTests package
