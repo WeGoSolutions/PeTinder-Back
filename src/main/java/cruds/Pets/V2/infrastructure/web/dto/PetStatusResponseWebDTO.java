@@ -32,7 +32,7 @@ public class PetStatusResponseWebDTO {
                     .fromCurrentContextPath()
                     .build()
                     .toUriString();
-            dto.imageUrl = base + "/v2/pets/" + pet.getId() + "/imagens/0";
+            dto.imageUrl = base + "/pets/" + pet.getId() + "/imagens/0";
         }
 
         return dto;

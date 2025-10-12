@@ -18,12 +18,20 @@ public class UploadImagemOngWebDTO {
     private String imagem;
 
     public UploadImagemOngCommand toCommand(UUID ongId) {
-        byte[] imagemBytes = Base64.getDecoder().decode(imagem);
+        String base64Data = imagem;
+        if (base64Data != null && base64Data.contains(",")) {
+            base64Data = base64Data.substring(base64Data.indexOf(",") + 1);
+        }
+        byte[] imagemBytes = Base64.getDecoder().decode(base64Data);
         return new UploadImagemOngCommand(ongId, imagemBytes);
     }
 
     public byte[] getImagensBytesDecoded() {
-        return Base64.getDecoder().decode(imagem);
+        String base64Data = imagem;
+        if (base64Data != null && base64Data.contains(",")) {
+            base64Data = base64Data.substring(base64Data.indexOf(",") + 1);
+        }
+        return Base64.getDecoder().decode(base64Data);
     }
 }
 

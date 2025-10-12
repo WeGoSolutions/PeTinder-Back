@@ -15,7 +15,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/v2/users")
+@RequestMapping("/api/users")
 @Tag(name = "Usuario v2", description = "Endpoints Clean Architecture para gerenciamento de usuários")
 @Validated
 public class UsuarioController {

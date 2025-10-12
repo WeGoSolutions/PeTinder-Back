@@ -26,8 +26,8 @@ public class AtualizarPetWebDTO {
     private Double idade;
 
     @NotBlank(message = "Porte é obrigatório")
-    @Pattern(regexp = "PEQUENO|MEDIO|GRANDE", message = "Porte deve ser PEQUENO, MEDIO ou GRANDE")
-    @Schema(description = "Porte do pet", example = "MEDIO")
+    @Pattern(regexp = "Pequeno|Médio|Grande", message = "Porte deve ser Pequeno, Médio ou Grande")
+    @Schema(description = "Porte do pet", example = "Médio")
     private String porte;
 
     @NotEmpty(message = "Pet deve ter pelo menos uma tag")

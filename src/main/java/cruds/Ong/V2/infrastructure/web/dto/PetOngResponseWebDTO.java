@@ -15,28 +15,37 @@ import java.util.UUID;
 @Builder
 public class PetOngResponseWebDTO {
 
-    private UUID id;
-    private String nome;
-    private String raca;
+    private UUID ongId;
+    private UUID petId;
+    private String petNome;
+    private Double idade;
     private String porte;
-    private Integer idade;
-    private String sexo;
+    private Integer curtidas;
+    private List<String> tags;
     private String descricao;
-    private Boolean adotado;
+    private Boolean isCastrado;
+    private Boolean isVermifugo;
+    private Boolean isVacinado;
+    private List<String> imageUrl;
+    private String sexo;
     private List<String> status;
 
     public static PetOngResponseWebDTO fromPetInfo(PetOngGateway.PetOngInfo petInfo) {
         return PetOngResponseWebDTO.builder()
-            .id(petInfo.getId())
-            .nome(petInfo.getNome())
-            .raca(petInfo.getRaca())
-            .porte(petInfo.getPorte())
+            .ongId(petInfo.getOngId())
+            .petId(petInfo.getPetId())
+            .petNome(petInfo.getPetNome())
             .idade(petInfo.getIdade())
-            .sexo(petInfo.getSexo())
+            .porte(petInfo.getPorte())
+            .curtidas(petInfo.getCurtidas())
+            .tags(petInfo.getTags())
             .descricao(petInfo.getDescricao())
-            .adotado(petInfo.getAdotado())
+            .isCastrado(petInfo.getIsCastrado())
+            .isVermifugo(petInfo.getIsVermifugo())
+            .isVacinado(petInfo.getIsVacinado())
+            .imageUrl(petInfo.getImageUrl())
+            .sexo(petInfo.getSexo())
             .status(petInfo.getStatus())
             .build();
     }
 }
-

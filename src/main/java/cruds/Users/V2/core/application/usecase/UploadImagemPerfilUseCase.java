@@ -6,13 +6,16 @@ import cruds.Users.V2.core.application.command.UploadImagemCommand;
 import cruds.Users.V2.core.application.exception.UsuarioException;
 import cruds.Users.V2.core.domain.ImagemUsuario;
 import cruds.Users.V2.core.domain.Usuario;
+import cruds.common.util.ImageValidationUtil;
+
+import java.io.IOException;
 
 public class UploadImagemPerfilUseCase {
-    
     private final UsuarioGateway usuarioGateway;
     private final ArmazenamentoImagemGateway armazenamentoImagemGateway;
+    private static final String DEFAULT_IMAGE_NAME = "perfil.jpg";
 
-    public UploadImagemPerfilUseCase(UsuarioGateway usuarioGateway, 
+    public UploadImagemPerfilUseCase(UsuarioGateway usuarioGateway,
                                    ArmazenamentoImagemGateway armazenamentoImagemGateway) {
         this.usuarioGateway = usuarioGateway;
         this.armazenamentoImagemGateway = armazenamentoImagemGateway;
@@ -27,24 +30,38 @@ public class UploadImagemPerfilUseCase {
 
         // Criar imagem de usuário
         ImagemUsuario novaImagem = command.criarImagemUsuario();
-
-        // Remover imagem anterior se existir
-        if (usuario.getImagemUsuario() != null && usuario.getImagemUsuario().temImagem()) {
-            try {
-                armazenamentoImagemGateway.removerImagem(usuario.getImagemUsuario().getNomeArquivo());
-            } catch (Exception e) {
-                // Log do erro, mas não falha a operação
-                System.err.println("Erro ao remover imagem anterior: " + e.getMessage());
-            }
+        
+        // Validar imagem usando o mesmo validador da V1
+        try {
+            ImageValidationUtil.validateUserImage(novaImagem.getDados(), DEFAULT_IMAGE_NAME);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Erro ao processar a imagem: " + e.getMessage());
         }
 
-        // Salvar nova imagem
-        String urlImagem = armazenamentoImagemGateway.salvarImagem(novaImagem);
+        try {
+            // Remover imagem anterior se existir
+            if (usuario.getImagemUsuario() != null && usuario.getImagemUsuario().temImagem()) {
+                try {
+                    armazenamentoImagemGateway.removerImagem(usuario.getImagemUsuario().getNomeArquivo());
+                } catch (Exception e) {
+                    // Log do erro, mas não falha a operação
+                    System.err.println("Erro ao remover imagem anterior: " + e.getMessage());
+                }
+            }
 
-        // Atualizar usuário com nova imagem
-        usuario.atualizarImagemUsuario(novaImagem);
+            // Salvar nova imagem
+            String caminhoImagem = armazenamentoImagemGateway.salvarImagem(novaImagem);
 
-        // Salvar alterações
-        return usuarioGateway.atualizar(usuario);
+            // Atualizar usuário com nova imagem
+            usuario.atualizarImagemUsuario(novaImagem);
+
+            // Salvar alterações
+            return usuarioGateway.atualizar(usuario);
+            
+        } catch (Exception e) {
+            throw new UsuarioException.ErroArmazenamentoException(
+                "Erro ao processar upload da imagem: " + e.getMessage()
+            );
+        }
     }
 }

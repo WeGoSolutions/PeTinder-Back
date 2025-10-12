@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/dashs")
+@RequestMapping("/a/dashs")
 @Validated
 public class DashboardController {
 
