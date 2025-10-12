@@ -45,12 +45,10 @@ jobs:
             - name: Pull image do Docker Hub
               run: sudo docker pull ${{ secrets.DOCKER_USERNAME }}/petinder:back
 
-            - name: Stop and remove existing container (if any)
+            - name: Stop e force remove container existente (caso haja)
               run: |
-                if [ "$(docker ps -aq -f name=deploy-back)" ]; then
-                  docker stop deploy-back || true
-                  docker rm deploy-back || true
-                fi
+                # force remove by name (works whether the container is running or stopped)
+                sudo docker rm -f deploy-back || true
 
             - name: Run docker container
               run: sudo docker run -d -p 8080:8080 --name deploy-back ${{ secrets.DOCKER_USERNAME }}/petinder:back
