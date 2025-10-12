@@ -40,7 +40,7 @@ public class PetResponseWebDTO {
         if (pet.getImagens() != null) {
             totalImagens = pet.getImagens().size();
             imagensUrls = pet.getImagens().stream()
-                    .map(imagem -> "/v2/pets/" + pet.getId() + "/imagens/" + 
+                    .map(imagem -> "/pets/" + pet.getId() + "/imagens/" +
                          pet.getImagens().indexOf(imagem))
                     .toList();
         }

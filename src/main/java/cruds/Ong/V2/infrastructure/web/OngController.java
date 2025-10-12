@@ -17,7 +17,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController("ongControllerV2")
-@RequestMapping("/v2/ongs")
+@RequestMapping("/ongs")
 @Tag(name = "Ong v2", description = "Endpoints Clean Architecture para gerenciamento de ONGs")
 @Validated
 public class OngController {

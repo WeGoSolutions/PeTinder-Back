@@ -64,7 +64,7 @@ public class ArmazenamentoImagemPetAdapter implements ArmazenamentoImagemPetGate
     @Override
     public String gerarUrlAcesso(String nomeArquivo) {
         // Para armazenamento local, retorna um caminho relativo que pode ser usado pela API
-        return "/v2/pets/imagens/" + nomeArquivo;
+        return "/pets/imagens/" + nomeArquivo;
     }
 
     @Override

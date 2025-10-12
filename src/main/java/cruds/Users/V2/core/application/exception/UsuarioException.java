@@ -45,4 +45,14 @@ public class UsuarioException extends RuntimeException {
             super(message);
         }
     }
+
+    public static class ErroArmazenamentoException extends RuntimeException {
+        public ErroArmazenamentoException(String message) {
+            super(message);
+        }
+
+        public ErroArmazenamentoException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 }

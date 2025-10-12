@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/ongs")
+@RequestMapping("/a/ongs")
 @Tag(name = "Ong", description = "Endpoints relacionados a Ongs.")
 public class OngController {
 
