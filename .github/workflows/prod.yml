@@ -53,4 +53,4 @@ jobs:
                 fi
 
             - name: Run docker container
-              run: docker run -d -p 8080:8080 --name deploy-back ${{ secrets.DOCKER_USERNAME }}/petinder:back
+              run: sudo docker run -d -p 8080:8080 --name deploy-back ${{ secrets.DOCKER_USERNAME }}/petinder:back
