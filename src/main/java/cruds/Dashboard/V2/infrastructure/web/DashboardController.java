@@ -17,7 +17,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController("dashboardControllerV2")
-@RequestMapping("/dashs")
+@RequestMapping("/api/dashs")
 @Tag(name = "Dashboard v2", description = "Endpoints Clean Architecture para Dashboard")
 @Validated
 public class DashboardController {

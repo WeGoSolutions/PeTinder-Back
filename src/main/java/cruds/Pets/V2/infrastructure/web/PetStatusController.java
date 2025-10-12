@@ -20,7 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController("petStatusControllerV2")
-@RequestMapping("/status")
+@RequestMapping("/api/status")
 @RequiredArgsConstructor
 @Tag(name = "Pet Status v2", description = "Endpoints Clean Architecture para gerenciamento de status de pets")
 public class PetStatusController {
