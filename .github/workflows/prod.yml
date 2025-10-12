@@ -42,8 +42,8 @@ jobs:
         needs: build
         runs-on: self-hosted
         steps:
-            - name: Liberar porta 8080 no firewall (ufw)
-              run: sudo ufw allow 8080/tcp
+            - name: Liberar porta 8080 e 3306 no firewall (ufw)
+              run: sudo ufw allow 8080/tcp && sudo ufw allow 3306/tcp
 
             - name: Pull image do Docker Hub
               run: sudo docker pull ${{ secrets.DOCKER_USERNAME }}/petinder:back
