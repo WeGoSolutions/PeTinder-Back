@@ -11,9 +11,9 @@
     </parent>
 
     <groupId>sptech.school</groupId>
-    <artifactId>crud-imagem</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>crud-imagem</name>
+    <artifactId>petinder-back</artifactId>
+    <version>1.0.0</version>
+    <name>petinder-back</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>

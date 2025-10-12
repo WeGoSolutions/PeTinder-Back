@@ -7,17 +7,27 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
-        # expose the GitHub Secret as an environment variable for all steps in this job
+
         env:
-            SENHA_PETINDER_EMAIL: ${{ secrets.SENHA_PETINDER_EMAIL }}
+            SENHA_PETINDER_EMAIL: ${{secrets.SENHA_PETINDER_EMAIL}}
         steps:
             - name: Checkout code
               uses: actions/checkout@v3
-            - name: Set up JDK
+
+            - name: Set up JDK - Java
               uses: actions/setup-java@v3
               with:
                   distribution: temurin
                   java-version: '17'
-                  cache: 'maven'
-            - name: Build with Maven
-              run: mvn -B -DskipTests package
+
+            - name: Build do Project
+              run: mvn clean install -DskipTests
+
+            - name: Login no DockerHub
+              run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
+
+            - name: Build docker image
+              run: docker build -t ${{secrets.DOCKER_USERNAME}}/petinder:back .
+
+            - name: Push image docker
+              run:  docker push ${{secrets.DOCKER_USERNAME}}/petinder:back
