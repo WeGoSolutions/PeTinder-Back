@@ -9,7 +9,6 @@ jobs:
         runs-on: ubuntu-latest
 
         env:
-            SENHA_PETINDER_EMAIL: ${{ secrets.SENHA_PETINDER_EMAIL }}
             IMAGE: ${{ secrets.DOCKER_USERNAME }}/petinder:back
         steps:
             - name: Checkout code
