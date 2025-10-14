@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/pets")
+@RequestMapping("/a/pets")
 @Tag(name = "Pet", description = "Endpoints relacionados ao gerenciamento de pets.")
 public class PetController {
 

@@ -5,10 +5,12 @@ import cruds.Pets.entity.Pet;
 import cruds.Pets.repository.PetRepository;
 import cruds.Pets.repository.PetStatusRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 public class PetOngGatewayImpl implements PetOngGateway {
@@ -31,18 +33,32 @@ public class PetOngGatewayImpl implements PetOngGateway {
                     .map(status -> status.getStatus().name())
                     .collect(Collectors.toList());
 
-            // Converter idade de Double para Integer
-            Integer idade = pet.getIdade() != null ? pet.getIdade().intValue() : null;
+            // Gerar URLs das imagens
+            String baseUri = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .build()
+                    .toUriString();
+
+            List<String> imageUrls = pet.getImagens() == null
+                    ? null
+                    : IntStream.range(0, pet.getImagens().size())
+                    .mapToObj(i -> baseUri + "/pets/" + pet.getId() + "/imagens/" + i)
+                    .collect(Collectors.toList());
 
             return new PetOngInfo(
+                ongId,
                 pet.getId(),
                 pet.getNome(),
-                null, // Pet não tem campo raca
+                pet.getIdade(),
                 pet.getPorte(),
-                idade,
-                pet.getSexo(),
+                pet.getCurtidas(),
+                pet.getTags(),
                 pet.getDescricao(),
-                pet.getIsAdopted(), // Campo correto é isAdopted
+                pet.getIsCastrado(),
+                pet.getIsVermifugo(),
+                pet.getIsVacinado(),
+                imageUrls,
+                pet.getSexo(),
                 statusList
             );
         }).collect(Collectors.toList());
