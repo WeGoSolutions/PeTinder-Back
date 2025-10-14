@@ -177,19 +177,23 @@ public class OngService {
             throw new EntityNotFoundException("ONG não encontrada com ID: " + ongId);
         }
 
-        Page<Pet> petsPage = petRepository.findByOng_Id(ongId, pageable);
+        Page<Pet> petsPage = petRepository.findByOng_IdWithEverything(ongId, pageable);
 
         if (petsPage.isEmpty()) {
             throw new NoContentException("Nenhum pet encontrado para esta ONG");
         }
 
         return petsPage.map(pet -> {
+            // Status - busca separada
             List<String> statusList = petStatusRepository.findByPet_Id(pet.getId())
                     .stream()
                     .map(status -> status.getStatus().name())
                     .collect(Collectors.toList());
 
-            List<String> imagensUrls = gerarUrlsImagens(pet.getId(), pet.getImagens());
+            // Imagens - já vem no JOIN FETCH
+            List<String> imagensUrls = pet.getImagens().stream()
+                    .map(imagem -> imagem.getCaminho()) // ← getCaminho() correto!
+                    .collect(Collectors.toList());
 
             return new OngResponsePetsComImagensDTO(ongId, pet, statusList, imagensUrls);
         });
