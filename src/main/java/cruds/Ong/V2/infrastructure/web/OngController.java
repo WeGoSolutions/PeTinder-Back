@@ -5,6 +5,9 @@ import cruds.Ong.V2.infrastructure.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -124,14 +127,19 @@ public class OngController {
 
     @Operation(summary = "Lista todos os pets da ONG")
     @GetMapping("/{id}/pets")
-    public ResponseEntity<List<PetOngResponseWebDTO>> listarPets(@PathVariable UUID id) {
-        var pets = listarPetsOngUseCase.listarPets(id);
-        if (pets.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    public ResponseEntity<Page<PetOngResponseWebDTO>> listarPets(
+            @PathVariable UUID id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        var petsPage = listarPetsOngUseCase.listarPets(id, pageable);
+
+        if (petsPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Page.empty());
         }
-        var response = pets.stream()
-                .map(PetOngResponseWebDTO::fromPetInfo)
-                .collect(Collectors.toList());
+
+        var response = petsPage.map(PetOngResponseWebDTO::fromPetInfo);
         return ResponseEntity.ok(response);
     }
 

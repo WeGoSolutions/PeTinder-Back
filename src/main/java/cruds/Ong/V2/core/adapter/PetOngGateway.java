@@ -1,11 +1,14 @@
 package cruds.Ong.V2.core.adapter;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.UUID;
 
 public interface PetOngGateway {
 
-    List<PetOngInfo> listarPetsPorOng(UUID ongId);
+    Page<PetOngInfo> listarPetsPorOng(UUID ongId, Pageable pageable1);
 
     void removerPetsPorOng(UUID ongId);
 
