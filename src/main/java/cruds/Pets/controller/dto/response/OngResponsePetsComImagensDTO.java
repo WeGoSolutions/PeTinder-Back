@@ -23,7 +23,7 @@ public class OngResponsePetsComImagensDTO {
     private Boolean isAdopted;
     private String sexo;
     private List<String> statusList;
-    private List<String> imagensUrls; // ← Só neste DTO específico
+    private List<String> imagensUrls;
 
     public OngResponsePetsComImagensDTO(UUID ongId, Pet pet, List<String> statusList, List<String> imagensUrls) {
         this.id = pet.getId();

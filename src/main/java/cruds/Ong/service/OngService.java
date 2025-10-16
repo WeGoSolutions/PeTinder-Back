@@ -184,15 +184,13 @@ public class OngService {
         }
 
         return petsPage.map(pet -> {
-            // Status - busca separada
             List<String> statusList = petStatusRepository.findByPet_Id(pet.getId())
                     .stream()
                     .map(status -> status.getStatus().name())
                     .collect(Collectors.toList());
 
-            // Imagens - já vem no JOIN FETCH
             List<String> imagensUrls = pet.getImagens().stream()
-                    .map(imagem -> imagem.getCaminho()) // ← getCaminho() correto!
+                    .map(imagem -> imagem.getCaminho())
                     .collect(Collectors.toList());
 
             return new OngResponsePetsComImagensDTO(ongId, pet, statusList, imagensUrls);

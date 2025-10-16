@@ -27,7 +27,4 @@ public interface PetRepository extends JpaRepository<Pet, UUID> {
 
     Page<Pet> findByOng_Id(UUID ongId, Pageable pageable);
 
-    // E se tiver relação com status também:
-//    @Query("SELECT p FROM Pet p LEFT JOIN FETCH p.tags LEFT JOIN FETCH p.statusList WHERE p.ong.id = :ongId")
-//    Page<Pet> findByOng_IdWithTagsAndStatus(@Param("ongId") UUID ongId, Pageable pageable);
 }
