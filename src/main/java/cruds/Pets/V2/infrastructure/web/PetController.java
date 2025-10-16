@@ -213,7 +213,7 @@ public class PetController {
             HttpServletRequest request,
             @PathVariable UUID id) {
         String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
-        var urls = buscarImagemPetUseCase.listarUrlsImagens(id, baseUrl);
+        var urls = buscarImagemPetUseCase.listarUrlsImagens(id);
         return ResponseEntity.ok(urls);
     }
 

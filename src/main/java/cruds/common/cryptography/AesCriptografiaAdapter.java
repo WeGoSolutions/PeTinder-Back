@@ -1,4 +1,4 @@
-package cruds.Users.V2.infrastructure.external;
+package cruds.common.cryptography;
 
 import cruds.Users.V2.core.adapter.CriptografiaImagemGateway;
 import org.springframework.stereotype.Component;
@@ -7,7 +7,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
-import java.util.Base64;
 
 @Component
 public class AesCriptografiaAdapter implements CriptografiaImagemGateway {

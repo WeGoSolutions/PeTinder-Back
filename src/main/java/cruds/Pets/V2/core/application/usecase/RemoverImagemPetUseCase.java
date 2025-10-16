@@ -46,7 +46,7 @@ public class RemoverImagemPetUseCase {
         
         // Remover do armazenamento físico
         if (imagemParaRemover.getNomeArquivo() != null) {
-            armazenamentoImagemPetGateway.removerImagem(imagemParaRemover.getNomeArquivo());
+            armazenamentoImagemPetGateway.removerImagem(imagemParaRemover.getNomeArquivo(), imagemParaRemover.getId());
         }
         
         // Remover do banco de dados

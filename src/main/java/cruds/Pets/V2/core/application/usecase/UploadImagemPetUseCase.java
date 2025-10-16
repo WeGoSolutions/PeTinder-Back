@@ -50,9 +50,8 @@ public class UploadImagemPetUseCase {
             }
             
             ImagemPet imagem = new ImagemPet(null, nomeArquivo, dados);
-            String caminhoSalvo = armazenamentoImagemPetGateway.salvarImagem(imagem);
-            imagem.setCaminho(caminhoSalvo);
-            
+            armazenamentoImagemPetGateway.salvarImagem(imagem);
+
             novasImagens.add(imagem);
         }
 

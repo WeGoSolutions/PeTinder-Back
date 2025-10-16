@@ -2,15 +2,13 @@ package cruds.Pets.V2.core.adapter;
 
 import cruds.Pets.V2.core.domain.ImagemPet;
 
+import java.util.UUID;
+
 public interface ArmazenamentoImagemPetGateway {
 
     String salvarImagem(ImagemPet imagem);
 
-    void removerImagem(String nomeArquivo);
+    void removerImagem(String nomeArquivo, UUID idImagem);
 
-    ImagemPet buscarImagem(String nomeArquivo);
-
-    String gerarUrlAcesso(String nomeArquivo);
-    
-    byte[] buscarDadosImagem(String caminho);
+    ImagemPet buscarImagem(String nomeArquivo, UUID idImagem);
 }
