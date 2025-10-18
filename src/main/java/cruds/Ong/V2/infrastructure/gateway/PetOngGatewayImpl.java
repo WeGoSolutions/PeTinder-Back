@@ -4,6 +4,8 @@ import cruds.Ong.V2.core.adapter.PetOngGateway;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.repository.PetRepository;
 import cruds.Pets.repository.PetStatusRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -24,10 +26,10 @@ public class PetOngGatewayImpl implements PetOngGateway {
     }
 
     @Override
-    public List<PetOngInfo> listarPetsPorOng(UUID ongId) {
-        List<Pet> pets = petRepository.findByOngId(ongId);
+    public Page<PetOngInfo> listarPetsPorOng(UUID ongId, Pageable pageable) {
+        Page<Pet> petsPage = petRepository.findByOng_Id(ongId, pageable);
 
-        return pets.stream().map(pet -> {
+        return petsPage.map(pet -> {
             List<String> statusList = petStatusRepository.findByPet_Id(pet.getId())
                     .stream()
                     .map(status -> status.getStatus().name())
@@ -46,22 +48,22 @@ public class PetOngGatewayImpl implements PetOngGateway {
                     .collect(Collectors.toList());
 
             return new PetOngInfo(
-                ongId,
-                pet.getId(),
-                pet.getNome(),
-                pet.getIdade(),
-                pet.getPorte(),
-                pet.getCurtidas(),
-                pet.getTags(),
-                pet.getDescricao(),
-                pet.getIsCastrado(),
-                pet.getIsVermifugo(),
-                pet.getIsVacinado(),
-                imageUrls,
-                pet.getSexo(),
-                statusList
+                    ongId,
+                    pet.getId(),
+                    pet.getNome(),
+                    pet.getIdade(),
+                    pet.getPorte(),
+                    pet.getCurtidas(),
+                    pet.getTags(),
+                    pet.getDescricao(),
+                    pet.getIsCastrado(),
+                    pet.getIsVermifugo(),
+                    pet.getIsVacinado(),
+                    imageUrls,
+                    pet.getSexo(),
+                    statusList
             );
-        }).collect(Collectors.toList());
+        });
     }
 
     @Override
