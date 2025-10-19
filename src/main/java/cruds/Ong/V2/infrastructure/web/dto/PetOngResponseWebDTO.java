@@ -43,7 +43,7 @@ public class PetOngResponseWebDTO {
             .isCastrado(petInfo.getIsCastrado())
             .isVermifugo(petInfo.getIsVermifugo())
             .isVacinado(petInfo.getIsVacinado())
-            .imageUrl(petInfo.getImageUrl())
+            .imageUrl(petInfo.getImagensBase64())
             .sexo(petInfo.getSexo())
             .status(petInfo.getStatus())
             .build();
