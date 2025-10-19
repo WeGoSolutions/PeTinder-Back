@@ -44,7 +44,7 @@ public class PetOngGatewayImpl implements PetOngGateway {
             List<String> imageUrls = pet.getImagens() == null
                     ? null
                     : IntStream.range(0, pet.getImagens().size())
-                    .mapToObj(i -> baseUri + "/pets/" + pet.getId() + "/imagens/" + i)
+                    .mapToObj(i -> baseUri + "/api/pets/" + pet.getId() + "/imagens/" + i)
                     .collect(Collectors.toList());
 
             return new PetOngInfo(
