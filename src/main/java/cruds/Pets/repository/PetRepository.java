@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface PetRepository extends JpaRepository<Pet, UUID> {
@@ -28,7 +27,5 @@ public interface PetRepository extends JpaRepository<Pet, UUID> {
 
     Page<Pet> findByOng_Id(UUID ongId, Pageable pageable);
 
-    @Query("SELECT p FROM Pet p LEFT JOIN FETCH p.imagens WHERE p.id = :petId")
-    Optional<Pet> findByIdWithImagens(@Param("petId") UUID petId);
 
 }
