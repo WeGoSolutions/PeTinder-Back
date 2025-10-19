@@ -24,7 +24,7 @@
             private Boolean isCastrado;
             private Boolean isVermifugo;
             private Boolean isVacinado;
-            private List<String> imagensBase64;
+            private List<String> imageUrl;
             private String sexo;
             private List<String> status;
 
@@ -43,7 +43,7 @@
                 this.isCastrado = isCastrado;
                 this.isVermifugo = isVermifugo;
                 this.isVacinado = isVacinado;
-                this.imagensBase64 = imageUrl;
+                this.imageUrl = imageUrl;
                 this.sexo = sexo;
                 this.status = status;
             }
@@ -60,7 +60,7 @@
             public Boolean getIsCastrado() { return isCastrado; }
             public Boolean getIsVermifugo() { return isVermifugo; }
             public Boolean getIsVacinado() { return isVacinado; }
-            public List<String> getImagensBase64() { return imagensBase64; }
+            public List<String> getImageUrl() { return imageUrl; }
             public String getSexo() { return sexo; }
             public List<String> getStatus() { return status; }
         }
