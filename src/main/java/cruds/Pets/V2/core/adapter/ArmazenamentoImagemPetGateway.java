@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface ArmazenamentoImagemPetGateway {
 
-    String salvarImagem(ImagemPet imagem);
+    String salvarImagem(ImagemPet imagem, UUID petId);
 
     void removerImagem(String nomeArquivo, UUID idImagem);
 

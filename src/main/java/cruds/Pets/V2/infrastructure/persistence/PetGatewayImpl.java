@@ -3,6 +3,7 @@ package cruds.Pets.V2.infrastructure.persistence;
 import cruds.Pets.V2.core.adapter.ImagemPetGateway;
 import cruds.Pets.V2.core.adapter.PetGateway;
 import cruds.Pets.V2.core.domain.Pet;
+import cruds.Pets.V2.infrastructure.persistence.jpa.ImagemPetJpaRepository;
 import cruds.Pets.V2.infrastructure.persistence.jpa.PetJpaRepository;
 import cruds.Pets.V2.infrastructure.persistence.jpa.mapper.PetMapper;
 import cruds.Pets.repository.PetStatusRepository;
@@ -20,13 +21,18 @@ public class PetGatewayImpl implements PetGateway {
     private final PetJpaRepository petJpaRepository;
     private final PetStatusRepository petStatusRepository;
     private final ImagemPetGateway imagemPetGateway;
+    private final ImagemPetJpaRepository imagemPetJpaRepository;
 
-    public PetGatewayImpl(PetJpaRepository petJpaRepository, 
-                          PetStatusRepository petStatusRepository,
-                          ImagemPetGateway imagemPetGateway) {
+    public PetGatewayImpl(
+            PetJpaRepository petJpaRepository,
+            PetStatusRepository petStatusRepository,
+            ImagemPetGateway imagemPetGateway,
+            ImagemPetJpaRepository imagemPetJpaRepository
+    ) {
         this.petJpaRepository = petJpaRepository;
         this.petStatusRepository = petStatusRepository;
         this.imagemPetGateway = imagemPetGateway;
+        this.imagemPetJpaRepository = imagemPetJpaRepository;
     }
 
     @Override
@@ -49,8 +55,12 @@ public class PetGatewayImpl implements PetGateway {
         return petJpaRepository.findById(id)
                 .map(entity -> {
                     Pet pet = PetMapper.toDomain(entity);
-                    // Carregar imagens
-                    pet.setImagens(imagemPetGateway.buscarPorPetId(id));
+                    List<String> keys = imagemPetJpaRepository.findKeysByPetId(id);
+
+                    if (keys != null && !keys.isEmpty()) {
+                        pet.setImagens(imagemPetGateway.buscarPorPetId(id, keys));
+                    }
+
                     return pet;
                 });
     }
@@ -61,8 +71,10 @@ public class PetGatewayImpl implements PetGateway {
                 .stream()
                 .map(entity -> {
                     Pet pet = PetMapper.toDomain(entity);
-                    // Carregar imagens
-                    pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId()));
+                    List<String> keys = imagemPetJpaRepository.findKeysByPetId(pet.getId());
+                    if (keys != null && !keys.isEmpty()) {
+                        pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId(), keys));
+                    }
                     return pet;
                 })
                 .collect(Collectors.toList());
@@ -74,8 +86,10 @@ public class PetGatewayImpl implements PetGateway {
                 .stream()
                 .map(entity -> {
                     Pet pet = PetMapper.toDomain(entity);
-                    // Carregar imagens
-                    pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId()));
+                    List<String> keys = imagemPetJpaRepository.findKeysByPetId(pet.getId());
+                    if (keys != null && !keys.isEmpty()) {
+                        pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId(), keys));
+                    }
                     return pet;
                 })
                 .collect(Collectors.toList());
@@ -87,8 +101,10 @@ public class PetGatewayImpl implements PetGateway {
                 .stream()
                 .map(entity -> {
                     Pet pet = PetMapper.toDomain(entity);
-                    // Carregar imagens
-                    pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId()));
+                    List<String> keys = imagemPetJpaRepository.findKeysByPetId(pet.getId());
+                    if (keys != null && !keys.isEmpty()) {
+                        pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId(), keys));
+                    }
                     return pet;
                 })
                 .collect(Collectors.toList());

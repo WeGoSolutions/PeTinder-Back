@@ -21,6 +21,9 @@ public class AesCriptografiaAdapter implements CriptografiaImagemGateway {
 
     @Override
     public byte[] criptografarImagem(byte[] dados) {
+        if (dados == null || dados.length == 0) {
+            throw new IllegalArgumentException("Imagem não pode ser nula ou vazia ao criptografar");
+        }
         try {
             byte[] iv = new byte[IV_LENGTH];
             secureRandom.nextBytes(iv);

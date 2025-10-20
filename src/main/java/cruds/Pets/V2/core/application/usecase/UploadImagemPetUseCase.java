@@ -17,7 +17,7 @@ public class UploadImagemPetUseCase {
     private final ImagemPetGateway imagemPetGateway;
     private final ArmazenamentoImagemPetGateway armazenamentoImagemPetGateway;
 
-    public UploadImagemPetUseCase(PetGateway petGateway, 
+    public UploadImagemPetUseCase(PetGateway petGateway,
                                   ImagemPetGateway imagemPetGateway,
                                   ArmazenamentoImagemPetGateway armazenamentoImagemPetGateway) {
         this.petGateway = petGateway;
@@ -39,29 +39,28 @@ public class UploadImagemPetUseCase {
             throw new PetException.ImagemInvalidaException("Número de nomes não confere com número de imagens");
         }
 
-        List<ImagemPet> novasImagens = new ArrayList<>();
-        
+        List<ImagemPet> imagensSalvas = new ArrayList<>();
+
         for (int i = 0; i < imagensBytes.size(); i++) {
             byte[] dados = imagensBytes.get(i);
             String nomeArquivo = nomesArquivos.get(i);
-            
+
             if (dados == null || dados.length == 0) {
                 throw new PetException.ImagemInvalidaException("Imagem " + i + " está vazia");
             }
-            
-            ImagemPet imagem = new ImagemPet(null, nomeArquivo, dados);
-            armazenamentoImagemPetGateway.salvarImagem(imagem);
 
-            novasImagens.add(imagem);
+            ImagemPet imagemParaS3 = new ImagemPet(null, nomeArquivo, dados, null);
+            String key = armazenamentoImagemPetGateway.salvarImagem(imagemParaS3, petId);
+
+            ImagemPet imagemParaBanco = new ImagemPet(UUID.randomUUID(), nomeArquivo, null, key);
+            imagemPetGateway.salvar(imagemParaBanco, petId);
+
+            imagensSalvas.add(imagemParaBanco);
         }
 
-        // Salvar imagens no gateway
-        imagemPetGateway.salvarTodas(novasImagens, petId);
-        
-        // Adicionar imagens ao pet
-        for (ImagemPet imagem : novasImagens) {
-            pet.adicionarImagem(imagem);
-        }
+
+        List<String> keys = imagemPetGateway.buscarKeysPorPetId(petId);
+        pet.setImagens(imagemPetGateway.buscarPorPetId(petId, keys));
 
         return petGateway.atualizar(pet);
     }

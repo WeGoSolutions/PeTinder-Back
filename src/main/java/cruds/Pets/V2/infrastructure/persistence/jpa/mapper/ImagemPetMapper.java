@@ -13,7 +13,8 @@ public class ImagemPetMapper {
         return new ImagemPetEntity(
                 imagem.getId(),
                 imagem.getNomeArquivo(),
-                petId
+                petId,
+                imagem.getKeyS3()
         );
     }
 
@@ -23,6 +24,7 @@ public class ImagemPetMapper {
         return new ImagemPet(
                 entity.getId(),
                 entity.getNomeArquivo(),
+                null,
                 null
         );
     }

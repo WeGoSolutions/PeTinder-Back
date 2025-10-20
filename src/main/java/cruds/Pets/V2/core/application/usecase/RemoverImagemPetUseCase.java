@@ -51,7 +51,7 @@ public class RemoverImagemPetUseCase {
         
         // Remover do banco de dados
         if (imagemParaRemover.getId() != null) {
-            imagemPetGateway.remover(imagemParaRemover.getId());
+            imagemPetGateway.remover(imagemParaRemover.getKeyS3());
         }
         
         // Remover da lista do pet
