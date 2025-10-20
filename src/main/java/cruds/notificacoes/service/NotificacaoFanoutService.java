@@ -13,10 +13,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Serviço responsável por gerenciar notificações via Fanout Exchange
- * Permite enviar notificações em broadcast para múltiplos usuários interessados em um pet
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -27,19 +23,9 @@ public class NotificacaoFanoutService {
     private final PetStatusService petStatusService;
     private final NotificacaoListener notificacaoListener;
 
-    /** Cache de exchanges já criados */
     private final Set<String> exchangesCriados = ConcurrentHashMap.newKeySet();
-
-    /** Cache de bindings já criados (formato: "nomeFila:nomeExchange") */
     private final Set<String> bindingsCriados = ConcurrentHashMap.newKeySet();
 
-    /**
-     * Inscreve um usuário para receber notificações sobre um pet específico
-     * Cria fila, exchange e binding necessários
-     *
-     * @param petId ID do pet
-     * @param userId ID do usuário interessado
-     */
     public void inscreverUsuarioNoPet(UUID petId, UUID userId) {
         validarParametros(petId, userId);
 
@@ -54,22 +40,11 @@ public class NotificacaoFanoutService {
 
             notificacaoListener.criarListenerParaUsuario(userId);
 
-            log.info("✅ Usuário {} inscrito nas notificações do pet {}", userId, petId);
-
         } catch (Exception e) {
-            log.error("❌ Erro ao inscrever usuário {} no pet {}: {}",
-                    userId, petId, e.getMessage(), e);
             throw new RuntimeException("Erro ao configurar notificações do usuário", e);
         }
     }
 
-    /**
-     * Notifica APENAS o usuário que foi selecionado para adotar o pet
-     * Remove o binding para evitar que ele receba a notificação de "pet adotado"
-     *
-     * @param petId ID do pet adotado
-     * @param userId ID do usuário que adotou
-     */
     public void notificarUsuarioSelecionado(UUID petId, UUID userId) {
         String nomePet = petStatusService.getPetNomeById(petId);
         String nomeFila = gerarNomeFila(userId);
@@ -82,17 +57,10 @@ public class NotificacaoFanoutService {
         );
 
         rabbitTemplate.convertAndSend(nomeFila, notificacao);
-        log.info("📨 Notificação de ADOÇÃO enviada para usuário {}", userId);
-
         // Remove o binding para evitar receber notificação dos demais interessados
         desconectarUsuarioDoPet(petId, userId);
     }
 
-    /**
-     * Notifica TODOS os demais interessados via FANOUT que o pet já foi adotado
-     *
-     * @param petId ID do pet que foi adotado
-     */
     public void notificarDemaisInteressados(UUID petId) {
         String nomePet = petStatusService.getPetNomeById(petId);
         String nomeExchange = gerarNomeExchange(petId);
@@ -106,17 +74,8 @@ public class NotificacaoFanoutService {
 
         // Envia para o exchange fanout - vai para TODAS as filas conectadas
         rabbitTemplate.convertAndSend(nomeExchange, "", notificacao);
-
-        log.info("📢 Notificação de PET ADOTADO enviada via fanout para interessados no pet {}", petId);
     }
 
-    /**
-     * Desinscreve um usuário das notificações de um pet específico
-     * Remove o binding entre a fila do usuário e o exchange do pet
-     *
-     * @param petId ID do pet
-     * @param userId ID do usuário
-     */
     public void desconectarUsuarioDoPet(UUID petId, UUID userId) {
         String nomeFila = gerarNomeFila(userId);
         String nomeExchange = gerarNomeExchange(petId);
@@ -130,29 +89,23 @@ public class NotificacaoFanoutService {
             amqpAdmin.removeBinding(binding);
             bindingsCriados.remove(chaveBinding);
 
-            log.info("🔓 Usuário {} desconectado do exchange do pet {}", userId, petId);
-
         } catch (Exception e) {
             log.warn("⚠️ Erro ao remover binding para usuário {} e pet {}: {}",
                     userId, petId, e.getMessage());
         }
     }
 
-    // ==================== Métodos Privados ====================
-
     private void criarExchangeSeNaoExistir(String nomeExchange) {
         if (!exchangesCriados.contains(nomeExchange)) {
             FanoutExchange exchange = new FanoutExchange(nomeExchange, true, false);
             amqpAdmin.declareExchange(exchange);
             exchangesCriados.add(nomeExchange);
-            log.debug("📡 Exchange criado: {}", nomeExchange);
         }
     }
 
     private void criarFilaSeNaoExistir(String nomeFila) {
         Queue fila = new Queue(nomeFila, true, false, false);
         amqpAdmin.declareQueue(fila);
-        log.debug("📬 Fila criada/verificada: {}", nomeFila);
     }
 
     private void criarBindingSeNaoExistir(String nomeFila, String nomeExchange, String chaveBinding) {
@@ -162,7 +115,6 @@ public class NotificacaoFanoutService {
             Binding binding = BindingBuilder.bind(fila).to(exchange);
             amqpAdmin.declareBinding(binding);
             bindingsCriados.add(chaveBinding);
-            log.debug("🔗 Binding criado: {} -> {}", nomeFila, nomeExchange);
         }
     }
 
