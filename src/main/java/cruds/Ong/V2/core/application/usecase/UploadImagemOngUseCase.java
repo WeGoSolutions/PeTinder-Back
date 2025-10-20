@@ -24,26 +24,23 @@ public class UploadImagemOngUseCase {
                 "ONG não encontrada com id: " + command.getOngId()
             ));
 
-        try {
-            String caminhoArquivo = armazenamentoGateway.salvarImagem(
-                command.getImagemBytes(),
-                command.getOngId()
-            );
+        ImagemOng imagemOng = command.criarImagemOng();
 
-            ImagemOng imagem = new ImagemOng(command.getImagemBytes(), caminhoArquivo);
-
-            if (ong.getImagemOng() != null) {
-                imagem.setId(ong.getImagemOng().getId());
+        if (ong.getImagemOng() != null && ong.getImagemOng().temImagem()) {
+            try {
+                armazenamentoGateway.removerImagem(ong.getImagemOng().getArquivo(), ong.getImagemOng().getId());
+            } catch (Exception e) {
+                System.err.println("Erro ao remover imagem anterior: " + e.getMessage());
             }
-
-            ong.definirImagem(imagem);
-
-            return ongGateway.atualizar(ong);
-        } catch (Exception e) {
-            throw new OngException.ErroArmazenamentoException(
-                "Erro ao salvar imagem da ONG", e
-            );
         }
+
+        armazenamentoGateway.salvarImagem(imagemOng);
+
+        ong.definirImagem(imagemOng);
+
+        return ongGateway.atualizar(ong);
+
     }
 }
+
 

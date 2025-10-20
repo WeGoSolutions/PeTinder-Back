@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Base64;
 import java.util.UUID;
 
 @Data
@@ -18,15 +19,17 @@ public class OngUrlResponseWebDTO {
     private String url;
 
     public static OngUrlResponseWebDTO fromDomain(Ong ong) {
-        String url = null;
-        if (ong.getImagemOng() != null && ong.getImagemOng().getArquivo() != null) {
-            url = ong.getImagemOng().getArquivo();
+        OngUrlResponseWebDTO dto = OngUrlResponseWebDTO.builder()
+                .id(ong.getId())
+                .url(null)
+                .build();
+
+        if (ong.getImagemOng() != null && ong.getImagemOng().temImagem()) {
+            String base64Image = Base64.getEncoder().encodeToString(ong.getImagemOng().getDados());
+            dto.setUrl("data:image/jpeg;base64," + base64Image);
         }
 
-        return OngUrlResponseWebDTO.builder()
-            .id(ong.getId())
-            .url(url)
-            .build();
+        return dto;
     }
 }
 

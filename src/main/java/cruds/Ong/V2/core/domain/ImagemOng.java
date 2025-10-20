@@ -18,6 +18,10 @@ public class ImagemOng {
         this(null, dados, arquivo);
     }
 
+    public boolean temImagem() {
+        return dados != null && dados.length > 0;
+    }
+
     // Getters
     public UUID getId() { return id; }
     public byte[] getDados() { return dados; }
