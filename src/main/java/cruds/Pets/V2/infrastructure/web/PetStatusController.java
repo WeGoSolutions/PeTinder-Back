@@ -7,6 +7,7 @@ import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
 import cruds.Pets.repository.PetStatusRepository;
 import cruds.Pets.service.PetStatusService;
+import cruds.notificacoes.service.NotificacaoFanoutService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +28,8 @@ public class PetStatusController {
 
     private final PetStatusService petStatusService;
     private final PetStatusRepository petStatusRepository;
+//    private final RabbitMQFanoutService rabbitMQFanoutService;
+    private final NotificacaoFanoutService notificacaoFanoutService;
 
     @Operation(summary = "Lista os pets curtidos, podendo filtrar por usuário")
     @GetMapping("/liked")
@@ -139,6 +142,10 @@ public class PetStatusController {
             @PathVariable UUID userId) {
 
         PetStatus petStatus = petStatusService.adoptPet(petId, userId);
+
+        notificacaoFanoutService.notificarUsuarioSelecionado(petId, userId);
+        notificacaoFanoutService.notificarDemaisInteressados(petId);
+
         return ResponseEntity.ok(PetStatusResponseWebDTO.fromEntity(petStatus));
     }
 
@@ -161,6 +168,9 @@ public class PetStatusController {
         v1Dto.setStatus(dto.getStatus());
 
         var petStatus = petStatusService.createOrUpdatePetStatus(v1Dto);
+
+        notificacaoFanoutService.inscreverUsuarioNoPet(petId, userId);
+
         return ResponseEntity.ok(PetStatusResponseWebDTO.fromEntity(petStatus));
     }
 

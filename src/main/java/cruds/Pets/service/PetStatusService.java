@@ -282,4 +282,10 @@ public class PetStatusService {
         User user = adoptedStatus.get().getUser();
         return new PetResponseAdotanteDTO(pet, user);
     }
+
+    public String getPetNomeById(UUID petId) {
+        return petRepository.findById(petId)
+                .map(Pet::getNome)
+                .orElse("");
+    }
 }
