@@ -5,6 +5,8 @@ import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -35,6 +37,8 @@ public interface PetStatusRepository extends JpaRepository<PetStatus, UUID> {
     List<PetStatus> findByPet_Id(UUID petId);
 
     List<PetStatus> findByPet_IdAndStatus(UUID petId, PetStatusEnum status);
+    @Query(value = "SELECT p FROM Pet p WHERE p.id NOT IN (SELECT ps.pet.id FROM PetStatus ps WHERE ps.user.id = :userId)")
+    Page<Pet> findPetsNotInteractedByUser(@Param("userId") UUID userId, Pageable pageable);
 
     @Modifying
     @Transactional
