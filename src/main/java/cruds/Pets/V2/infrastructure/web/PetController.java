@@ -114,9 +114,18 @@ public class PetController {
     @GetMapping("/disponiveis/usuario/{userId}")
     public ResponseEntity<List<PetResponseWebDTO>> listarPetsDisponiveisParaUsuario(@PathVariable UUID userId) {
         var pets = listarPetsDisponivelParaUsuarioUseCase.listarDisponiveis(userId);
+
+        // Buscar o status de cada pet com o usuário
+        var statusMap = listarPetsDisponivelParaUsuarioUseCase.buscarStatusDosPets(userId, pets);
+
         var response = pets.stream()
-                .map(PetResponseWebDTO::fromDomain)
+                .map(pet -> {
+                    var petStatus = statusMap.get(pet.getId());
+                    var statusEnum = petStatus != null ? petStatus.getStatus() : null;
+                    return PetResponseWebDTO.fromDomainWithUserStatus(pet, statusEnum);
+                })
                 .collect(Collectors.toList());
+
         return ResponseEntity.ok(response);
     }
 
@@ -237,3 +246,4 @@ public class PetController {
         return ResponseEntity.noContent().build();
     }
 }
+
