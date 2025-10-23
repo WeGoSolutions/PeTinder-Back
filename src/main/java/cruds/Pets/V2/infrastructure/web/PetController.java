@@ -75,8 +75,18 @@ public class PetController {
 
     @Operation(summary = "Busca pet por ID")
     @GetMapping("/{id}")
-    public ResponseEntity<PetResponseWebDTO> buscarPetPorId(@PathVariable UUID id) {
+    public ResponseEntity<PetResponseWebDTO> buscarPetPorId(
+            @PathVariable UUID id,
+            @RequestParam(required = false) UUID userId) {
         var pet = buscarPetPorIdUseCase.buscar(id);
+
+        // Se userId foi fornecido, buscar o status do pet para este usuário
+        if (userId != null) {
+            var petStatusOpt = petStatusRepository.findByPetIdAndUserId(id, userId);
+            var status = petStatusOpt.map(cruds.Pets.entity.PetStatus::getStatus).orElse(null);
+            return ResponseEntity.ok(PetResponseWebDTO.fromDomain(pet, status));
+        }
+
         return ResponseEntity.ok(PetResponseWebDTO.fromDomain(pet));
     }
 
@@ -115,15 +125,9 @@ public class PetController {
     public ResponseEntity<List<PetResponseWebDTO>> listarPetsDisponiveisParaUsuario(@PathVariable UUID userId) {
         var pets = listarPetsDisponivelParaUsuarioUseCase.listarDisponiveis(userId);
 
-        // Buscar o status de cada pet com o usuário
-        var statusMap = listarPetsDisponivelParaUsuarioUseCase.buscarStatusDosPets(userId, pets);
 
         var response = pets.stream()
-                .map(pet -> {
-                    var petStatus = statusMap.get(pet.getId());
-                    var statusEnum = petStatus != null ? petStatus.getStatus() : null;
-                    return PetResponseWebDTO.fromDomainWithUserStatus(pet, statusEnum);
-                })
+                .map(PetResponseWebDTO::fromDomain)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(response);
