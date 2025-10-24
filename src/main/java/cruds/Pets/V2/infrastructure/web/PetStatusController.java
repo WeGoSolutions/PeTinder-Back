@@ -7,11 +7,15 @@ import cruds.Pets.entity.PetStatus;
 import cruds.Pets.enums.PetStatusEnum;
 import cruds.Pets.repository.PetStatusRepository;
 import cruds.Pets.service.PetStatusService;
+import cruds.notificacoes.service.NotificacaoFanoutService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +31,7 @@ public class PetStatusController {
 
     private final PetStatusService petStatusService;
     private final PetStatusRepository petStatusRepository;
+    private final NotificacaoFanoutService notificacaoFanoutService;
 
     @Operation(summary = "Lista os pets curtidos, podendo filtrar por usuário")
     @GetMapping("/liked")
@@ -45,8 +50,13 @@ public class PetStatusController {
 
     @Operation(summary = "Lista todos os pets e o status de cada um para cada usuário")
     @GetMapping
-    public ResponseEntity<List<?>> listarTodos() {
-        var pets = petStatusService.getAllPetsWithUserStatus();
+    public ResponseEntity<Page<Object>> listarTodos(
+                                                      @RequestParam(defaultValue = "0") int page,
+                                                      @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Object> pets = petStatusService.getAllPetsWithUserStatus(pageable);
+
         if (pets.isEmpty()) {
             return ResponseEntity.status(204).build();
         }
@@ -96,8 +106,13 @@ public class PetStatusController {
 
     @Operation(summary = "Lista os pets com status padrão para ONGs")
     @GetMapping("/default/{userId}")
-    public ResponseEntity<List<PetResponseGeralDTO>> listDefaultPets(@PathVariable UUID userId) {
-        var response = petStatusService.listDefaultPets(userId);
+    public ResponseEntity<Page<PetResponseGeralDTO>> listDefaultPets(
+            @PathVariable UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        var response = petStatusService.listDefaultPets(userId, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -139,6 +154,10 @@ public class PetStatusController {
             @PathVariable UUID userId) {
 
         PetStatus petStatus = petStatusService.adoptPet(petId, userId);
+
+        notificacaoFanoutService.notificarUsuarioSelecionado(petId, userId);
+        notificacaoFanoutService.notificarDemaisInteressados(petId);
+
         return ResponseEntity.ok(PetStatusResponseWebDTO.fromEntity(petStatus));
     }
 
@@ -161,6 +180,9 @@ public class PetStatusController {
         v1Dto.setStatus(dto.getStatus());
 
         var petStatus = petStatusService.createOrUpdatePetStatus(v1Dto);
+
+        notificacaoFanoutService.inscreverUsuarioNoPet(petId, userId);
+
         return ResponseEntity.ok(PetStatusResponseWebDTO.fromEntity(petStatus));
     }
 

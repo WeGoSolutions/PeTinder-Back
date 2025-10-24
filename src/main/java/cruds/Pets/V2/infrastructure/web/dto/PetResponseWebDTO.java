@@ -1,6 +1,7 @@
 package cruds.Pets.V2.infrastructure.web.dto;
 
 import cruds.Pets.V2.core.domain.Pet;
+import cruds.Pets.V2.core.domain.PetStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,6 +34,7 @@ public class PetResponseWebDTO {
     private LocalDateTime dataCriacao;
     private List<String> imagensUrls;
     private Integer totalImagens;
+    private PetStatusEnum statusUsuario; // Novo campo para o status do pet com o usuário
 
     public static PetResponseWebDTO fromDomain(Pet pet) {
         List<String> imagensUrls = null;
@@ -67,6 +69,14 @@ public class PetResponseWebDTO {
                 .dataCriacao(pet.getDataCriacao())
                 .imagensUrls(imagensUrls)
                 .totalImagens(totalImagens)
+                .statusUsuario(null) // Será preenchido no controller quando necessário
                 .build();
+    }
+
+    // Método auxiliar para criar o DTO com status do usuário
+    public static PetResponseWebDTO fromDomainWithUserStatus(Pet pet, PetStatusEnum statusUsuario) {
+        PetResponseWebDTO dto = fromDomain(pet);
+        dto.setStatusUsuario(statusUsuario);
+        return dto;
     }
 }

@@ -1,21 +1,21 @@
 package cruds.Pets.controller;
 
 import cruds.Pets.controller.dto.request.PetRequestCriarDTO;
-import cruds.Pets.controller.dto.request.PetRequestCurtirDTO;
 import cruds.Pets.controller.dto.request.UploadImagesRequest;
 import cruds.Pets.controller.dto.response.PetResponseCriarDTO;
-import cruds.Pets.controller.dto.response.PetResponseCurtirDTO;
 import cruds.Pets.controller.dto.response.PetResponseGeralDTO;
 import cruds.Pets.entity.Pet;
 import cruds.Pets.repository.PetRepository;
 import cruds.Pets.service.PetService;
-import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
 import cruds.common.exception.NotFoundException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -59,11 +59,16 @@ public class PetController {
         return ResponseEntity.status(200).body(urls);
     }
 
-    @Operation(summary = "Lista todos os pets")
+    @Operation(summary = "Lista todos os pets com paginação")
     @GetMapping
-    public ResponseEntity<List<PetResponseGeralDTO>> listarGeral() {
-        var pets = petService.listarGeral();
-        return ResponseEntity.status(200).body(pets);
+    public ResponseEntity<Page<PetResponseGeralDTO>> listarGeral(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PetResponseGeralDTO> petsPage = petService.listarGeral(pageable);
+
+        return ResponseEntity.status(200).body(petsPage);
     }
 
     @Operation(summary = "Exibe a imagem especifica do pet")

@@ -19,6 +19,9 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -150,21 +153,24 @@ public class PetStatusService {
         petRepository.save(pet);
     }
 
-    public List<PetResponseGeralDTO> listDefaultPets(UUID userId) {
+    public Page<PetResponseGeralDTO> listDefaultPets(UUID userId, Pageable pageable) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Usuário com id " + userId + " não encontrado");
         }
-        List<PetResponseGeralDTO> availablePets = petStatusRepository
-                .findPetsNotInteractedByUser(userId)
-                .stream()
-                .filter((Pet pet) -> pet.getIsAdopted() == null || !pet.getIsAdopted())
+
+        Page<Pet> petsPage = petStatusRepository.findPetsNotInteractedByUser(userId, pageable);
+
+        // Filtrar os não adotados ANTES de mapear para DTO
+        List<PetResponseGeralDTO> availablePets = petsPage.getContent().stream()
+                .filter(pet -> pet.getIsAdopted() == null || !pet.getIsAdopted())
                 .map(PetResponseGeralDTO::toResponse)
                 .collect(Collectors.toList());
 
         if (availablePets.isEmpty()) {
             throw new NotFoundException("Nenhum pet default encontrado para o usuário " + userId);
         }
-        return availablePets;
+
+        return new PageImpl<>(availablePets, pageable, petsPage.getTotalElements());
     }
 
     public void incrementarCurtidasPet(UUID petId) {
@@ -226,11 +232,12 @@ public class PetStatusService {
         return petStatusRepository.save(petStatus);
     }
 
-    public List<Object> getAllPetsWithUserStatus() {
-        List<Pet> pets = petRepository.findAll();
+    public Page<Object> getAllPetsWithUserStatus(Pageable pageable) {
+        Page<Pet> petsPage = petRepository.findAll(pageable);
         List<User> users = userRepository.findAll();
-        List<Object> result = new java.util.ArrayList<>();
-        for (Pet pet : pets) {
+
+        List<Object> result = new ArrayList<>();
+        for (Pet pet : petsPage.getContent()) {
             for (User user : users) {
                 PetStatus status = petStatusRepository.findByPet_IdAndUser_Id(pet.getId(), user.getId()).orElse(null);
                 String statusStr = (status != null && status.getStatus() != null)
@@ -238,14 +245,15 @@ public class PetStatusService {
                         : null;
 
                 Map<String, Object> map = new HashMap<>();
-                map.put("id_pet", pet.getId().toString());   // UUID convertido para String
-                map.put("id_user", user.getId().toString()); // UUID convertido para String
+                map.put("id_pet", pet.getId().toString());
+                map.put("id_user", user.getId().toString());
                 map.put("nome_pet", pet.getNome());
                 map.put("status", statusStr);
                 result.add(map);
             }
         }
-        return result;
+
+        return new PageImpl<>(result, pageable, petsPage.getTotalElements() * users.size());
     }
 
     @Transactional
@@ -281,5 +289,11 @@ public class PetStatusService {
         Pet pet = adoptedStatus.get().getPet();
         User user = adoptedStatus.get().getUser();
         return new PetResponseAdotanteDTO(pet, user);
+    }
+
+    public String getPetNomeById(UUID petId) {
+        return petRepository.findById(petId)
+                .map(Pet::getNome)
+                .orElse("");
     }
 }
