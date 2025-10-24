@@ -69,6 +69,15 @@ public class PetController {
     @PostMapping
     public ResponseEntity<PetResponseWebDTO> criarPet(@Valid @RequestBody CriarPetWebDTO request) {
         var pet = criarPetUseCase.cadastrar(request.toCommand());
+
+        if (request.getImagensBase64() != null && !request.getImagensBase64().isEmpty()) {
+            uploadImagemPetUseCase.uploadImagens(
+                    pet.getId(),
+                    request.getImagensBytes(),
+                    request.getNomesArquivos()
+            );
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(PetResponseWebDTO.fromDomain(pet));
     }
@@ -222,7 +231,7 @@ public class PetController {
             HttpServletRequest request,
             @PathVariable UUID id) {
         String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
-        var urls = buscarImagemPetUseCase.listarUrlsImagens(id, baseUrl);
+        var urls = buscarImagemPetUseCase.listarUrlsImagens(id);
         return ResponseEntity.ok(urls);
     }
 

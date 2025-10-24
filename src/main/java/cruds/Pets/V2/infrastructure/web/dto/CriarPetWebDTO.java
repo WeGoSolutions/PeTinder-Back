@@ -60,6 +60,39 @@ public class CriarPetWebDTO {
     @Schema(description = "ID da ONG", example = "123e4567-e89b-12d3-a456-426614174000")
     private UUID ongId;
 
+    private List<String> imagensBase64;
+    private List<String> nomesArquivos;
+
+    public List<byte[]> getImagensBytes() {
+        if (imagensBase64 == null || imagensBase64.isEmpty()) {
+            throw new IllegalArgumentException("Nenhuma imagem Base64 fornecida");
+        }
+
+        return imagensBase64.stream()
+                .map(base64 -> {
+                    try {
+                        if (base64 == null || base64.isBlank()) {
+                            throw new IllegalArgumentException("Imagem Base64 vazia");
+                        }
+
+                        String cleanBase64 = base64
+                                .replaceFirst("^data:image/[^;]+;base64,", "")
+                                .replaceAll("\\s+", "");
+
+                        byte[] bytes = java.util.Base64.getDecoder().decode(cleanBase64);
+
+                        if (bytes == null || bytes.length == 0) {
+                            throw new IllegalArgumentException("Falha ao decodificar imagem Base64");
+                        }
+
+                        return bytes;
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException("Formato de imagem Base64 inválido", e);
+                    }
+                })
+                .toList();
+    }
+
     public CriarPetCommand toCommand() {
         return new CriarPetCommand(
                 nome,

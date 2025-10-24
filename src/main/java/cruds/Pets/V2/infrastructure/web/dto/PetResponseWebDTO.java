@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,13 +38,17 @@ public class PetResponseWebDTO {
 
     public static PetResponseWebDTO fromDomain(Pet pet) {
         List<String> imagensUrls = null;
-        int totalImagens = 0;
+        Integer totalImagens = 0;
 
-        if (pet.getImagens() != null) {
+        if (pet.getImagens() != null && !pet.getImagens().isEmpty()) {
             totalImagens = pet.getImagens().size();
+
             imagensUrls = pet.getImagens().stream()
-                    .map(imagem -> "/pets/" + pet.getId() + "/imagens/" +
-                         pet.getImagens().indexOf(imagem))
+                    .filter(imagem -> imagem != null && imagem.temDados())
+                    .map(imagem -> {
+                        String base64Image = Base64.getEncoder().encodeToString(imagem.getDados());
+                        return "data:image/jpeg;base64," + base64Image;
+                    })
                     .toList();
         }
         

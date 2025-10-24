@@ -1,12 +1,14 @@
 package cruds.Ong.V2.core.adapter;
 
+import cruds.Ong.V2.core.domain.ImagemOng;
+
 import java.util.UUID;
 
 public interface ArmazenamentoImagemOngGateway {
 
-    String salvarImagem(byte[] dados, UUID ongId) throws Exception;
+    String salvarImagem(ImagemOng imagem);
 
-    byte[] buscarImagem(String caminho) throws Exception;
+    void removerImagem(String nomeArquivo, UUID idImagem);
 
-    void removerImagem(String caminho) throws Exception;
+    ImagemOng buscarImagem(String nomeArquivo, UUID idImagem);
 }

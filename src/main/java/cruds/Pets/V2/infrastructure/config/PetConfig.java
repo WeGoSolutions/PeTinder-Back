@@ -5,6 +5,7 @@ import cruds.Pets.V2.core.adapter.ImagemPetGateway;
 import cruds.Pets.V2.core.adapter.OngGateway;
 import cruds.Pets.V2.core.adapter.PetGateway;
 import cruds.Pets.V2.core.adapter.PetStatusGateway;
+import cruds.Pets.V2.infrastructure.persistence.jpa.ImagemPetJpaRepository;
 import cruds.Users.V2.core.adapter.UsuarioGateway;
 import cruds.Pets.V2.core.application.usecase.*;
 import org.springframework.context.annotation.Bean;
@@ -68,8 +69,9 @@ public class PetConfig {
     public BuscarImagemPetUseCase buscarImagemPetUseCase(
             PetGateway petGateway,
             ImagemPetGateway imagemPetGateway,
-            ArmazenamentoImagemPetGateway armazenamentoImagemPetGateway) {
-        return new BuscarImagemPetUseCase(petGateway, imagemPetGateway, armazenamentoImagemPetGateway);
+            ArmazenamentoImagemPetGateway armazenamentoImagemPetGateway,
+            ImagemPetJpaRepository imagemPetJpaRepository) {
+        return new BuscarImagemPetUseCase(petGateway, imagemPetGateway, armazenamentoImagemPetGateway, imagemPetJpaRepository);
     }
 
     @Bean

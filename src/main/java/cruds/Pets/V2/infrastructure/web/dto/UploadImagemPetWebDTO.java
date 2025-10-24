@@ -20,14 +20,28 @@ public class UploadImagemPetWebDTO {
     
     // Conversão de Base64 para bytes
     public List<byte[]> getImagensBytes() {
-        if (imagensBase64 == null) return null;
-        
+        if (imagensBase64 == null || imagensBase64.isEmpty()) {
+            throw new IllegalArgumentException("Nenhuma imagem Base64 fornecida");
+        }
+
         return imagensBase64.stream()
                 .map(base64 -> {
                     try {
-                        // Remove prefixo data:image/jpeg;base64, se existir
-                        String cleanBase64 = base64.replaceFirst("data:image/[^;]+;base64,", "");
-                        return java.util.Base64.getDecoder().decode(cleanBase64);
+                        if (base64 == null || base64.isBlank()) {
+                            throw new IllegalArgumentException("Imagem Base64 vazia");
+                        }
+
+                        String cleanBase64 = base64
+                                .replaceFirst("^data:image/[^;]+;base64,", "")
+                                .replaceAll("\\s+", "");
+
+                        byte[] bytes = java.util.Base64.getDecoder().decode(cleanBase64);
+
+                        if (bytes == null || bytes.length == 0) {
+                            throw new IllegalArgumentException("Falha ao decodificar imagem Base64");
+                        }
+
+                        return bytes;
                     } catch (Exception e) {
                         throw new IllegalArgumentException("Formato de imagem Base64 inválido", e);
                     }

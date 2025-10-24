@@ -9,23 +9,23 @@ public class ImagemPetMapper {
 
     public static ImagemPetEntity toEntity(ImagemPet imagem, UUID petId) {
         if (imagem == null) return null;
-        
+
         return new ImagemPetEntity(
                 imagem.getId(),
-                imagem.getCaminho(),
                 imagem.getNomeArquivo(),
-                petId
+                petId,
+                imagem.getKeyS3()
         );
     }
 
     public static ImagemPet toDomain(ImagemPetEntity entity) {
         if (entity == null) return null;
-        
+
         return new ImagemPet(
                 entity.getId(),
-                entity.getCaminho(),
                 entity.getNomeArquivo(),
-                null // dados não são armazenados no banco, apenas caminho
+                null,
+                null
         );
     }
 }
