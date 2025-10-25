@@ -51,8 +51,8 @@ public class PetConfig {
 
     @Bean
     public ListarPetsDisponivelParaUsuarioUseCase listarPetsDisponivelParaUsuarioUseCase(
-            PetGateway petGateway, UsuarioGateway usuarioGateway, PetStatusGateway petStatusGateway) {
-        return new ListarPetsDisponivelParaUsuarioUseCase(petGateway, usuarioGateway, petStatusGateway);
+            PetGateway petGateway, UsuarioGateway usuarioGateway) {
+        return new ListarPetsDisponivelParaUsuarioUseCase(petGateway, usuarioGateway);
     }
 
     // ========== USE CASES DE IMAGEM ==========
