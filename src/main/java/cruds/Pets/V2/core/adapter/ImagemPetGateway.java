@@ -11,11 +11,11 @@ public interface ImagemPetGateway {
     
     List<ImagemPet> salvarTodas(List<ImagemPet> imagens, UUID petId);
 
-    List<ImagemPet> buscarPorPetId(UUID petId);
+    List<ImagemPet> buscarPorPetId(UUID petId, List<String> keys);
 
-    void remover(UUID imagemId);
-    
-    void removerPorPetId(UUID petId);
+    void remover(String key);
 
-    ImagemPet buscarPorIndice(UUID petId, int indice);
+    void removerPorPetId(UUID petId, List<String> keys);
+
+    List<String> buscarKeysPorPetId(UUID petId);
 }

@@ -1,13 +1,14 @@
 package cruds.Pets.V2.infrastructure.web.dto;
 
 import cruds.Pets.V2.core.domain.Pet;
-import cruds.Pets.V2.core.domain.PetStatusEnum;
+import cruds.Pets.enums.PetStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,18 +33,22 @@ public class PetResponseWebDTO {
     private UUID ongId;
     private LocalDateTime dataCriacao;
     private List<String> imagensUrls;
+    private PetStatusEnum status;
     private Integer totalImagens;
-    private PetStatusEnum statusUsuario; // Novo campo para o status do pet com o usuário
 
     public static PetResponseWebDTO fromDomain(Pet pet) {
         List<String> imagensUrls = null;
-        int totalImagens = 0;
+        Integer totalImagens = 0;
 
-        if (pet.getImagens() != null) {
+        if (pet.getImagens() != null && !pet.getImagens().isEmpty()) {
             totalImagens = pet.getImagens().size();
+
             imagensUrls = pet.getImagens().stream()
-                    .map(imagem -> "/pets/" + pet.getId() + "/imagens/" +
-                         pet.getImagens().indexOf(imagem))
+                    .filter(imagem -> imagem != null && imagem.temDados())
+                    .map(imagem -> {
+                        String base64Image = Base64.getEncoder().encodeToString(imagem.getDados());
+                        return "data:image/jpeg;base64," + base64Image;
+                    })
                     .toList();
         }
         
@@ -64,14 +69,12 @@ public class PetResponseWebDTO {
                 .dataCriacao(pet.getDataCriacao())
                 .imagensUrls(imagensUrls)
                 .totalImagens(totalImagens)
-                .statusUsuario(null) // Será preenchido no controller quando necessário
                 .build();
     }
 
-    // Método auxiliar para criar o DTO com status do usuário
-    public static PetResponseWebDTO fromDomainWithUserStatus(Pet pet, PetStatusEnum statusUsuario) {
+    public static PetResponseWebDTO fromDomain(Pet pet, PetStatusEnum status) {
         PetResponseWebDTO dto = fromDomain(pet);
-        dto.setStatusUsuario(statusUsuario);
+        dto.setStatus(status);
         return dto;
     }
 }

@@ -1,6 +1,7 @@
 package cruds.Pets.controller.dto.response;
 
 import cruds.Pets.entity.Pet;
+import cruds.Pets.enums.PetStatusEnum;
 import cruds.Imagem.entity.Imagem;
 import cruds.Users.controller.dto.response.EnderecoResponseDTO;
 import lombok.AllArgsConstructor;
@@ -35,6 +36,7 @@ public class PetResponseGeralDTO {
     private String nomeOng;
     private String linkOng;
     private EnderecoResponseDTO endereco;
+    private PetStatusEnum status;
 
     public PetResponseGeralDTO(Pet pet) {
         this.id = pet.getId();
@@ -89,5 +91,11 @@ public class PetResponseGeralDTO {
                         ? EnderecoResponseDTO.toResponse(pet.getOng().getEndereco())
                         : null)
                 .build();
+    }
+
+    public static PetResponseGeralDTO toResponse(Pet pet, PetStatusEnum status) {
+        PetResponseGeralDTO dto = toResponse(pet);
+        dto.setStatus(status);
+        return dto;
     }
 }

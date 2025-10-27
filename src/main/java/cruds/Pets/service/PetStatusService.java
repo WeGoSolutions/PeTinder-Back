@@ -158,12 +158,18 @@ public class PetStatusService {
             throw new NotFoundException("Usuário com id " + userId + " não encontrado");
         }
 
-        Page<Pet> petsPage = petStatusRepository.findPetsNotInteractedByUser(userId, pageable);
+        // Buscar TODOS os pets, não apenas os não interagidos
+        Page<Pet> petsPage = petRepository.findAll(pageable);
 
-        // Filtrar os não adotados ANTES de mapear para DTO
+        // Filtrar apenas os não adotados e mapear com o status do usuário
         List<PetResponseGeralDTO> availablePets = petsPage.getContent().stream()
                 .filter(pet -> pet.getIsAdopted() == null || !pet.getIsAdopted())
-                .map(PetResponseGeralDTO::toResponse)
+                .map(pet -> {
+                    // Buscar o status do pet para este usuário
+                    Optional<PetStatus> petStatusOpt = petStatusRepository.findByPetIdAndUserId(pet.getId(), userId);
+                    PetStatusEnum status = petStatusOpt.map(PetStatus::getStatus).orElse(null);
+                    return PetResponseGeralDTO.toResponse(pet, status);
+                })
                 .collect(Collectors.toList());
 
         if (availablePets.isEmpty()) {
