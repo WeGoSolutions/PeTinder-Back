@@ -37,37 +37,37 @@ jobs:
           push: true
           tags: ${{ env.IMAGE }}
 
-deploy:
-  needs: build
-  runs-on: self-hosted
-  env:
-    IMAGE: ${{ secrets.DOCKER_USERNAME }}/petinder:back   # garante que IMAGE existe no job de deploy
-  steps:
-    - name: Liberar porta 8080 e 3306 no firewall (ufw) — só se aplicável
-      run: sudo ufw allow 8080/tcp && sudo ufw allow 3306/tcp
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    env:
+      IMAGE: ${{ secrets.DOCKER_USERNAME }}/petinder:back   # garante que IMAGE existe no job de deploy
+    steps:
+      - name: Liberar porta 8080 e 3306 no firewall (ufw) — só se aplicável
+        run: sudo ufw allow 8080/tcp && sudo ufw allow 3306/tcp
 
-    - name: Login no Docker Hub no host de deploy
-      run: |
-        echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Login no Docker Hub no host de deploy
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    - name: Pull image do Docker Hub
-      run: sudo docker pull "${{ env.IMAGE }}"
+      - name: Pull image do Docker Hub
+        run: sudo docker pull "${{ env.IMAGE }}"
 
-    - name: Stop e remove container existente (caso haja)
-      run: |
-        sudo docker rm -f deploy-back || true
+      - name: Stop e remove container existente (caso haja)
+        run: |
+          sudo docker rm -f deploy-back || true
 
-    - name: Run docker container (passando secrets do GitHub Actions)
-      run: |
-        sudo docker run -d --name deploy-back \
-          --restart unless-stopped \
-          -p 8080:8080 \
-          -e SPRING_PROFILES_ACTIVE=prod \
-          -e AWS_ACCESS_KEY_ID="${{ secrets.SEU_ACCESS_ID }}" \
-          -e AWS_SECRET_ACCESS_KEY="${{ secrets.SEU_ACCESS_KEY }}" \
-          -e AWS_SESSION_TOKEN="${{ secrets.SEU_SESSION_TOKEN }}" \
-          -e SENHA_PETINDER_EMAIL="${{ secrets.SENHA_PETINDER_EMAIL }}" \
-          "${{ env.IMAGE }}"
+      - name: Run docker container (passando secrets do GitHub Actions)
+        run: |
+          sudo docker run -d --name deploy-back \
+            --restart unless-stopped \
+            -p 8080:8080 \
+            -e SPRING_PROFILES_ACTIVE=prod \
+            -e AWS_ACCESS_KEY_ID="${{ secrets.SEU_ACCESS_ID }}" \
+            -e AWS_SECRET_ACCESS_KEY="${{ secrets.SEU_ACCESS_KEY }}" \
+            -e AWS_SESSION_TOKEN="${{ secrets.SEU_SESSION_TOKEN }}" \
+            -e SENHA_PETINDER_EMAIL="${{ secrets.SENHA_PETINDER_EMAIL }}" \
+            "${{ env.IMAGE }}"
 
-    - name: Show last container logs (sanity)
-      run: sudo docker logs --tail 200 deploy-back || true
+      - name: Show last container logs (sanity)
+        run: sudo docker logs --tail 200 deploy-back || true
