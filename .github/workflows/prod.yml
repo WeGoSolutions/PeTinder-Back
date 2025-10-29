@@ -57,15 +57,11 @@ jobs:
 
       - name: Criar env file seguro e rodar container usando --env-file
         run: |
-          # Cria /tmp/petinder.env com os valores vindos dos secrets (uma linha por variável).
-          # Isso evita que quebras de linha nos secrets quebrem o comando docker run.
-          cat > /tmp/petinder.env <<EOF
-          SPRING_PROFILES_ACTIVE=prod
-          AWS_ACCESS_KEY_ID=${{ secrets.SEU_ACCESS_ID }}
-          AWS_SECRET_ACCESS_KEY=${{ secrets.SEU_SECRET_KEY }}
-          AWS_SESSION_TOKEN=${{ secrets.SEU_SESSION_TOKEN }}
-          SENHA_PETINDER_EMAIL=${{ secrets.SENHA_PETINDER_EMAIL }}
-          EOF
+          echo "SPRING_PROFILES_ACTIVE=prod" | sudo tee /tmp/petinder.env > /dev/null
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.SEU_ACCESS_ID }}" | sudo tee -a /tmp/petinder.env > /dev/null
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.SEU_SECRET_KEY }}" | sudo tee -a /tmp/petinder.env > /dev/null
+          echo "AWS_SESSION_TOKEN=${{ secrets.SEU_SESSION_TOKEN }}" | sudo tee -a /tmp/petinder.env > /dev/null
+          echo "SENHA_PETINDER_EMAIL=${{ secrets.SENHA_PETINDER_EMAIL }}" | sudo tee -a /tmp/petinder.env > /dev/null
 
           # Opcional: ajustar permissões do env file
           sudo chmod 600 /tmp/petinder.env
