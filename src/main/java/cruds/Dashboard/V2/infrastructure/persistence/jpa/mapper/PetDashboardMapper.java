@@ -8,6 +8,8 @@ public class PetDashboardMapper {
     public static PetDashboard toDomain(Pet entity) {
         if (entity == null) return null;
 
+
+
         return new PetDashboard(
             entity.getId(),
             entity.getNome(),

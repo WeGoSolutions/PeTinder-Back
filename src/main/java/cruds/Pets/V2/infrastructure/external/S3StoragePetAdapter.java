@@ -73,4 +73,20 @@ public class S3StoragePetAdapter implements ArmazenamentoImagemPetGateway {
 
         return new ImagemPet(idImagem, nomeArquivo, imagemDescriptografada, key);
     }
+
+    @Override
+    public ImagemPet buscarPorKey(String key) {
+        try {
+            var response = s3Client.getObjectAsBytes(r ->
+                    r.bucket(bucketName).key(key));
+
+            byte[] imagemDescriptografada = criptografiaAdapter.descriptografarImagem(response.asByteArray());
+
+            return new ImagemPet(null, null, imagemDescriptografada, key);
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }
