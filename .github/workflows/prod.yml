@@ -57,25 +57,35 @@ jobs:
 
       - name: Criar env file seguro e rodar container usando --env-file
         run: |
-          # start a fresh env file (no leading spaces)
-          echo "SPRING_PROFILES_ACTIVE=prod" | sudo tee /tmp/petinder.env > /dev/null
+          # write env file into the runner temp directory (writable on self-hosted runners)
+          ENV_FILE="$RUNNER_TEMP/petinder.env"
+          mkdir -p "$RUNNER_TEMP"
 
-          # append AWS secrets and email secret (preserve the secret names you specified)
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.SEU_ACCESS_ID }}" | sudo tee -a /tmp/petinder.env > /dev/null
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.SEU_SECRET_KEY }}" | sudo tee -a /tmp/petinder.env > /dev/null
-          echo "AWS_SESSION_TOKEN=${{ secrets.SEU_SESSION_TOKEN }}" | sudo tee -a /tmp/petinder.env > /dev/null
-          echo "SENHA_PETINDER_EMAIL=${{ secrets.SENHA_PETINDER_EMAIL }}" | sudo tee -a /tmp/petinder.env > /dev/null
+          cat <<EOF > "$ENV_FILE"
+          SPRING_PROFILES_ACTIVE=prod
+          AWS_ACCESS_KEY_ID=${{ secrets.SEU_ACCESS_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.SEU_SECRET_KEY }}
+          AWS_SESSION_TOKEN=${{ secrets.SEU_SESSION_TOKEN }}
+          SENHA_PETINDER_EMAIL=${{ secrets.SENHA_PETINDER_EMAIL }}
+          EOF
 
-          # ensure no CRLF and set strict permissions
-          sudo sed -i 's/\r$//' /tmp/petinder.env
-          sudo chmod 600 /tmp/petinder.env
+          # ensure no CRLF and set strict permissions (use sudo for chmod/sed in case runner uses restricted dirs)
+          sudo sed -i 's/\r$//' "$ENV_FILE" || true
+          sudo chmod 600 "$ENV_FILE"
 
           # run container using the env file
           sudo docker run -d --name deploy-back \
             --restart unless-stopped \
-            --env-file /tmp/petinder.env \
+            --env-file "$ENV_FILE" \
             -p 8080:8080 \
             "${{ env.IMAGE }}"
+
+          # securely remove the env file from the runner
+          if command -v shred >/dev/null 2>&1; then
+            sudo shred -u "$ENV_FILE" || sudo rm -f "$ENV_FILE"
+          else
+            sudo rm -f "$ENV_FILE"
+          fi
 
       - name: Show last container logs (sanity)
         run: sudo docker logs --tail 200 deploy-back || true
