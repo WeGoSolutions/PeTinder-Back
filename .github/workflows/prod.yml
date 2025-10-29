@@ -40,6 +40,8 @@ jobs:
   deploy:
     needs: build
     runs-on: self-hosted
+    env:
+      IMAGE: ${{ env.IMAGE }}
     steps:
       - name: Liberar porta 8080 e 3306 no firewall (ufw) — só se aplicável
         run: sudo ufw allow 8080/tcp && sudo ufw allow 3306/tcp
@@ -57,16 +59,20 @@ jobs:
 
       - name: Criar env file seguro e rodar container usando --env-file
         run: |
+          # start a fresh env file (no leading spaces)
           echo "SPRING_PROFILES_ACTIVE=prod" | sudo tee /tmp/petinder.env > /dev/null
+
+          # append AWS secrets and email secret (preserve the secret names you specified)
           echo "AWS_ACCESS_KEY_ID=${{ secrets.SEU_ACCESS_ID }}" | sudo tee -a /tmp/petinder.env > /dev/null
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.SEU_SECRET_KEY }}" | sudo tee -a /tmp/petinder.env > /dev/null
           echo "AWS_SESSION_TOKEN=${{ secrets.SEU_SESSION_TOKEN }}" | sudo tee -a /tmp/petinder.env > /dev/null
           echo "SENHA_PETINDER_EMAIL=${{ secrets.SENHA_PETINDER_EMAIL }}" | sudo tee -a /tmp/petinder.env > /dev/null
 
-          # Opcional: ajustar permissões do env file
+          # ensure no CRLF and set strict permissions
+          sudo sed -i 's/\r$//' /tmp/petinder.env
           sudo chmod 600 /tmp/petinder.env
 
-          # Rodar container referenciando o arquivo de env
+          # run container using the env file
           sudo docker run -d --name deploy-back \
             --restart unless-stopped \
             --env-file /tmp/petinder.env \
