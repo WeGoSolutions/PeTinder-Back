@@ -11,4 +11,6 @@ public interface ArmazenamentoImagemPetGateway {
     void removerImagem(String nomeArquivo, UUID idImagem);
 
     ImagemPet buscarImagem(String nomeArquivo, UUID idImagem);
+
+    ImagemPet buscarPorKey(String key);
 }

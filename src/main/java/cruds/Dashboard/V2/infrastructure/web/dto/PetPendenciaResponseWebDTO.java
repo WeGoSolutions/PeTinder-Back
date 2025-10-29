@@ -15,12 +15,14 @@ public class PetPendenciaResponseWebDTO {
     private String nome;
     private List<String> faltas;
     private UUID id;
+    private String imageUrl;
 
-    public static PetPendenciaResponseWebDTO fromDomain(PetDashboard pet) {
+    public static PetPendenciaResponseWebDTO fromDomain(PetDashboard pet, String imagemBase64) {
         return new PetPendenciaResponseWebDTO(
             pet.getNome(),
             pet.obterPendencias(),
-            pet.getId()
+            pet.getId(),
+                imagemBase64
         );
     }
 }
