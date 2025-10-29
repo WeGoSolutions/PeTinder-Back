@@ -49,23 +49,18 @@ jobs:
 
       - name: Ensure docker compose and start RabbitMQ (if not running)
         run: |
-          # If a container named `rabbitmq-petinder` is not running, try to start it using the repo's compose.yaml
-          if [ -z "$(sudo docker ps -q -f name=rabbitmq-petinder)" ]; then
-            echo "rabbitmq not running — attempting to start via docker compose"
-            # prefer the docker compose plugin if available
-            if sudo docker compose version >/dev/null 2>&1; then
-              # pull images first to ensure the host downloads the rabbitmq image
-              sudo docker compose -f compose.yaml pull || true
-              sudo docker compose -f compose.yaml up -d
-            elif command -v docker-compose >/dev/null 2>&1; then
-              sudo docker-compose -f compose.yaml pull || true
-              sudo docker-compose -f compose.yaml up -d
-            else
-              echo "docker compose not found on runner; please install docker compose" >&2
-              exit 1
-            fi
+          sudo docker rm -f rabbitmq-petinder || true
+          echo "Starting rabbitmq via docker compose"
+          
+          if sudo docker compose version >/dev/null 2>&1; then
+            sudo docker compose -f compose.yaml pull || true
+            sudo docker compose -f compose.yaml up -d
+          elif command -v docker-compose >/dev/null 2>&1; then
+            sudo docker-compose -f compose.yaml pull || true
+            sudo docker-compose -f compose.yaml up -d
           else
-            echo "rabbitmq container already running"
+            echo "docker compose not found on runner; please install docker compose" >&2
+            exit 1
           fi
 
       - name: Verify RabbitMQ was created (container/image/status)
