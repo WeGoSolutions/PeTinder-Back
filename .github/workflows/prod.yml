@@ -63,6 +63,28 @@ jobs:
             exit 1
           fi
 
+      - name: Wait for RabbitMQ healthcheck to be healthy
+        run: |
+          CONTAINER_NAME=rabbitmq-petinder
+          MAX_SECONDS=120
+          SLEEP_INTERVAL=5
+          echo "Waiting up to ${MAX_SECONDS}s for ${CONTAINER_NAME} to report healthy..."
+          elapsed=0
+          while [ $elapsed -lt $MAX_SECONDS ]; do
+            status=$(sudo docker inspect --format '{{.State.Health.Status}}' ${CONTAINER_NAME} 2>/dev/null || echo "none")
+            echo "Current health status: ${status}"
+            if [ "${status}" = "healthy" ]; then
+              echo "${CONTAINER_NAME} is healthy"
+              exit 0
+            fi
+            sleep ${SLEEP_INTERVAL}
+            elapsed=$((elapsed + SLEEP_INTERVAL))
+          done
+          echo "${CONTAINER_NAME} did not become healthy within ${MAX_SECONDS}s"
+          echo "==== Last 200 lines of container logs ===="
+          sudo docker logs --tail 200 ${CONTAINER_NAME} || true
+          exit 1
+
       - name: Verify RabbitMQ was created (container/image/status)
         run: |
           echo "== RabbitMQ container list =="
