@@ -125,6 +125,11 @@ jobs:
           AWS_ACCESS_KEY_ID=${{ secrets.SEU_ACCESS_ID }}
           AWS_SECRET_ACCESS_KEY=${{ secrets.SEU_SECRET_KEY }}
           AWS_SESSION_TOKEN=${{ secrets.SEU_SESSION_TOKEN }}
+          # RabbitMQ connection from inside the app container: map host gateway to host.docker.internal
+          SPRING_RABBITMQ_HOST=host.docker.internal
+          SPRING_RABBITMQ_PORT=5672
+          SPRING_RABBITMQ_USERNAME=admin
+          SPRING_RABBITMQ_PASSWORD=admin
           SENHA_PETINDER_EMAIL=${{ secrets.SENHA_PETINDER_EMAIL }}
           EOF
 
@@ -133,7 +138,24 @@ jobs:
           sudo chmod 600 "$ENV_FILE"
 
           # run container using the env file
+          # detect rabbitmq container network and set network arg + rabbit host accordingly
+          NETWORK_NAME=$(sudo docker inspect --format '{{range $k,$v := .NetworkSettings.Networks}}{{printf "%s\n" $k}}{{end}}' rabbitmq-petinder | head -n1 || true)
+          if [ -n "$NETWORK_NAME" ]; then
+            echo "Will attach app container to network: $NETWORK_NAME"
+            NETWORK_ARG="--network $NETWORK_NAME"
+            RABBIT_HOST="rabbitmq-petinder"
+          else
+            echo "No docker network found for rabbitmq-petinder; falling back to host gateway"
+            NETWORK_ARG=""
+            RABBIT_HOST="host.docker.internal"
+          fi
+
+          echo "Using RABBIT_HOST=$RABBIT_HOST"
+
           sudo docker run -d --name deploy-back \
+            $NETWORK_ARG \
+            --add-host=host.docker.internal:host-gateway \
+            -e SPRING_RABBITMQ_HOST=$RABBIT_HOST \
             --restart unless-stopped \
             --env-file "$ENV_FILE" \
             -p 8080:8080 \

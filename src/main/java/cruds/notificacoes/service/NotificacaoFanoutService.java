@@ -108,12 +108,14 @@ public class NotificacaoFanoutService {
             FanoutExchange exchange = new FanoutExchange(nomeExchange, true, false);
             amqpAdmin.declareExchange(exchange);
             exchangesCriados.add(nomeExchange);
+            log.info("Exchange criada: {}", nomeExchange);
         }
     }
 
     private void criarFilaSeNaoExistir(String nomeFila) {
         Queue fila = new Queue(nomeFila, true, false, false);
         amqpAdmin.declareQueue(fila);
+        log.info("Fila criada: {}", nomeFila);
     }
 
     private void criarBindingSeNaoExistir(String nomeFila, String nomeExchange, String chaveBinding) {
@@ -123,6 +125,7 @@ public class NotificacaoFanoutService {
             Binding binding = BindingBuilder.bind(fila).to(exchange);
             amqpAdmin.declareBinding(binding);
             bindingsCriados.add(chaveBinding);
+            log.info("Binding criado entre fila {} e exchange {}", nomeFila, nomeExchange);
         }
     }
 
