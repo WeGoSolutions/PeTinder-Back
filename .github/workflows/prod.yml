@@ -41,7 +41,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        runner: [ pt-01, pt-02 ]
+        runner: [pt-01, pt-02]
     runs-on: [self-hosted, ${{ matrix.runner }}]
     steps:
       - name: Liberar porta 8080 e 3306 no firewall (ufw) — só se aplicável
@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Ensure docker compose and start RabbitMQ (if not running)
-        run: |    
+        run: |
           echo "Removing any existing rabbitmq containers by name and ancestor image..."
           sudo docker ps -a --filter "name=rabbitmq-petinder" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
           sudo docker ps -a --filter "ancestor=rabbitmq" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
