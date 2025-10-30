@@ -43,9 +43,17 @@ jobs:
       matrix:
         runner: ["pt-01", "pt-02"]
     runs-on: [self-hosted, ${{ matrix.runner }}]
+    env:
+      WIPE_RABBITMQ: "true"
     steps:
+      - name: Info do runner
+        run: |
+          echo "Runner target: ${{ matrix.runner }}"
+          hostname
+          whoami
+
       - name: Liberar porta 8080 e 3306 no firewall (ufw) — só se aplicável
-        run: sudo ufw allow 8080/tcp && sudo ufw allow 3306/tcp
+        run: sudo ufw allow 8080/tcp && sudo ufw allow 3306/tcp || true
 
       - name: Checkout repository (required to access compose file)
         uses: actions/checkout@v3
@@ -56,29 +64,25 @@ jobs:
           sudo docker ps -a --filter "name=rabbitmq-petinder" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
           sudo docker ps -a --filter "ancestor=rabbitmq" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
 
-          echo "Tearing down any existing compose stack (down --volumes --remove-orphans)..."
+          echo "Tearing down any existing compose stack..."
           if sudo docker compose version >/dev/null 2>&1; then
-            # remove volumes by default here to avoid stale data; this can be toggled via WIPE_RABBITMQ env var
             if [ "$WIPE_RABBITMQ" = "true" ]; then
-              echo "WIPE_RABBITMQ=true -> removing compose volumes"
               sudo docker compose -f compose.yaml down --volumes --remove-orphans || true
             else
               sudo docker compose -f compose.yaml down --remove-orphans || true
             fi
           elif command -v docker-compose >/dev/null 2>&1; then
             if [ "$WIPE_RABBITMQ" = "true" ]; then
-              echo "WIPE_RABBITMQ=true -> removing compose volumes"
               sudo docker-compose -f compose.yaml down --volumes --remove-orphans || true
             else
               sudo docker-compose -f compose.yaml down --remove-orphans || true
             fi
           else
-            echo "docker compose not found on runner; please install docker compose" >&2
+            echo "docker compose not found on runner; exit" >&2
             exit 1
           fi
 
           if [ "$WIPE_RABBITMQ" = "true" ]; then
-            echo "WIPE_RABBITMQ=true -> attempting to remove named volume 'rabbitmq-data' (ignore errors)"
             sudo docker volume rm rabbitmq-data || true
           fi
 
@@ -96,7 +100,6 @@ jobs:
           CONTAINER_NAME=rabbitmq-petinder
           MAX_SECONDS=120
           SLEEP_INTERVAL=5
-          echo "Waiting up to ${MAX_SECONDS}s for ${CONTAINER_NAME} to report healthy..."
           elapsed=0
           while [ $elapsed -lt $MAX_SECONDS ]; do
             status=$(sudo docker inspect --format '{{.State.Health.Status}}' ${CONTAINER_NAME} 2>/dev/null || echo "none")
@@ -109,27 +112,8 @@ jobs:
             elapsed=$((elapsed + SLEEP_INTERVAL))
           done
           echo "${CONTAINER_NAME} did not become healthy within ${MAX_SECONDS}s"
-          echo "==== Last 200 lines of container logs ===="
           sudo docker logs --tail 200 ${CONTAINER_NAME} || true
           exit 1
-
-      - name: Verify RabbitMQ was created (container/image/status)
-        run: |
-          echo "== RabbitMQ container list =="
-          sudo docker ps -a --filter "name=rabbitmq-petinder" --format "{{.Names}} {{.Image}} {{.Status}}"
-
-          echo "\n== RabbitMQ images (filter) =="
-          sudo docker images --filter=reference='rabbitmq*' --format "{{.Repository}}:{{.Tag}} {{.ID}} {{.Size}}" || true
-
-          echo "\n== Docker Compose services (from compose.yaml) =="
-          if sudo docker compose version >/dev/null 2>&1; then
-            sudo docker compose -f compose.yaml ps || true
-          elif command -v docker-compose >/dev/null 2>&1; then
-            sudo docker-compose -f compose.yaml ps || true
-          fi
-
-          echo "\n== Last RabbitMQ logs (tail 200) =="
-          sudo docker logs --tail 200 rabbitmq-petinder || true
 
       - name: Login no Docker Hub no host de deploy
         run: |
@@ -140,58 +124,38 @@ jobs:
 
       - name: Stop e remove container existente (caso haja)
         run: |
-          # robust cleanup: remove containers by name and by image (force removal)
           TARGET_NAME="deploy-back"
           TARGET_IMAGE="${{ env.IMAGE }}"
-
-          echo "Removing containers named $TARGET_NAME (if any)..."
-          # remove any container whose name matches TARGET_NAME
           sudo docker ps -a --filter "name=$TARGET_NAME" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
-
-          echo "Removing containers created from image $TARGET_IMAGE (if any)..."
-          # remove containers that were created from the same image/tag
           sudo docker ps -a --filter "ancestor=$TARGET_IMAGE" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
-
-          echo "Removing leftover containers using repository 'petinder' (fallback)..."
-          # fallback: remove containers that may have been created from similar images/names
-          sudo docker ps -a --filter "ancestor=petinder" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
-
-          echo "Optionally remove local image ${TARGET_IMAGE} to force fresh pull..."
-          # remove local image with the same repo:tag so the next pull gets the expected image
           sudo docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v img="$TARGET_IMAGE" '$0 ~ img {print $2}' | xargs -r sudo docker rmi -f || true
 
       - name: Criar env file seguro e rodar container usando --env-file
         run: |
-          # write env file into the runner temp directory (writable on self-hosted runners)
           ENV_FILE="$RUNNER_TEMP/petinder.env"
           mkdir -p "$RUNNER_TEMP"
-
-          cat <<EOF > "$ENV_FILE"
+          cat > "$ENV_FILE" <<'EOF'
+          SPRING_PROFILES_ACTIVE=prod
+          AWS_ACCESS_KEY_ID=${{ secrets.SEU_ACCESS_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.SEU_SECRET_KEY }}
+          AWS_SESSION_TOKEN=${{ secrets.SEU_SESSION_TOKEN }}
           SPRING_RABBITMQ_HOST=host.docker.internal
           SPRING_RABBITMQ_PORT=5672
           SPRING_RABBITMQ_USERNAME=admin
           SPRING_RABBITMQ_PASSWORD=admin
           SENHA_PETINDER_EMAIL=${{ secrets.SENHA_PETINDER_EMAIL }}
           EOF
-
-          # ensure no CRLF and set strict permissions (use sudo for chmod/sed in case runner uses restricted dirs)
           sudo sed -i 's/\r$//' "$ENV_FILE" || true
           sudo chmod 600 "$ENV_FILE"
 
-          # run container using the env file
-          # detect rabbitmq container network and set network arg + rabbit host accordingly
           NETWORK_NAME=$(sudo docker inspect --format '{{range $k,$v := .NetworkSettings.Networks}}{{printf "%s\n" $k}}{{end}}' rabbitmq-petinder | head -n1 || true)
           if [ -n "$NETWORK_NAME" ]; then
-            echo "Will attach app container to network: $NETWORK_NAME"
             NETWORK_ARG="--network $NETWORK_NAME"
             RABBIT_HOST="rabbitmq-petinder"
           else
-            echo "No docker network found for rabbitmq-petinder; falling back to host gateway"
             NETWORK_ARG=""
             RABBIT_HOST="host.docker.internal"
           fi
-
-          echo "Using RABBIT_HOST=$RABBIT_HOST"
 
           sudo docker run -d --name deploy-back \
             $NETWORK_ARG \
@@ -202,7 +166,6 @@ jobs:
             -p 8080:8080 \
             "${{ env.IMAGE }}"
 
-          # securely remove the env file from the runner
           if command -v shred >/dev/null 2>&1; then
             sudo shred -u "$ENV_FILE" || sudo rm -f "$ENV_FILE"
           else
