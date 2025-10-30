@@ -49,18 +49,44 @@ jobs:
 
       - name: Ensure docker compose and start RabbitMQ (if not running)
         run: |
-          sudo docker rm -f rabbitmq-petinder || true
-          echo "Starting rabbitmq via docker compose"
-          
+          echo "Removing any existing rabbitmq containers by name and ancestor image..."
+          sudo docker ps -a --filter "name=rabbitmq-petinder" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
+          sudo docker ps -a --filter "ancestor=rabbitmq" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
+
+          echo "Tearing down any existing compose stack (down --volumes --remove-orphans)..."
           if sudo docker compose version >/dev/null 2>&1; then
-            sudo docker compose -f compose.yaml pull || true
-            sudo docker compose -f compose.yaml up -d
+            # remove volumes by default here to avoid stale data; this can be toggled via WIPE_RABBITMQ env var
+            if [ "$WIPE_RABBITMQ" = "true" ]; then
+              echo "WIPE_RABBITMQ=true -> removing compose volumes"
+              sudo docker compose -f compose.yaml down --volumes --remove-orphans || true
+            else
+              sudo docker compose -f compose.yaml down --remove-orphans || true
+            fi
           elif command -v docker-compose >/dev/null 2>&1; then
-            sudo docker-compose -f compose.yaml pull || true
-            sudo docker-compose -f compose.yaml up -d
+            if [ "$WIPE_RABBITMQ" = "true" ]; then
+              echo "WIPE_RABBITMQ=true -> removing compose volumes"
+              sudo docker-compose -f compose.yaml down --volumes --remove-orphans || true
+            else
+              sudo docker-compose -f compose.yaml down --remove-orphans || true
+            fi
           else
             echo "docker compose not found on runner; please install docker compose" >&2
             exit 1
+          fi
+
+          # If the volume still exists (named volume `rabbitmq-data`), optionally remove it when WIPE_RABBITMQ=true
+          if [ "$WIPE_RABBITMQ" = "true" ]; then
+            echo "WIPE_RABBITMQ=true -> attempting to remove named volume 'rabbitmq-data' (ignore errors)"
+            sudo docker volume rm rabbitmq-data || true
+          fi
+
+          echo "Starting rabbitmq via docker compose (pull + force recreate)"
+          if sudo docker compose version >/dev/null 2>&1; then
+            sudo docker compose -f compose.yaml pull || true
+            sudo docker compose -f compose.yaml up -d --force-recreate --remove-orphans
+          elif command -v docker-compose >/dev/null 2>&1; then
+            sudo docker-compose -f compose.yaml pull || true
+            sudo docker-compose -f compose.yaml up -d --force-recreate --remove-orphans
           fi
 
       - name: Wait for RabbitMQ healthcheck to be healthy
