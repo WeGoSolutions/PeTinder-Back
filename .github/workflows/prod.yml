@@ -112,7 +112,25 @@ jobs:
 
       - name: Stop e remove container existente (caso haja)
         run: |
-          sudo docker rm -f deploy-back || true
+          # robust cleanup: remove containers by name and by image (force removal)
+          TARGET_NAME="deploy-back"
+          TARGET_IMAGE="${{ env.IMAGE }}"
+
+          echo "Removing containers named $TARGET_NAME (if any)..."
+          # remove any container whose name matches TARGET_NAME
+          sudo docker ps -a --filter "name=$TARGET_NAME" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
+
+          echo "Removing containers created from image $TARGET_IMAGE (if any)..."
+          # remove containers that were created from the same image/tag
+          sudo docker ps -a --filter "ancestor=$TARGET_IMAGE" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
+
+          echo "Removing leftover containers using repository 'petinder' (fallback)..."
+          # fallback: remove containers that may have been created from similar images/names
+          sudo docker ps -a --filter "ancestor=petinder" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
+
+          echo "Optionally remove local image ${TARGET_IMAGE} to force fresh pull..."
+          # remove local image with the same repo:tag so the next pull gets the expected image
+          sudo docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v img="$TARGET_IMAGE" '$0 ~ img {print $2}' | xargs -r sudo docker rmi -f || true
 
       - name: Criar env file seguro e rodar container usando --env-file
         run: |
