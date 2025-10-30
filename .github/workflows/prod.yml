@@ -39,7 +39,10 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: [self-hosted, "pt-01", "pt-02"]
+    strategy:
+      matrix:
+        runner: ["pt-01", "pt-02"]
+    runs-on: [self-hosted, ${{ matrix.runner }}]
     steps:
       - name: Liberar porta 8080 e 3306 no firewall (ufw) — só se aplicável
         run: sudo ufw allow 8080/tcp && sudo ufw allow 3306/tcp
