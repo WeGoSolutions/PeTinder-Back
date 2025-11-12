@@ -1,6 +1,6 @@
 package cruds.Pets.V2.infrastructure.gateway;
 
-import cruds.Ong.repository.OngRepository;
+import cruds.Ong.V2.infrastructure.persistence.jpa.OngJpaRepository;
 import cruds.Pets.V2.core.adapter.OngGateway;
 import org.springframework.stereotype.Component;
 
@@ -9,9 +9,9 @@ import java.util.UUID;
 @Component
 public class OngGatewayImpl implements OngGateway {
 
-    private final OngRepository ongRepository;
+    private final OngJpaRepository ongRepository;
 
-    public OngGatewayImpl(OngRepository ongRepository) {
+    public OngGatewayImpl(OngJpaRepository ongRepository) {
         this.ongRepository = ongRepository;
     }
 

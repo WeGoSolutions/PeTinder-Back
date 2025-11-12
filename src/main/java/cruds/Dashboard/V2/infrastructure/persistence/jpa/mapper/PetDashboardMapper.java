@@ -1,11 +1,11 @@
 package cruds.Dashboard.V2.infrastructure.persistence.jpa.mapper;
 
 import cruds.Dashboard.V2.core.domain.PetDashboard;
-import cruds.Pets.entity.Pet;
+import cruds.Pets.V2.infrastructure.persistence.jpa.PetEntity;
 
 public class PetDashboardMapper {
 
-    public static PetDashboard toDomain(Pet entity) {
+    public static PetDashboard toDomain(PetEntity entity) {
         if (entity == null) return null;
 
 
@@ -20,7 +20,7 @@ public class PetDashboardMapper {
             entity.getIsCastrado(),
             entity.getIsVermifugo(),
             entity.getIsVacinado(),
-            entity.getIsAdopted(),
+            entity.getIsAdotado(),
             entity.getCurtidas()
         );
     }
