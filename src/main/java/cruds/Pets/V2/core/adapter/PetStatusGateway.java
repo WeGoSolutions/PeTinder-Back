@@ -32,4 +32,8 @@ public interface PetStatusGateway {
     boolean existePorPetEUsuario(UUID petId, UUID userId);
 
     List<UUID> buscarPetsNaoInteragidosPorUsuario(UUID userId);
+    
+    List<PetStatus> buscarTodosLiked();
+    
+    List<PetStatus> buscarLikedPorUsuario(UUID userId);
 }

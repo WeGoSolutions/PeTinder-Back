@@ -77,13 +77,4 @@ public class PetResponseWebDTO {
         dto.setStatus(status);
         return dto;
     }
-    
-    // V1 compatibility method - converts V1 enum to V2 enum
-    public static PetResponseWebDTO fromDomain(Pet pet, cruds.Pets.enums.PetStatusEnum v1Status) {
-        PetResponseWebDTO dto = fromDomain(pet);
-        if (v1Status != null) {
-            dto.setStatus(PetStatusEnum.valueOf(v1Status.name()));
-        }
-        return dto;
-    }
 }
