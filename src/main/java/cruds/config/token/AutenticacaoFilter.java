@@ -1,6 +1,6 @@
 package cruds.config.token;
 
-import cruds.Users.service.AutenticacaoService;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,11 +21,11 @@ public class AutenticacaoFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AutenticacaoFilter.class);
 
-    private final AutenticacaoService autenticacaoService;
+    private final UserDetailsService autenticacaoService;
 
     private final GerenciadorTokenJwt jwtTokenManager;
 
-    public AutenticacaoFilter(AutenticacaoService autenticacaoService, GerenciadorTokenJwt jwtTokenManager) {
+    public AutenticacaoFilter(UserDetailsService autenticacaoService, GerenciadorTokenJwt jwtTokenManager) {
         this.autenticacaoService = autenticacaoService;
         this.jwtTokenManager = jwtTokenManager;
     }

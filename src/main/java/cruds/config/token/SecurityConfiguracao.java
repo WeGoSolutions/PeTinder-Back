@@ -1,6 +1,6 @@
 package cruds.config.token;
 
-import cruds.Users.service.AutenticacaoService;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -31,9 +31,9 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfiguracao {
 
-    private final AutenticacaoService autenticacaoService;
+    private final UserDetailsService autenticacaoService;
 
-    public SecurityConfiguracao(AutenticacaoService autenticacaoService) {
+    public SecurityConfiguracao(UserDetailsService autenticacaoService) {
         this.autenticacaoService = autenticacaoService;
     }
 

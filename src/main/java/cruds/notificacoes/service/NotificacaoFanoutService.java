@@ -2,7 +2,7 @@ package cruds.notificacoes.service;
 
 import cruds.notificacoes.consumidor.NotificacaoListener;
 import cruds.notificacoes.dto.NotificacaoDTO;
-import cruds.Pets.service.PetStatusService;
+import cruds.Pets.V2.infrastructure.web.service.PetStatusQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
@@ -20,7 +20,7 @@ public class NotificacaoFanoutService {
 
     private final RabbitTemplate rabbitTemplate;
     private final AmqpAdmin amqpAdmin;
-    private final PetStatusService petStatusService;
+    private final PetStatusQueryService petStatusQueryService;
     private final NotificacaoListener notificacaoListener;
 
     private final Set<String> exchangesCriados = ConcurrentHashMap.newKeySet();
@@ -46,7 +46,7 @@ public class NotificacaoFanoutService {
     }
 
     public void notificarUsuarioSelecionado(UUID petId, UUID userId) {
-        String nomePet = petStatusService.getPetNomeById(petId);
+        String nomePet = petStatusQueryService.getPetNomeById(petId);
         String nomeFila = gerarNomeFila(userId);
 
         NotificacaoDTO notificacao = new NotificacaoDTO(
@@ -62,7 +62,7 @@ public class NotificacaoFanoutService {
     }
 
     public void notificarDemaisInteressados(UUID petId) {
-        String nomePet = petStatusService.getPetNomeById(petId);
+        String nomePet = petStatusQueryService.getPetNomeById(petId);
         String nomeExchange = gerarNomeExchange(petId);
 
         NotificacaoDTO notificacao = new NotificacaoDTO(
