@@ -69,12 +69,12 @@ public class PetStatusController {
 
     @Operation(summary = "Lista todos os pets e o status de cada um para cada usuário")
     @GetMapping
-    public ResponseEntity<Page<Object>> listarTodos(
+    public ResponseEntity<Page<Map<String, Object>>> listarTodos(
                                                       @RequestParam(defaultValue = "0") int page,
                                                       @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<Object> pets = petStatusQueryService.getAllPetsWithUserStatus(pageable);
+        Page<Map<String, Object>> pets = petStatusQueryService.getAllPetsWithUserStatus(pageable);
 
         if (pets.isEmpty()) {
             return ResponseEntity.status(204).build();
