@@ -23,8 +23,8 @@ public class OngJpaAdapter implements OngGateway {
 
     @Override
     public Ong salvar(Ong ong) {
-        cruds.Ong.entity.Ong entity = OngMapper.toEntity(ong);
-        cruds.Ong.entity.Ong savedEntity = repository.save(entity);
+        OngEntity entity = OngMapper.toEntity(ong);
+        OngEntity savedEntity = repository.save(entity);
         return OngMapper.toDomain(savedEntity);
     }
 

@@ -3,14 +3,16 @@ package cruds.Ong.V2.infrastructure.persistence.jpa.mapper;
 import cruds.Ong.V2.core.domain.EnderecoOng;
 import cruds.Ong.V2.core.domain.ImagemOng;
 import cruds.Ong.V2.core.domain.Ong;
-import cruds.Users.entity.Endereco;
+import cruds.Ong.V2.infrastructure.persistence.jpa.OngEntity;
+import cruds.Ong.V2.infrastructure.persistence.jpa.ImagemOngEntity;
+import cruds.Users.V2.infrastructure.persistence.jpa.EnderecoEntity;
 
 public class OngMapper {
 
-    public static cruds.Ong.entity.Ong toEntity(Ong domain) {
+    public static OngEntity toEntity(Ong domain) {
         if (domain == null) return null;
 
-        cruds.Ong.entity.Ong.OngBuilder builder = cruds.Ong.entity.Ong.builder()
+        OngEntity.OngEntityBuilder builder = OngEntity.builder()
                 .id(domain.getId())
                 .cnpj(domain.getCnpj())
                 .cpf(domain.getCpf())
@@ -31,7 +33,7 @@ public class OngMapper {
         return builder.build();
     }
 
-    public static Ong toDomain(cruds.Ong.entity.Ong entity) {
+    public static Ong toDomain(OngEntity entity) {
         if (entity == null) return null;
 
         Ong ong = new Ong(
@@ -56,7 +58,7 @@ public class OngMapper {
         return ong;
     }
 
-    private static Endereco toEnderecoEntity(EnderecoOng domain) {
+    private static EnderecoEntity toEnderecoEntity(EnderecoOng domain) {
         if (domain == null) return null;
 
         Integer numero = null;
@@ -69,7 +71,7 @@ public class OngMapper {
             }
         }
 
-        return Endereco.builder()
+        return EnderecoEntity.builder()
                 .id(domain.getId())
                 .cep(domain.getCep())
                 .rua(domain.getRua())
@@ -80,7 +82,7 @@ public class OngMapper {
                 .build();
     }
 
-    private static EnderecoOng toEnderecoDomain(Endereco entity) {
+    private static EnderecoOng toEnderecoDomain(EnderecoEntity entity) {
         if (entity == null) return null;
 
         String numero = entity.getNumero() != null ? entity.getNumero().toString() : null;
@@ -96,16 +98,16 @@ public class OngMapper {
         );
     }
 
-    private static cruds.Imagem.entity.ImagemOng toImagemOngEntity(ImagemOng domain) {
+    private static ImagemOngEntity toImagemOngEntity(ImagemOng domain) {
         if (domain == null) return null;
 
-        cruds.Imagem.entity.ImagemOng entity = new cruds.Imagem.entity.ImagemOng(domain.getDados());
+        ImagemOngEntity entity = new ImagemOngEntity(domain.getDados());
         entity.setId(domain.getId());
         entity.setArquivo(domain.getArquivo());
         return entity;
     }
 
-    private static ImagemOng toImagemOngDomain(cruds.Imagem.entity.ImagemOng entity) {
+    private static ImagemOng toImagemOngDomain(ImagemOngEntity entity) {
         if (entity == null) return null;
 
         return new ImagemOng(

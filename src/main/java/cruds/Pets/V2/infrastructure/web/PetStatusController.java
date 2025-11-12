@@ -70,7 +70,7 @@ public class PetStatusController {
         cruds.Pets.controller.dto.request.PetStatusRequestDTO v1Dto = new cruds.Pets.controller.dto.request.PetStatusRequestDTO();
         v1Dto.setPetId(dto.getPetId());
         v1Dto.setUserId(dto.getUserId());
-        v1Dto.setStatus(dto.getStatus());
+        v1Dto.setStatus(cruds.Pets.enums.PetStatusEnum.valueOf(dto.getStatus().name()));
         v1Dto.setCurtidas(dto.getCurtidas());
 
         var petStatus = petStatusService.createOrUpdatePetStatus(v1Dto);
@@ -124,7 +124,7 @@ public class PetStatusController {
 
         var existingStatusOpt = petStatusRepository.findByPetIdAndUserId(petId, userId);
 
-        if (existingStatusOpt.isPresent() && existingStatusOpt.get().getStatus() == PetStatusEnum.LIKED) {
+        if (existingStatusOpt.isPresent() && existingStatusOpt.get().getStatus() == cruds.Pets.enums.PetStatusEnum.LIKED) {
             petStatusService.decrementarCurtidasPet(petId);
             petStatusService.deletePetStatus(petId, userId);
             return ResponseEntity.noContent().build();
@@ -133,7 +133,7 @@ public class PetStatusController {
         PetStatusRequestWebDTO dto = new PetStatusRequestWebDTO();
         dto.setPetId(petId);
         dto.setUserId(userId);
-        dto.setStatus(PetStatusEnum.LIKED);
+        dto.setStatus(cruds.Pets.V2.core.domain.PetStatusEnum.LIKED);
 
         petStatusService.incrementarCurtidasPet(petId);
 
@@ -141,7 +141,7 @@ public class PetStatusController {
         cruds.Pets.controller.dto.request.PetStatusRequestDTO v1Dto = new cruds.Pets.controller.dto.request.PetStatusRequestDTO();
         v1Dto.setPetId(dto.getPetId());
         v1Dto.setUserId(dto.getUserId());
-        v1Dto.setStatus(dto.getStatus());
+        v1Dto.setStatus(cruds.Pets.enums.PetStatusEnum.valueOf(dto.getStatus().name()));
 
         var petStatus = petStatusService.createOrUpdatePetStatus(v1Dto);
         return ResponseEntity.ok(PetStatusResponseWebDTO.fromEntity(petStatus));
@@ -170,14 +170,14 @@ public class PetStatusController {
         PetStatusRequestWebDTO dto = new PetStatusRequestWebDTO();
         dto.setPetId(petId);
         dto.setUserId(userId);
-        dto.setStatus(PetStatusEnum.PENDING);
+        dto.setStatus(cruds.Pets.V2.core.domain.PetStatusEnum.PENDING);
         dto.getAlteradoParaPending();
 
         // Converter para DTO V1 para usar a mesma lógica
         cruds.Pets.controller.dto.request.PetStatusRequestDTO v1Dto = new cruds.Pets.controller.dto.request.PetStatusRequestDTO();
         v1Dto.setPetId(dto.getPetId());
         v1Dto.setUserId(dto.getUserId());
-        v1Dto.setStatus(dto.getStatus());
+        v1Dto.setStatus(cruds.Pets.enums.PetStatusEnum.valueOf(dto.getStatus().name()));
 
         var petStatus = petStatusService.createOrUpdatePetStatus(v1Dto);
 

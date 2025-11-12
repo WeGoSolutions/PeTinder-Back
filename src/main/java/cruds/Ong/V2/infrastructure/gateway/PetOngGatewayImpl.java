@@ -1,9 +1,9 @@
 package cruds.Ong.V2.infrastructure.gateway;
 
 import cruds.Ong.V2.core.adapter.PetOngGateway;
-import cruds.Pets.entity.Pet;
-import cruds.Pets.repository.PetRepository;
-import cruds.Pets.repository.PetStatusRepository;
+import cruds.Pets.V2.infrastructure.persistence.jpa.PetEntity;
+import cruds.Pets.V2.infrastructure.persistence.jpa.PetJpaRepository;
+import cruds.Pets.V2.infrastructure.persistence.jpa.PetStatusJpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -17,20 +17,20 @@ import java.util.stream.IntStream;
 @Component
 public class PetOngGatewayImpl implements PetOngGateway {
 
-    private final PetRepository petRepository;
-    private final PetStatusRepository petStatusRepository;
+    private final PetJpaRepository petRepository;
+    private final PetStatusJpaRepository petStatusRepository;
 
-    public PetOngGatewayImpl(PetRepository petRepository, PetStatusRepository petStatusRepository) {
+    public PetOngGatewayImpl(PetJpaRepository petRepository, PetStatusJpaRepository petStatusRepository) {
         this.petRepository = petRepository;
         this.petStatusRepository = petStatusRepository;
     }
 
     @Override
     public Page<PetOngInfo> listarPetsPorOng(UUID ongId, Pageable pageable) {
-        Page<Pet> petsPage = petRepository.findByOng_Id(ongId, pageable);
+        Page<PetEntity> petsPage = petRepository.findByOngId(ongId, pageable);
 
         return petsPage.map(pet -> {
-            List<String> statusList = petStatusRepository.findByPet_Id(pet.getId())
+            List<String> statusList = petStatusRepository.findByPetId(pet.getId())
                     .stream()
                     .map(status -> status.getStatus().name())
                     .collect(Collectors.toList());
@@ -41,11 +41,8 @@ public class PetOngGatewayImpl implements PetOngGateway {
                     .build()
                     .toUriString();
 
-            List<String> imageUrls = pet.getImagens() == null
-                    ? null
-                    : IntStream.range(0, pet.getImagens().size())
-                    .mapToObj(i -> baseUri + "/api/pets/" + pet.getId() + "/imagens/" + i)
-                    .collect(Collectors.toList());
+            // Imagens não estão disponíveis diretamente no PetEntity, então retornamos null por enquanto
+            List<String> imageUrls = null;
 
             return new PetOngInfo(
                     ongId,

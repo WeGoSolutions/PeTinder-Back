@@ -1,6 +1,7 @@
 package cruds.Pets.V2.infrastructure.web.dto;
 
-import cruds.Pets.entity.PetStatus;
+import cruds.Pets.V2.infrastructure.persistence.jpa.PetStatusEntity;
+import cruds.Pets.V2.infrastructure.persistence.jpa.PetEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,28 @@ public class PetStatusResponseWebDTO {
     private String status;
     private String imageUrl;
 
-    public static PetStatusResponseWebDTO fromEntity(PetStatus petStatus) {
+    // V2 method
+    public static PetStatusResponseWebDTO fromEntity(PetStatusEntity petStatus, PetEntity pet) {
+        PetStatusResponseWebDTO dto = new PetStatusResponseWebDTO();
+        dto.petId = petStatus.getPetId();
+        dto.petNome = pet != null ? pet.getNome() : null;
+        dto.usuarioId = petStatus.getUserId();
+        dto.status = petStatus.getStatus().name();
+
+        if (pet != null) {
+            // Image URL generation can be added here if needed
+            String base = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .build()
+                    .toUriString();
+            dto.imageUrl = base + "/api/pets/" + pet.getId() + "/imagens/0";
+        }
+
+        return dto;
+    }
+    
+    // V1 compatibility method - to be removed when V1 is deleted
+    public static PetStatusResponseWebDTO fromEntity(cruds.Pets.entity.PetStatus petStatus) {
         PetStatusResponseWebDTO dto = new PetStatusResponseWebDTO();
         dto.petId = petStatus.getPet().getId();
         dto.petNome = petStatus.getPet().getNome();

@@ -1,7 +1,7 @@
 package cruds.Pets.V2.infrastructure.web;
 
 import cruds.Pets.V2.core.application.usecase.*;
-import cruds.Pets.enums.PetStatusEnum;
+import cruds.Pets.V2.core.domain.PetStatusEnum;
 import cruds.Pets.V2.infrastructure.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -194,7 +194,7 @@ public class PetController {
         // Delegar para o PetStatusController que tem toda a lógica
         var existingStatusOpt = petStatusRepository.findByPetIdAndUserId(petId, userId);
 
-        if (existingStatusOpt.isPresent() && existingStatusOpt.get().getStatus() == PetStatusEnum.LIKED) {
+        if (existingStatusOpt.isPresent() && existingStatusOpt.get().getStatus() == cruds.Pets.enums.PetStatusEnum.LIKED) {
             curtirPetUseCase.descurtir(petId);
             petStatusService.deletePetStatus(petId, userId);
             return ResponseEntity.noContent().build();
@@ -211,7 +211,7 @@ public class PetController {
         cruds.Pets.controller.dto.request.PetStatusRequestDTO v1Dto = new cruds.Pets.controller.dto.request.PetStatusRequestDTO();
         v1Dto.setPetId(dto.getPetId());
         v1Dto.setUserId(dto.getUserId());
-        v1Dto.setStatus(dto.getStatus());
+        v1Dto.setStatus(cruds.Pets.enums.PetStatusEnum.valueOf(dto.getStatus().name()));
 
         petStatusService.createOrUpdatePetStatus(v1Dto);
 

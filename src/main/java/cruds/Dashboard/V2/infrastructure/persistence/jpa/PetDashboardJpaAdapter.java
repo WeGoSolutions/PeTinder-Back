@@ -3,7 +3,7 @@ package cruds.Dashboard.V2.infrastructure.persistence.jpa;
 import cruds.Dashboard.V2.core.adapter.PetDashboardGateway;
 import cruds.Dashboard.V2.core.domain.PetDashboard;
 import cruds.Dashboard.V2.infrastructure.persistence.jpa.mapper.PetDashboardMapper;
-import cruds.Pets.repository.PetRepository;
+import cruds.Pets.V2.infrastructure.persistence.jpa.PetJpaRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 @Component
 public class PetDashboardJpaAdapter implements PetDashboardGateway {
 
-    private final PetRepository petRepository;
+    private final PetJpaRepository petRepository;
 
-    public PetDashboardJpaAdapter(PetRepository petRepository) {
+    public PetDashboardJpaAdapter(PetJpaRepository petRepository) {
         this.petRepository = petRepository;
     }
 
@@ -36,14 +36,14 @@ public class PetDashboardJpaAdapter implements PetDashboardGateway {
     @Override
     public long contarPetsAdotadosPorOngId(UUID ongId) {
         return petRepository.findByOngId(ongId).stream()
-                .filter(pet -> Boolean.TRUE.equals(pet.getIsAdopted()))
+                .filter(pet -> Boolean.TRUE.equals(pet.getIsAdotado()))
                 .count();
     }
 
     @Override
     public long contarPetsNaoAdotadosPorOngId(UUID ongId) {
         return petRepository.findByOngId(ongId).stream()
-                .filter(pet -> !Boolean.TRUE.equals(pet.getIsAdopted()))
+                .filter(pet -> !Boolean.TRUE.equals(pet.getIsAdotado()))
                 .count();
     }
 }
