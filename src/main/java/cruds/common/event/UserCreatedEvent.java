@@ -1,17 +1,17 @@
 package cruds.common.event;
 
-import cruds.Users.controller.dto.response.UserResponseCadastroDTO;
+import cruds.Users.V2.infrastructure.web.dto.UsuarioResponseWebDTO;
 import org.springframework.context.ApplicationEvent;
 
 public class UserCreatedEvent extends ApplicationEvent {
-    private final UserResponseCadastroDTO user;
+    private final UsuarioResponseWebDTO user;
 
-    public UserCreatedEvent(Object source, UserResponseCadastroDTO user) {
+    public UserCreatedEvent(Object source, UsuarioResponseWebDTO user) {
         super(source);
         this.user = user;
     }
 
-    public UserResponseCadastroDTO getUser() {
+    public UsuarioResponseWebDTO getUser() {
         return user;
     }
 }

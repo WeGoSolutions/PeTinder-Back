@@ -268,4 +268,14 @@ public class PetStatusQueryService {
                 enderecoDTO
         );
     }
+    
+    /**
+     * Gets the pet name by its ID.
+     * Used by NotificacaoFanoutService to send notifications.
+     */
+    public String getPetNomeById(UUID petId) {
+        return petGateway.buscarPorId(petId)
+                .map(Pet::getNome)
+                .orElse("");
+    }
 }
