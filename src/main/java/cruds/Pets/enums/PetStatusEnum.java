@@ -1,7 +1,7 @@
-package cruds.Pets.enums;
-
-public enum PetStatusEnum {
-    LIKED,
-    PENDING,
-    ADOPTED
-}
+//package cruds.Pets.enums;
+//
+//public enum PetStatusEnum {
+//    LIKED,
+//    PENDING,
+//    ADOPTED
+//}
