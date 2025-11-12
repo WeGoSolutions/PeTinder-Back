@@ -1,6 +1,6 @@
 package cruds.Pets.V2.infrastructure.web.dto;
 
-import cruds.Pets.enums.PetStatusEnum;
+import cruds.Pets.V2.core.domain.PetStatusEnum;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

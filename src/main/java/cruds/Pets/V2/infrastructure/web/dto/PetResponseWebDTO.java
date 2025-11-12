@@ -1,7 +1,7 @@
 package cruds.Pets.V2.infrastructure.web.dto;
 
 import cruds.Pets.V2.core.domain.Pet;
-import cruds.Pets.enums.PetStatusEnum;
+import cruds.Pets.V2.core.domain.PetStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -75,6 +75,15 @@ public class PetResponseWebDTO {
     public static PetResponseWebDTO fromDomain(Pet pet, PetStatusEnum status) {
         PetResponseWebDTO dto = fromDomain(pet);
         dto.setStatus(status);
+        return dto;
+    }
+    
+    // V1 compatibility method - converts V1 enum to V2 enum
+    public static PetResponseWebDTO fromDomain(Pet pet, cruds.Pets.enums.PetStatusEnum v1Status) {
+        PetResponseWebDTO dto = fromDomain(pet);
+        if (v1Status != null) {
+            dto.setStatus(PetStatusEnum.valueOf(v1Status.name()));
+        }
         return dto;
     }
 }
