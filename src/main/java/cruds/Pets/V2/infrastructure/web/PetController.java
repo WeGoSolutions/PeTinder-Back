@@ -2,7 +2,9 @@ package cruds.Pets.V2.infrastructure.web;
 
 import cruds.Pets.V2.core.application.usecase.*;
 import cruds.Pets.V2.core.domain.PetStatusEnum;
+import cruds.Pets.V2.core.adapter.PetStatusGateway;
 import cruds.Pets.V2.infrastructure.web.dto.*;
+import cruds.notificacoes.service.NotificacaoFanoutService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,8 +36,10 @@ public class PetController {
     private final UploadImagemPetUseCase uploadImagemPetUseCase;
     private final BuscarImagemPetUseCase buscarImagemPetUseCase;
     private final RemoverImagemPetUseCase removerImagemPetUseCase;
-    private final cruds.Pets.repository.PetStatusRepository petStatusRepository;
-    private final cruds.Pets.service.PetStatusService petStatusService;
+    private final PetStatusGateway petStatusGateway;
+    private final CriarOuAtualizarPetStatusUseCase criarOuAtualizarPetStatusUseCase;
+    private final RemoverPetStatusUseCase removerPetStatusUseCase;
+    private final NotificacaoFanoutService notificacaoFanoutService;
 
     public PetController(CriarPetUseCase criarPetUseCase,
                          BuscarPetPorIdUseCase buscarPetPorIdUseCase,
@@ -48,8 +52,10 @@ public class PetController {
                          UploadImagemPetUseCase uploadImagemPetUseCase,
                          BuscarImagemPetUseCase buscarImagemPetUseCase,
                          RemoverImagemPetUseCase removerImagemPetUseCase,
-                         cruds.Pets.repository.PetStatusRepository petStatusRepository,
-                         cruds.Pets.service.PetStatusService petStatusService) {
+                         PetStatusGateway petStatusGateway,
+                         CriarOuAtualizarPetStatusUseCase criarOuAtualizarPetStatusUseCase,
+                         RemoverPetStatusUseCase removerPetStatusUseCase,
+                         NotificacaoFanoutService notificacaoFanoutService) {
         this.criarPetUseCase = criarPetUseCase;
         this.buscarPetPorIdUseCase = buscarPetPorIdUseCase;
         this.listarPetsUseCase = listarPetsUseCase;
@@ -61,8 +67,10 @@ public class PetController {
         this.uploadImagemPetUseCase = uploadImagemPetUseCase;
         this.buscarImagemPetUseCase = buscarImagemPetUseCase;
         this.removerImagemPetUseCase = removerImagemPetUseCase;
-        this.petStatusRepository = petStatusRepository;
-        this.petStatusService = petStatusService;
+        this.petStatusGateway = petStatusGateway;
+        this.criarOuAtualizarPetStatusUseCase = criarOuAtualizarPetStatusUseCase;
+        this.removerPetStatusUseCase = removerPetStatusUseCase;
+        this.notificacaoFanoutService = notificacaoFanoutService;
     }
 
     @Operation(summary = "Cria um novo pet")
@@ -91,8 +99,8 @@ public class PetController {
 
         // Se userId foi fornecido, buscar o status do pet para este usuário
         if (userId != null) {
-            var petStatusOpt = petStatusRepository.findByPetIdAndUserId(id, userId);
-            var status = petStatusOpt.map(cruds.Pets.entity.PetStatus::getStatus).orElse(null);
+            var petStatusOpt = petStatusGateway.buscarPorPetEUsuario(id, userId);
+            var status = petStatusOpt.map(ps -> ps.getStatus()).orElse(null);
             return ResponseEntity.ok(PetResponseWebDTO.fromDomain(pet, status));
         }
 
@@ -191,29 +199,19 @@ public class PetController {
     public ResponseEntity<?> curtirPetComUsuario(
             @PathVariable UUID petId,
             @PathVariable UUID userId) {
-        // Delegar para o PetStatusController que tem toda a lógica
-        var existingStatusOpt = petStatusRepository.findByPetIdAndUserId(petId, userId);
+        // Buscar status existente
+        var existingStatusOpt = petStatusGateway.buscarPorPetEUsuario(petId, userId);
 
-        if (existingStatusOpt.isPresent() && existingStatusOpt.get().getStatus() == cruds.Pets.enums.PetStatusEnum.LIKED) {
+        if (existingStatusOpt.isPresent() && existingStatusOpt.get().getStatus() == PetStatusEnum.LIKED) {
             curtirPetUseCase.descurtir(petId);
-            petStatusService.deletePetStatus(petId, userId);
+            removerPetStatusUseCase.executar(petId, userId);
             return ResponseEntity.noContent().build();
         }
 
         var pet = curtirPetUseCase.curtir(petId);
 
         // Criar o status LIKED
-        PetStatusRequestWebDTO dto = new PetStatusRequestWebDTO();
-        dto.setPetId(petId);
-        dto.setUserId(userId);
-        dto.setStatus(PetStatusEnum.LIKED);
-
-        cruds.Pets.controller.dto.request.PetStatusRequestDTO v1Dto = new cruds.Pets.controller.dto.request.PetStatusRequestDTO();
-        v1Dto.setPetId(dto.getPetId());
-        v1Dto.setUserId(dto.getUserId());
-        v1Dto.setStatus(cruds.Pets.enums.PetStatusEnum.valueOf(dto.getStatus().name()));
-
-        petStatusService.createOrUpdatePetStatus(v1Dto);
+        criarOuAtualizarPetStatusUseCase.executar(petId, userId, PetStatusEnum.LIKED);
 
         return ResponseEntity.ok(PetResponseWebDTO.fromDomain(pet));
     }

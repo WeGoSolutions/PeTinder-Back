@@ -23,6 +23,17 @@ public class PetStatus {
         validarDados();
     }
     
+    public PetStatus(UUID id, UUID petId, UUID userId, PetStatusEnum status, LocalDateTime alteradoParaPending, LocalDateTime dataCriacao) {
+        this.id = id;
+        this.petId = petId;
+        this.userId = userId;
+        this.status = status;
+        this.alteradoParaPending = alteradoParaPending;
+        this.dataCriacao = dataCriacao != null ? dataCriacao : LocalDateTime.now();
+        
+        validarDados();
+    }
+    
     public PetStatus(UUID petId, UUID userId, PetStatusEnum status) {
         this(null, petId, userId, status, null);
     }
@@ -68,6 +79,7 @@ public class PetStatus {
     
     // Setters necessários para persistência
     public void setId(UUID id) { this.id = id; }
+    public void setStatus(PetStatusEnum status) { this.status = status; }
     public void setAlteradoParaPending(LocalDateTime alteradoParaPending) { this.alteradoParaPending = alteradoParaPending; }
     public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
 }

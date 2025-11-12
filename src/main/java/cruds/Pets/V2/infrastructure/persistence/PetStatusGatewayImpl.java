@@ -100,4 +100,20 @@ public class PetStatusGatewayImpl implements PetStatusGateway {
     public List<UUID> buscarPetsNaoInteragidosPorUsuario(UUID userId) {
         return repository.findPetsNotInteractedByUser(userId);
     }
+    
+    @Override
+    public List<PetStatus> buscarTodosLiked() {
+        return repository.findAllLikedStatusPets()
+                .stream()
+                .map(PetStatusMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<PetStatus> buscarLikedPorUsuario(UUID userId) {
+        return repository.findLikedStatusPetsByUserId(userId)
+                .stream()
+                .map(PetStatusMapper::toDomain)
+                .collect(Collectors.toList());
+    }
 }

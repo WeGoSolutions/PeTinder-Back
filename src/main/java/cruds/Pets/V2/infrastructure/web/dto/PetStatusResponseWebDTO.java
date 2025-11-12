@@ -39,24 +39,4 @@ public class PetStatusResponseWebDTO {
 
         return dto;
     }
-    
-    // V1 compatibility method - to be removed when V1 is deleted
-    public static PetStatusResponseWebDTO fromEntity(cruds.Pets.entity.PetStatus petStatus) {
-        PetStatusResponseWebDTO dto = new PetStatusResponseWebDTO();
-        dto.petId = petStatus.getPet().getId();
-        dto.petNome = petStatus.getPet().getNome();
-        dto.usuarioId = petStatus.getUser().getId();
-        dto.status = petStatus.getStatus().name();
-
-        var pet = petStatus.getPet();
-        if (pet.getImagens() != null && !pet.getImagens().isEmpty()) {
-            String base = ServletUriComponentsBuilder
-                    .fromCurrentContextPath()
-                    .build()
-                    .toUriString();
-            dto.imageUrl = base + "/api/pets/" + pet.getId() + "/imagens/0";
-        }
-
-        return dto;
-    }
 }
