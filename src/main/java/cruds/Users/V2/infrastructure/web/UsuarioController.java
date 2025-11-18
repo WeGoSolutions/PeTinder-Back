@@ -125,11 +125,12 @@ public class UsuarioController {
     }
 
     @Operation(summary = "Atualiza senha do usuário")
-    @PatchMapping("/{id}/senha")
+    @PatchMapping("/{email}/senha")
     public ResponseEntity<UsuarioResponseWebDTO> atualizarSenha(
-            @PathVariable UUID id,
+            @PathVariable String email,
             @Valid @RequestBody AtualizarSenhaWebDTO request) {
-        var usuario = atualizarSenhaUseCase.atualizarSenha(request.toCommand(id));
+        System.out.println("Request recebido: " + request); // Log de debug
+        var usuario = atualizarSenhaUseCase.atualizarSenha(request.toCommand(email));
         return ResponseEntity.ok(UsuarioResponseWebDTO.fromDomain(usuario));
     }
 
