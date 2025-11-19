@@ -119,7 +119,10 @@ public class PetGatewayImpl implements PetGateway {
     }
 
     @Override
+    @Transactional
     public void remover(UUID id) {
+        imagemPetJpaRepository.deleteAllByPetId(id);
+        petStatusRepository.deleteByPetId(id);
         petJpaRepository.deleteById(id);
     }
 

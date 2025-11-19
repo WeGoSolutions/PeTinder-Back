@@ -56,4 +56,8 @@ public class Pet {
     @ManyToOne
     @JoinColumn(name = "fk_ong", nullable = false)
     private Ong ong;
+
+    public Boolean getIsAdopted() {
+        return isAdopted;
+    }
 }

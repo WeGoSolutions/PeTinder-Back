@@ -73,3 +73,31 @@ A documentação da API (Swagger) pode ser acessada em:
 - [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
 ---
+
+## Se aparecer "mvn: command not found"
+
+Opções rápidas:
+
+- Usar Maven (Linux - Ubuntu):
+  ```sh
+  sudo apt update
+  sudo apt install maven -y
+  mvn -v
+  ```
+
+- macOS (Homebrew):
+  ```sh
+  brew install maven
+  mvn -v
+  ```
+
+- Windows:
+  - Usando Chocolatey (utilize o terminal como administrador):
+    choco install maven
+  - Ou instalar manualmente pelo site: https://maven.apache.org/download.cgi
+
+- Alternativa (recomendado em projetos): usar o Maven Wrapper se presente no repositório:
+  - Linux/macOS: ./mvnw -B clean package -DskipTests
+  - Windows (cmd): mvnw.cmd -B clean package -DskipTests
+
+Se preferir eu adiciono o Maven Wrapper (mvnw) ao repositório para evitar necessidade de instalação local.
