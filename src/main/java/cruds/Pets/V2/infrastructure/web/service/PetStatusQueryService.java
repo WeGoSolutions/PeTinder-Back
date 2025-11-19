@@ -68,6 +68,9 @@ public class PetStatusQueryService {
         
         // Aplicar paginação manualmente
         int start = (int) pageable.getOffset();
+        if (start >= result.size()) {
+            return new PageImpl<>(List.of(), pageable, result.size());
+        }
         int end = Math.min((start + pageable.getPageSize()), result.size());
         List<Map<String, Object>> paginatedResult = result.subList(start, end);
         
@@ -110,6 +113,9 @@ public class PetStatusQueryService {
         
         // Aplicar paginação manualmente
         int start = (int) pageable.getOffset();
+        if (start >= availablePets.size()) {
+            return new PageImpl<>(List.of(), pageable, availablePets.size());
+        }
         int end = Math.min((start + pageable.getPageSize()), availablePets.size());
         List<PetResponseGeralWebDTO> paginatedResult = availablePets.subList(start, end);
         
