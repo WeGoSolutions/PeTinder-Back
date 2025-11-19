@@ -29,7 +29,7 @@ public class AtualizarUsuarioWebDTO {
     @NotNull(message = "Data de nascimento é obrigatória")
     @Past(message = "A data de nascimento deve ser no passado")
     @Schema(description = "Data de nascimento do usuário", example = "2000-01-01")
-    private LocalDate dataNasc;
+    private LocalDate dataNascimento;
 
     @NotBlank(message = "CPF é obrigatório")
     @Pattern(regexp = "\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}", message = "CPF deve ter formato válido")
@@ -63,7 +63,7 @@ public class AtualizarUsuarioWebDTO {
 
     public AtualizarUsuarioCommand toCommand(UUID usuarioId) {
         return new AtualizarUsuarioCommand(
-            usuarioId, nome, email, dataNasc, cpf,
+            usuarioId, nome, email, dataNascimento, cpf,
             cep, rua, numero, complemento, cidade, uf
         );
     }
