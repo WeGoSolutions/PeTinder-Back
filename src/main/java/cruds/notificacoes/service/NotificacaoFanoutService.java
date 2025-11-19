@@ -41,7 +41,8 @@ public class NotificacaoFanoutService {
             notificacaoListener.criarListenerParaUsuario(userId);
 
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao configurar notificações do usuário", e);
+            log.error("Erro ao configurar notificações do usuário (RabbitMQ indisponível?) - petId={}, userId={}. Error: {}",
+                    petId, userId, e.getMessage());
         }
     }
 
@@ -56,8 +57,12 @@ public class NotificacaoFanoutService {
                 "Adoção confirmada! " + nomePet + " ganhou um novo lar."
         );
 
-        rabbitTemplate.convertAndSend(nomeFila, notificacao);
-        // Remove o binding para evitar receber notificação dos demais interessados
+        try {
+            rabbitTemplate.convertAndSend(nomeFila, notificacao);
+        } catch (Exception e) {
+            log.warn("Falha ao enviar notificação de usuário selecionado para fila {}: {}", nomeFila, e.getMessage());
+        }
+
         desconectarUsuarioDoPet(petId, userId);
     }
 
@@ -72,8 +77,11 @@ public class NotificacaoFanoutService {
                 "O pet " + nomePet + " já foi adotado por outra pessoa. Continue procurando, o seu amigo perfeito está te esperando!"
         );
 
-        // Envia para o exchange fanout - vai para TODAS as filas conectadas
-        rabbitTemplate.convertAndSend(nomeExchange, "", notificacao);
+        try {
+            rabbitTemplate.convertAndSend(nomeExchange, "", notificacao);
+        } catch (Exception e) {
+            log.warn("Falha ao enviar notificação para exchange {}: {}", nomeExchange, e.getMessage());
+        }
     }
 
     public void desconectarUsuarioDoPet(UUID petId, UUID userId) {
@@ -100,12 +108,14 @@ public class NotificacaoFanoutService {
             FanoutExchange exchange = new FanoutExchange(nomeExchange, true, false);
             amqpAdmin.declareExchange(exchange);
             exchangesCriados.add(nomeExchange);
+            log.info("Exchange criada: {}", nomeExchange);
         }
     }
 
     private void criarFilaSeNaoExistir(String nomeFila) {
         Queue fila = new Queue(nomeFila, true, false, false);
         amqpAdmin.declareQueue(fila);
+        log.info("Fila criada: {}", nomeFila);
     }
 
     private void criarBindingSeNaoExistir(String nomeFila, String nomeExchange, String chaveBinding) {
@@ -115,6 +125,7 @@ public class NotificacaoFanoutService {
             Binding binding = BindingBuilder.bind(fila).to(exchange);
             amqpAdmin.declareBinding(binding);
             bindingsCriados.add(chaveBinding);
+            log.info("Binding criado entre fila {} e exchange {}", nomeFila, nomeExchange);
         }
     }
 
