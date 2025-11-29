@@ -18,6 +18,8 @@ public class ImagemOng {
         this(null, dados, arquivo);
     }
 
+    public ImagemOng(){}
+
     public boolean temImagem() {
         return dados != null && dados.length > 0;
     }

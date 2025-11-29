@@ -21,7 +21,8 @@ public class ImagemPet {
     public ImagemPet(String nomeArquivo, byte[] dados) {
         this(null, nomeArquivo, dados, null);
     }
-    
+
+    public ImagemPet(){}
 
     public boolean temDados() {
         return dados != null && dados.length > 0;

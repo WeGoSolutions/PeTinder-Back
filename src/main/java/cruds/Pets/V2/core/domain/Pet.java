@@ -51,6 +51,8 @@ public class Pet {
                String sexo, UUID ongId) {
         this(null, nome, idade, porte, tags, descricao, isCastrado, isVermifugo, isVacinado, sexo, ongId);
     }
+
+    public Pet(){}
     
     private void validarDados() {
         if (nome == null || nome.trim().isEmpty()) {
