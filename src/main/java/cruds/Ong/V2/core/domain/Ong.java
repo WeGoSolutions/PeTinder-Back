@@ -35,6 +35,8 @@ public class Ong {
         this(null, cnpj, cpf, nome, razaoSocial, senha, email, link);
     }
 
+    public Ong(){}
+
     private void validarDados() {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("Nome é obrigatório");

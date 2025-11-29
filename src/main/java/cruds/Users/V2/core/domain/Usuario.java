@@ -36,6 +36,8 @@ public class Usuario {
         this(null, nome, email, senha, dataNascimento, null, true);
     }
 
+    public Usuario(){}
+
     private void validarIdade() {
         if (dataNascimento == null) {
             throw new IllegalArgumentException("Data de nascimento é obrigatória");

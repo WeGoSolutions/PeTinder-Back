@@ -2,6 +2,7 @@ package cruds.Users.V2.infrastructure.gateway;
 
 import cruds.Users.V2.core.adapter.UsuarioGateway;
 import cruds.Users.V2.core.domain.Usuario;
+import org.springframework.cache.annotation.Cacheable;
 import cruds.Users.V2.infrastructure.persistence.jpa.UsuarioEntity;
 import cruds.Users.V2.infrastructure.persistence.jpa.UsuarioJpaRepository;
 import cruds.Users.V2.infrastructure.persistence.jpa.mapper.UsuarioMapper;

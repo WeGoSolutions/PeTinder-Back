@@ -3,6 +3,7 @@ package cruds.Pets.V2.core.application.usecase;
 import cruds.Pets.V2.core.adapter.PetGateway;
 import cruds.Pets.V2.core.application.exception.PetException;
 import cruds.Pets.V2.core.domain.Pet;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.UUID;
 

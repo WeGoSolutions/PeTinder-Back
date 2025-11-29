@@ -40,8 +40,6 @@ jobs:
   deploy-pt-01:
     needs: build
     runs-on: [self-hosted, "pt-01"]
-    env:
-      WIPE_RABBITMQ: "true"
     steps:
       - name: Info do runner
         run: |
@@ -54,63 +52,6 @@ jobs:
 
       - name: Checkout repository (required to access compose file)
         uses: actions/checkout@v3
-
-      - name: Ensure docker compose and start RabbitMQ (if not running)
-        run: |
-          echo "Removing any existing rabbitmq containers by name and ancestor image..."
-          sudo docker ps -a --filter "name=rabbitmq-petinder" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
-          sudo docker ps -a --filter "ancestor=rabbitmq" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
-
-          echo "Tearing down any existing compose stack..."
-          if sudo docker compose version >/dev/null 2>&1; then
-            if [ "$WIPE_RABBITMQ" = "true" ]; then
-              sudo docker compose -f compose.yaml down --volumes --remove-orphans || true
-            else
-              sudo docker compose -f compose.yaml down --remove-orphans || true
-            fi
-          elif command -v docker-compose >/dev/null 2>&1; then
-            if [ "$WIPE_RABBITMQ" = "true" ]; then
-              sudo docker-compose -f compose.yaml down --volumes --remove-orphans || true
-            else
-              sudo docker-compose -f compose.yaml down --remove-orphans || true
-            fi
-          else
-            echo "docker compose not found on runner; exit" >&2
-            exit 1
-          fi
-
-          if [ "$WIPE_RABBITMQ" = "true" ]; then
-            sudo docker volume rm rabbitmq-data || true
-          fi
-
-          echo "Starting rabbitmq via docker compose (pull + force recreate)"
-          if sudo docker compose version >/dev/null 2>&1; then
-            sudo docker compose -f compose.yaml pull || true
-            sudo docker compose -f compose.yaml up -d --force-recreate --remove-orphans
-          elif command -v docker-compose >/dev/null 2>&1; then
-            sudo docker-compose -f compose.yaml pull || true
-            sudo docker-compose -f compose.yaml up -d --force-recreate --remove-orphans
-          fi
-
-      - name: Wait for RabbitMQ healthcheck to be healthy
-        run: |
-          CONTAINER_NAME=rabbitmq-petinder
-          MAX_SECONDS=120
-          SLEEP_INTERVAL=5
-          elapsed=0
-          while [ $elapsed -lt $MAX_SECONDS ]; do
-            status=$(sudo docker inspect --format '{{.State.Health.Status}}' ${CONTAINER_NAME} 2>/dev/null || echo "none")
-            echo "Current health status: ${status}"
-            if [ "${status}" = "healthy" ]; then
-              echo "${CONTAINER_NAME} is healthy"
-              exit 0
-            fi
-            sleep ${SLEEP_INTERVAL}
-            elapsed=$((elapsed + SLEEP_INTERVAL))
-          done
-          echo "${CONTAINER_NAME} did not become healthy within ${MAX_SECONDS}s"
-          sudo docker logs --tail 200 ${CONTAINER_NAME} || true
-          exit 1
 
       - name: Login no Docker Hub no host de deploy
         run: |
@@ -127,8 +68,9 @@ jobs:
           sudo docker ps -a --filter "ancestor=$TARGET_IMAGE" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
           sudo docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v img="$TARGET_IMAGE" '$0 ~ img {print $2}' | xargs -r sudo docker rmi -f || true
 
-      - name: Criar env file seguro e rodar container usando --env-file
+      - name: Criar env file seguro, validar RabbitMQ e rodar container usando --env-file
         run: |
+          set -euo pipefail
           ENV_FILE="$RUNNER_TEMP/petinder.env"
           mkdir -p "$RUNNER_TEMP"
           cat > "$ENV_FILE" <<'EOF'
@@ -136,28 +78,51 @@ jobs:
           AWS_ACCESS_KEY_ID=${{ secrets.SEU_ACCESS_ID }}
           AWS_SECRET_ACCESS_KEY=${{ secrets.SEU_SECRET_KEY }}
           AWS_SESSION_TOKEN=${{ secrets.SEU_SESSION_TOKEN }}
-          SPRING_RABBITMQ_HOST=host.docker.internal
-          SPRING_RABBITMQ_PORT=5672
-          SPRING_RABBITMQ_USERNAME=admin
-          SPRING_RABBITMQ_PASSWORD=admin
           SENHA_PETINDER_EMAIL=${{ secrets.SENHA_PETINDER_EMAIL }}
           EOF
           sudo sed -i 's/\r$//' "$ENV_FILE" || true
           sudo chmod 600 "$ENV_FILE"
 
-          NETWORK_NAME=$(sudo docker inspect --format '{{range $k,$v := .NetworkSettings.Networks}}{{printf "%s\n" $k}}{{end}}' rabbitmq-petinder | head -n1 || true)
-          if [ -n "$NETWORK_NAME" ]; then
-            NETWORK_ARG="--network $NETWORK_NAME"
-            RABBIT_HOST="rabbitmq-petinder"
-          else
-            NETWORK_ARG=""
-            RABBIT_HOST="host.docker.internal"
+          # Small Linux-friendly RabbitMQ TCP check (tries nc first, then /dev/tcp)
+          RABBIT_PROPERTIES_FILE="$(pwd)/src/main/resources/application.properties"
+          RABBIT_HOST=""
+          RABBIT_PORT=""
+          if [ -f "$RABBIT_PROPERTIES_FILE" ]; then
+            RABBIT_HOST=$(grep -E '^spring.rabbitmq.host=' "$RABBIT_PROPERTIES_FILE" | sed 's/^spring.rabbitmq.host=//' | tr -d '\r' || true)
+            RABBIT_PORT=$(grep -E '^spring.rabbitmq.port=' "$RABBIT_PROPERTIES_FILE" | sed 's/^spring.rabbitmq.port=//' | tr -d '\r' || true)
+          fi
+          RABBIT_HOST=${RABBIT_HOST:-localhost}
+          RABBIT_PORT=${RABBIT_PORT:-5672}
+          echo "RabbitMQ endpoint read from properties: $RABBIT_HOST:$RABBIT_PORT"
+
+          retries=5
+          for i in $(seq 1 $retries); do
+            echo "Checking RabbitMQ connectivity (attempt $i/$retries) to $RABBIT_HOST:$RABBIT_PORT..."
+            if command -v nc >/dev/null 2>&1; then
+              if nc -z -w3 "$RABBIT_HOST" "$RABBIT_PORT" >/dev/null 2>&1; then
+                echo "OK: nc connected to $RABBIT_HOST:$RABBIT_PORT"
+                reachable=1
+                break
+              fi
+            else
+              # fallback to /dev/tcp (bash builtin)
+              if bash -c "cat < /dev/tcp/$RABBIT_HOST/$RABBIT_PORT" >/dev/null 2>&1; then
+                echo "OK: /dev/tcp connected to $RABBIT_HOST:$RABBIT_PORT"
+                reachable=1
+                break
+              fi
+            fi
+            sleep 2
+          done
+
+          if [ -z "${reachable+x}" ]; then
+            echo "ERROR: RabbitMQ not reachable at $RABBIT_HOST:$RABBIT_PORT after $retries attempts. Aborting deploy."
+            exit 1
           fi
 
+          # Run the application container (RabbitMQ settings read from application.properties)
           sudo docker run -d --name deploy-back \
-            $NETWORK_ARG \
             --add-host=host.docker.internal:host-gateway \
-            -e SPRING_RABBITMQ_HOST=$RABBIT_HOST \
             --restart unless-stopped \
             --env-file "$ENV_FILE" \
             -p 8080:8080 \
@@ -175,8 +140,6 @@ jobs:
   deploy-pt-02:
     needs: build
     runs-on: [self-hosted, "pt-02"]
-    env:
-      WIPE_RABBITMQ: "true"
     steps:
       - name: Info do runner
         run: |
@@ -190,7 +153,6 @@ jobs:
       - name: Checkout repository (required to access compose file)
         uses: actions/checkout@v3
 
-      # Nota: não executamos o compose/rabbitmq neste job (evita duplicar o serviço)
       - name: Login no Docker Hub no host de deploy
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -206,8 +168,9 @@ jobs:
           sudo docker ps -a --filter "ancestor=$TARGET_IMAGE" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
           sudo docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v img="$TARGET_IMAGE" '$0 ~ img {print $2}' | xargs -r sudo docker rmi -f || true
 
-      - name: Criar env file seguro e rodar container usando --env-file
+      - name: Criar env file seguro, validar RabbitMQ e rodar container usando --env-file
         run: |
+          set -euo pipefail
           ENV_FILE="$RUNNER_TEMP/petinder.env"
           mkdir -p "$RUNNER_TEMP"
           cat > "$ENV_FILE" <<'EOF'
@@ -215,28 +178,51 @@ jobs:
           AWS_ACCESS_KEY_ID=${{ secrets.SEU_ACCESS_ID }}
           AWS_SECRET_ACCESS_KEY=${{ secrets.SEU_SECRET_KEY }}
           AWS_SESSION_TOKEN=${{ secrets.SEU_SESSION_TOKEN }}
-          SPRING_RABBITMQ_HOST=host.docker.internal
-          SPRING_RABBITMQ_PORT=5672
-          SPRING_RABBITMQ_USERNAME=admin
-          SPRING_RABBITMQ_PASSWORD=admin
           SENHA_PETINDER_EMAIL=${{ secrets.SENHA_PETINDER_EMAIL }}
           EOF
           sudo sed -i 's/\r$//' "$ENV_FILE" || true
           sudo chmod 600 "$ENV_FILE"
 
-          NETWORK_NAME=$(sudo docker inspect --format '{{range $k,$v := .NetworkSettings.Networks}}{{printf "%s\n" $k}}{{end}}' rabbitmq-petinder | head -n1 || true)
-          if [ -n "$NETWORK_NAME" ]; then
-            NETWORK_ARG="--network $NETWORK_NAME"
-            RABBIT_HOST="rabbitmq-petinder"
-          else
-            NETWORK_ARG=""
-            RABBIT_HOST="host.docker.internal"
+          # Small Linux-friendly RabbitMQ TCP check (tries nc first, then /dev/tcp)
+          RABBIT_PROPERTIES_FILE="$(pwd)/src/main/resources/application.properties"
+          RABBIT_HOST=""
+          RABBIT_PORT=""
+          if [ -f "$RABBIT_PROPERTIES_FILE" ]; then
+            RABBIT_HOST=$(grep -E '^spring.rabbitmq.host=' "$RABBIT_PROPERTIES_FILE" | sed 's/^spring.rabbitmq.host=//' | tr -d '\r' || true)
+            RABBIT_PORT=$(grep -E '^spring.rabbitmq.port=' "$RABBIT_PROPERTIES_FILE" | sed 's/^spring.rabbitmq.port=//' | tr -d '\r' || true)
+          fi
+          RABBIT_HOST=${RABBIT_HOST:-localhost}
+          RABBIT_PORT=${RABBIT_PORT:-5672}
+          echo "RabbitMQ endpoint read from properties: $RABBIT_HOST:$RABBIT_PORT"
+
+          retries=5
+          for i in $(seq 1 $retries); do
+            echo "Checking RabbitMQ connectivity (attempt $i/$retries) to $RABBIT_HOST:$RABBIT_PORT..."
+            if command -v nc >/dev/null 2>&1; then
+              if nc -z -w3 "$RABBIT_HOST" "$RABBIT_PORT" >/dev/null 2>&1; then
+                echo "OK: nc connected to $RABBIT_HOST:$RABBIT_PORT"
+                reachable=1
+                break
+              fi
+            else
+              # fallback to /dev/tcp (bash builtin)
+              if bash -c "cat < /dev/tcp/$RABBIT_HOST/$RABBIT_PORT" >/dev/null 2>&1; then
+                echo "OK: /dev/tcp connected to $RABBIT_HOST:$RABBIT_PORT"
+                reachable=1
+                break
+              fi
+            fi
+            sleep 2
+          done
+
+          if [ -z "${reachable+x}" ]; then
+            echo "ERROR: RabbitMQ not reachable at $RABBIT_HOST:$RABBIT_PORT after $retries attempts. Aborting deploy."
+            exit 1
           fi
 
+          # Run the application container (RabbitMQ settings read from application.properties)
           sudo docker run -d --name deploy-back \
-            $NETWORK_ARG \
             --add-host=host.docker.internal:host-gateway \
-            -e SPRING_RABBITMQ_HOST=$RABBIT_HOST \
             --restart unless-stopped \
             --env-file "$ENV_FILE" \
             -p 8080:8080 \
