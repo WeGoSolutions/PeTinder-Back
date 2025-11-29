@@ -28,6 +28,8 @@ public class EnderecoOng {
         this(null, cep, rua, numero, cidade, uf, complemento);
     }
 
+    public EnderecoOng() {}
+
     // Getters
     public UUID getId() { return id; }
     public String getCep() { return cep; }
