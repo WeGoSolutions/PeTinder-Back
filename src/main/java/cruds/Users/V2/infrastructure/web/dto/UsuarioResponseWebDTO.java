@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.time.LocalDate;
 import java.util.Base64;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Cacheable(value = "user", key = "#id")
 public class UsuarioResponseWebDTO {
     private UUID id;
     private String nome;
