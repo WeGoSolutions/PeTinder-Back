@@ -1,4 +1,5 @@
 services:
+
   rabbitmq:
     container_name: rabbitmq-petinder
     image: rabbitmq:3.13-management
@@ -18,5 +19,21 @@ services:
       retries: 6
       start_period: 10s
 
+  redis:
+    container_name: redis-petinder
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
 volumes:
   rabbitmq-data:
+  redis-data:
