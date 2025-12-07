@@ -17,13 +17,15 @@ public class AtualizarSenhaUseCase {
     }
 
     public Usuario atualizarSenha(AtualizarSenhaCommand command) {
-        Usuario usuario = usuarioGateway.buscarPorId(command.getUsuarioId())
-            .orElseThrow(() -> new UsuarioException.UsuarioNaoEncontradoException(
-                "Usuário não encontrado: " + command.getUsuarioId()
-            ));
+        Usuario usuario = usuarioGateway.buscarPorEmail(command.getEmail())
+                .orElseThrow(() -> new UsuarioException.UsuarioNaoEncontradoException(
+                        "Usuário não encontrado com o email: " + command.getEmail()
+                ));
 
-        if (!criptografiaGateway.verificarSenha(command.getSenhaAtual(), usuario.getSenha())) {
-            throw new UsuarioException.SenhaInvalidaException("Senha atual incorreta");
+        if (command.getSenhaAtual() != null && !command.getSenhaAtual().trim().isEmpty()) {
+            if (!criptografiaGateway.verificarSenha(command.getSenhaAtual(), usuario.getSenha())) {
+                throw new UsuarioException.SenhaInvalidaException("Senha atual incorreta");
+            }
         }
 
         String novaSenhaCriptografada = criptografiaGateway.criptografarSenha(command.getNovaSenha());

@@ -16,7 +16,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class AtualizarSenhaWebDTO {
 
-    @NotBlank(message = "Senha atual é obrigatória")
     @Schema(description = "Senha atual do usuário", example = "Urubu@123")
     private String senhaAtual;
 
@@ -27,7 +26,7 @@ public class AtualizarSenhaWebDTO {
     @Schema(description = "Nova senha do usuário", example = "NovaUrubu@456")
     private String novaSenha;
 
-    public AtualizarSenhaCommand toCommand(UUID usuarioId) {
-        return new AtualizarSenhaCommand(usuarioId, senhaAtual, novaSenha);
+    public AtualizarSenhaCommand toCommand(String email) {
+        return new AtualizarSenhaCommand(email, senhaAtual, novaSenha);
     }
 }

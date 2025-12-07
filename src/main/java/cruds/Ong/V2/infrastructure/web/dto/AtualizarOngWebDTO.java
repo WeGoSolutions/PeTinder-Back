@@ -27,7 +27,6 @@ public class AtualizarOngWebDTO {
     @Pattern(regexp = "^[A-Za-zÀ-Ö ]+$")
     private String nome;
 
-    @NotBlank
     private String razaoSocial;
 
     @NotBlank
@@ -43,17 +42,17 @@ public class AtualizarOngWebDTO {
         AtualizarOngCommand.EnderecoCommand enderecoCommand = null;
         if (endereco != null) {
             enderecoCommand = new AtualizarOngCommand.EnderecoCommand(
-                endereco.getCep(),
-                endereco.getRua(),
-                endereco.getNumero(),
-                endereco.getCidade(),
-                endereco.getUf(),
-                endereco.getComplemento()
+                    endereco.getCep(),
+                    endereco.getRua(),
+                    endereco.getNumero(),
+                    endereco.getCidade(),
+                    endereco.getUf(),
+                    endereco.getComplemento()
             );
         }
 
         return new AtualizarOngCommand(
-            id, cnpj, cpf, nome, razaoSocial, email, link, enderecoCommand
+                id, cnpj, cpf, nome, razaoSocial, email, link, enderecoCommand
         );
     }
 

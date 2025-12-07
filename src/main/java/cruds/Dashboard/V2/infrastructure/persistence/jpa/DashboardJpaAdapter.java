@@ -3,7 +3,6 @@ package cruds.Dashboard.V2.infrastructure.persistence.jpa;
 import cruds.Dashboard.V2.core.adapter.DashboardGateway;
 import cruds.Dashboard.V2.core.domain.Dashboard;
 import cruds.Dashboard.V2.infrastructure.persistence.jpa.mapper.DashboardMapper;
-import cruds.Dashboard.repository.DashboardRepository;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -14,16 +13,16 @@ import java.util.UUID;
 @Primary
 public class DashboardJpaAdapter implements DashboardGateway {
 
-    private final DashboardRepository repository;
+    private final DashboardJpaRepository repository;
 
-    public DashboardJpaAdapter(DashboardRepository repository) {
+    public DashboardJpaAdapter(DashboardJpaRepository repository) {
         this.repository = repository;
     }
 
     @Override
     public Dashboard salvar(Dashboard dashboard) {
-        cruds.Dashboard.entity.Dashboard entity = DashboardMapper.toEntity(dashboard);
-        cruds.Dashboard.entity.Dashboard savedEntity = repository.save(entity);
+        DashboardEntity entity = DashboardMapper.toEntity(dashboard);
+        DashboardEntity savedEntity = repository.save(entity);
         return DashboardMapper.toDomain(savedEntity);
     }
 

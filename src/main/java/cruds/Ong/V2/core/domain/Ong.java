@@ -48,6 +48,7 @@ public class Ong {
             throw new IllegalArgumentException("Email é obrigatório");
         }
         validarEmail();
+        // Validar razaoSocial apenas na criação
         if (razaoSocial == null || razaoSocial.trim().isEmpty()) {
             throw new IllegalArgumentException("Razão social é obrigatória");
         }
@@ -67,15 +68,26 @@ public class Ong {
     public void atualizarDados(String cnpj, String cpf, String nome, String razaoSocial,
                                String email, String link) {
         if (nome != null && !nome.trim().isEmpty()) {
+            if (nome.length() < 3) {
+                throw new IllegalArgumentException("Nome deve ter pelo menos 3 caracteres");
+            }
             this.nome = nome;
         }
+
         if (email != null && !email.trim().isEmpty()) {
             this.email = email;
             validarEmail();
         }
+
+        // Campos opcionais - apenas atualiza se fornecidos
         this.cnpj = cnpj;
         this.cpf = cpf;
-        this.razaoSocial = razaoSocial;
+
+        // razaoSocial é opcional na atualização
+        if (razaoSocial != null && !razaoSocial.trim().isEmpty()) {
+            this.razaoSocial = razaoSocial;
+        }
+
         this.link = link;
     }
 

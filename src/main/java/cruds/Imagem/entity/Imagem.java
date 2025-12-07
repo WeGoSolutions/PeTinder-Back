@@ -1,7 +1,7 @@
 package cruds.Imagem.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import cruds.Pets.entity.Pet;
+import cruds.Pets.V2.infrastructure.persistence.jpa.PetEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,7 +25,7 @@ public class Imagem {
     @ManyToOne
     @JoinColumn(name = "fk_pet")
     @JsonBackReference
-    private Pet pet;
+    private PetEntity pet;
 
     public Imagem() {}
 
@@ -33,7 +33,7 @@ public class Imagem {
         this.caminho = caminho;
     }
 
-    public Imagem(String caminho, Pet pet) {
+    public Imagem(String caminho, PetEntity pet) {
         this.caminho = caminho;
         this.pet = pet;
     }
@@ -49,7 +49,7 @@ public class Imagem {
         this.caminho = caminho;
     }
 
-    public void setPet(Pet pet) {
+    public void setPet(PetEntity pet) {
         this.pet = pet;
     }
 }

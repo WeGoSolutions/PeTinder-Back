@@ -5,8 +5,8 @@ import cruds.Pets.V2.core.adapter.PetGateway;
 import cruds.Pets.V2.core.domain.Pet;
 import cruds.Pets.V2.infrastructure.persistence.jpa.ImagemPetJpaRepository;
 import cruds.Pets.V2.infrastructure.persistence.jpa.PetJpaRepository;
+import cruds.Pets.V2.infrastructure.persistence.jpa.PetStatusJpaRepository;
 import cruds.Pets.V2.infrastructure.persistence.jpa.mapper.PetMapper;
-import cruds.Pets.repository.PetStatusRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,13 +19,13 @@ import java.util.stream.Collectors;
 public class PetGatewayImpl implements PetGateway {
 
     private final PetJpaRepository petJpaRepository;
-    private final PetStatusRepository petStatusRepository;
+    private final PetStatusJpaRepository petStatusRepository;
     private final ImagemPetGateway imagemPetGateway;
     private final ImagemPetJpaRepository imagemPetJpaRepository;
 
     public PetGatewayImpl(
             PetJpaRepository petJpaRepository,
-            PetStatusRepository petStatusRepository,
+            PetStatusJpaRepository petStatusRepository,
             ImagemPetGateway imagemPetGateway,
             ImagemPetJpaRepository imagemPetJpaRepository
     ) {
@@ -112,9 +112,19 @@ public class PetGatewayImpl implements PetGateway {
 
     @Override
     public List<Pet> listarPetsNaoInteragidosPorUsuario(UUID userId) {
-        return petStatusRepository.findPetsNotInteractedByUser(userId)
-                .stream()
-                .map(pet -> PetMapper.toDomain(PetMapper.toV2Entity(pet)))
+        List<UUID> petIds = petStatusRepository.findPetsNotInteractedByUser(userId);
+        return petIds.stream()
+                .map(petJpaRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(entity -> {
+                    Pet pet = PetMapper.toDomain(entity);
+                    List<String> keys = imagemPetJpaRepository.findKeysByPetId(pet.getId());
+                    if (keys != null && !keys.isEmpty()) {
+                        pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId(), keys));
+                    }
+                    return pet;
+                })
                 .collect(Collectors.toList());
     }
 

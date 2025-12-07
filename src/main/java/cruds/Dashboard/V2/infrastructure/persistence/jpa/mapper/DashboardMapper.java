@@ -1,28 +1,25 @@
 package cruds.Dashboard.V2.infrastructure.persistence.jpa.mapper;
 
 import cruds.Dashboard.V2.core.domain.Dashboard;
-import cruds.Ong.entity.Ong;
+import cruds.Dashboard.V2.infrastructure.persistence.jpa.DashboardEntity;
 
 import java.util.UUID;
 
 public class DashboardMapper {
 
-    public static cruds.Dashboard.entity.Dashboard toEntity(Dashboard domain) {
+    public static DashboardEntity toEntity(Dashboard domain) {
         if (domain == null) return null;
 
-        Ong ong = new Ong();
-        ong.setId(domain.getOngId());
-
-        return cruds.Dashboard.entity.Dashboard.builder()
+        return DashboardEntity.builder()
                 .id(domain.getId())
-                .ong(ong)
+                .ongId(domain.getOngId())
                 .build();
     }
 
-    public static Dashboard toDomain(cruds.Dashboard.entity.Dashboard entity) {
+    public static Dashboard toDomain(DashboardEntity entity) {
         if (entity == null) return null;
 
-        UUID ongId = entity.getOng() != null ? entity.getOng().getId() : null;
+        UUID ongId = entity.getOngId();
 
         Dashboard dashboard = new Dashboard(entity.getId(), ongId);
         return dashboard;

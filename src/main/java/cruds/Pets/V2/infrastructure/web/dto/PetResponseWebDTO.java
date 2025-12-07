@@ -1,7 +1,7 @@
 package cruds.Pets.V2.infrastructure.web.dto;
 
 import cruds.Pets.V2.core.domain.Pet;
-import cruds.Pets.enums.PetStatusEnum;
+import cruds.Pets.V2.core.domain.PetStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

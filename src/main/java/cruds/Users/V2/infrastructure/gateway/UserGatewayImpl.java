@@ -2,75 +2,85 @@ package cruds.Users.V2.infrastructure.gateway;
 
 import cruds.Users.V2.core.adapter.UsuarioGateway;
 import cruds.Users.V2.core.domain.Usuario;
-import cruds.Users.repository.UserRepository;
 import org.springframework.cache.annotation.Cacheable;
+import cruds.Users.V2.infrastructure.persistence.jpa.UsuarioEntity;
+import cruds.Users.V2.infrastructure.persistence.jpa.UsuarioJpaRepository;
+import cruds.Users.V2.infrastructure.persistence.jpa.mapper.UsuarioMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 public class UserGatewayImpl implements UsuarioGateway {
 
-    private final UserRepository userRepository;
+    private final UsuarioJpaRepository usuarioRepository;
 
-    public UserGatewayImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserGatewayImpl(UsuarioJpaRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Override
     public Usuario salvar(Usuario usuario) {
-        return null;
+        UsuarioEntity entity = UsuarioMapper.toEntity(usuario);
+        UsuarioEntity savedEntity = usuarioRepository.save(entity);
+        return UsuarioMapper.toDomain(savedEntity);
     }
 
     @Override
     public Usuario atualizar(Usuario usuario) {
-        return null;
+        return salvar(usuario);
     }
 
     @Override
     public Optional<Usuario> buscarPorId(UUID id) {
-        return Optional.empty();
+        return usuarioRepository.findById(id)
+                .map(UsuarioMapper::toDomain);
     }
 
     @Override
     public Optional<Usuario> buscarPorEmail(String email) {
-        return Optional.empty();
+        return usuarioRepository.findByEmail(email)
+                .map(UsuarioMapper::toDomain);
     }
 
     @Override
     public Optional<Usuario> buscarPorEmailESenha(String email, String senha) {
-        return Optional.empty();
+        return usuarioRepository.findByEmailAndSenha(email, senha)
+                .map(UsuarioMapper::toDomain);
     }
 
     @Override
     public List<Usuario> listarTodos() {
-        return List.of();
+        return usuarioRepository.findAll().stream()
+                .map(UsuarioMapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void remover(UUID id) {
-
+        usuarioRepository.deleteById(id);
     }
 
     @Override
     public boolean emailJaExiste(String email) {
-        return false;
+        return usuarioRepository.existsByEmail(email);
     }
 
     @Override
     public boolean cpfJaExiste(String cpf) {
-        return false;
+        return usuarioRepository.existsByCpf(cpf);
     }
 
     @Override
     public boolean existePorId(UUID id) {
-        return userRepository.existsById(id);
+        return usuarioRepository.existsById(id);
     }
 
     @Override
     public void removerTodos() {
-
+        usuarioRepository.deleteAll();
     }
 }
