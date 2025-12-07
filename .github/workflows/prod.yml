@@ -3,7 +3,7 @@ name: Deploy Backend Petinder
 on:
   push:
     branches:
-      - deploy-backend
+      - develop
 
 jobs:
 # Rodando testes antes do build
