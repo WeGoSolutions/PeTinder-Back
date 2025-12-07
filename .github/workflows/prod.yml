@@ -3,7 +3,7 @@ name: Deploy Backend Petinder
 on:
   push:
     branches:
-      - develop
+      - deploy-backend
 
 jobs:
   build:
@@ -28,8 +28,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Rodando testes
+        run: mvn -e -B test
+
       - name: Build com Maven
-        run: mvn -e -B clean package -DskipTests
+        run: mvn -e -B clean package
 
       - name: Configuração do Docker Buildx
         uses: docker/setup-buildx-action@v3
