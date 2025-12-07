@@ -1,238 +1,150 @@
+name: Deploy Backend Petinder
+
 on:
   push:
-    branches: [develop, devops/test-gh-actions]
-
-name: Deploy Petinder-Back
-
-env:
-  IMAGE: ${{ secrets.DOCKER_USERNAME }}/petinder:back
+    branches:
+      - deploy-backend
 
 jobs:
-  build:
+# Rodando testes antes do build
+  tests:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      - name: Set up JDK - Java
-        uses: actions/setup-java@v3
+    steps:
+      - name: Checkout repository para testes
+        uses: actions/checkout@v4
+
+      - name: Configuração do JDK 21 para testes
+        uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: '21'
 
-      - name: Build do Project
-        run: mvn -B clean package -DskipTests
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+      - name: Configuração do cache Maven para testes
+        uses: actions/cache@v4
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+      - name: Rodando testes
+        run: mvn -e -B test
+
+# Build do projeto e push da imagem Docker para o Docker Hub após os testes passarem
+  build:
+    needs: tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configuração do JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Configuração de cache do Maven
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Rodando testes
+        run: mvn -e -B test
+
+      - name: Build com Maven
+        run: mvn -e -B clean package
+
+      - name: Configuração do Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login no Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build e Push imagem Docker
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ env.IMAGE }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/deploy-petinder:backend-v1
 
-  deploy-pt-01:
+# Deploy na instância 1
+  deploy_instancia_1:
     needs: build
-    runs-on: [self-hosted, "pt-01"]
+    runs-on: [self-hosted, backend-runner]
+
     steps:
-      - name: Info do runner
+      - name: Pull da nova imagem do Docker Hub
         run: |
-          echo "Runner target: pt-01"
-          hostname
-          whoami
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/deploy-petinder:backend-v1
 
-      - name: Liberar porta 8080 e 3306 no firewall (ufw) - só se aplicável
-        run: sudo ufw allow 8080/tcp && sudo ufw allow 3306/tcp || true
-
-      - name: Checkout repository (required to access compose file)
-        uses: actions/checkout@v3
-
-      - name: Login no Docker Hub no host de deploy
+      - name: Parar e remover container antigo (se existir)
         run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          sudo docker stop petinder-backend || true
+          sudo docker rm petinder-backend || true
 
-      - name: Pull image do Docker Hub
-        run: sudo docker pull "${{ env.IMAGE }}"
-
-      - name: Stop e remove container existente (caso haja)
+      - name: Subir novo container backend
         run: |
-          TARGET_NAME="deploy-back"
-          TARGET_IMAGE="${{ env.IMAGE }}"
-          sudo docker ps -a --filter "name=$TARGET_NAME" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
-          sudo docker ps -a --filter "ancestor=$TARGET_IMAGE" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
-          sudo docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v img="$TARGET_IMAGE" '$0 ~ img {print $2}' | xargs -r sudo docker rmi -f || true
-
-      - name: Criar env file seguro, validar RabbitMQ e rodar container usando --env-file
-        run: |
-          set -euo pipefail
-          ENV_FILE="$RUNNER_TEMP/petinder.env"
-          mkdir -p "$RUNNER_TEMP"
-          cat > "$ENV_FILE" <<'EOF'
-          SPRING_PROFILES_ACTIVE=prod
-          AWS_ACCESS_KEY_ID=${{ secrets.SEU_ACCESS_ID }}
-          AWS_SECRET_ACCESS_KEY=${{ secrets.SEU_SECRET_KEY }}
-          AWS_SESSION_TOKEN=${{ secrets.SEU_SESSION_TOKEN }}
-          SENHA_PETINDER_EMAIL=${{ secrets.SENHA_PETINDER_EMAIL }}
-          EOF
-          sudo sed -i 's/\r$//' "$ENV_FILE" || true
-          sudo chmod 600 "$ENV_FILE"
-
-          # Small Linux-friendly RabbitMQ TCP check (tries nc first, then /dev/tcp)
-          RABBIT_PROPERTIES_FILE="$(pwd)/src/main/resources/application.properties"
-          RABBIT_HOST=""
-          RABBIT_PORT=""
-          if [ -f "$RABBIT_PROPERTIES_FILE" ]; then
-            RABBIT_HOST=$(grep -E '^spring.rabbitmq.host=' "$RABBIT_PROPERTIES_FILE" | sed 's/^spring.rabbitmq.host=//' | tr -d '\r' || true)
-            RABBIT_PORT=$(grep -E '^spring.rabbitmq.port=' "$RABBIT_PROPERTIES_FILE" | sed 's/^spring.rabbitmq.port=//' | tr -d '\r' || true)
-          fi
-          RABBIT_HOST=${RABBIT_HOST:-localhost}
-          RABBIT_PORT=${RABBIT_PORT:-5672}
-          echo "RabbitMQ endpoint read from properties: $RABBIT_HOST:$RABBIT_PORT"
-
-          retries=5
-          for i in $(seq 1 $retries); do
-            echo "Checking RabbitMQ connectivity (attempt $i/$retries) to $RABBIT_HOST:$RABBIT_PORT..."
-            if command -v nc >/dev/null 2>&1; then
-              if nc -z -w3 "$RABBIT_HOST" "$RABBIT_PORT" >/dev/null 2>&1; then
-                echo "OK: nc connected to $RABBIT_HOST:$RABBIT_PORT"
-                reachable=1
-                break
-              fi
-            else
-              # fallback to /dev/tcp (bash builtin)
-              if bash -c "cat < /dev/tcp/$RABBIT_HOST/$RABBIT_PORT" >/dev/null 2>&1; then
-                echo "OK: /dev/tcp connected to $RABBIT_HOST:$RABBIT_PORT"
-                reachable=1
-                break
-              fi
-            fi
-            sleep 2
-          done
-
-          if [ -z "${reachable+x}" ]; then
-            echo "ERROR: RabbitMQ not reachable at $RABBIT_HOST:$RABBIT_PORT after $retries attempts. Aborting deploy."
-            exit 1
-          fi
-
-          # Run the application container (RabbitMQ settings read from application.properties)
-          sudo docker run -d --name deploy-back \
-            --add-host=host.docker.internal:host-gateway \
-            --restart unless-stopped \
-            --env-file "$ENV_FILE" \
+          sudo docker run -d \
+            --name petinder-backend \
+            --restart=always \
             -p 8080:8080 \
-            "${{ env.IMAGE }}"
+            -e DB_URL="${{ secrets.DB_URL }}" \
+            -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+            -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            -e SENHA_PETINDER_EMAIL="${{ secrets.SENHA_PETINDER_EMAIL }}" \
+            -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+            -e AWS_SESSION_TOKEN="${{ secrets.AWS_SESSION_TOKEN }}" \
+            -e AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET_NOME }}" \
+            -e RABBITMQ_HOST="${{ secrets.RABBITMQ_HOST }}" \
+            -e REDIS_HOST="${{ secrets.REDIS_HOST }}" \
+            ${{ secrets.DOCKERHUB_USERNAME }}/deploy-petinder:backend-v1
 
-          if command -v shred >/dev/null 2>&1; then
-            sudo shred -u "$ENV_FILE" || sudo rm -f "$ENV_FILE"
-          else
-            sudo rm -f "$ENV_FILE"
-          fi
+      - name: Mostrar containers rodando
+        run: sudo docker ps -a
 
-      - name: Show last container logs (sanity)
-        run: sudo docker logs --tail 200 deploy-back || true
-
-  deploy-pt-02:
+# Deploy na instância 2
+  deploy_instancia_2:
     needs: build
-    runs-on: [self-hosted, "pt-02"]
+    runs-on: [self-hosted, backend-runner]
+
     steps:
-      - name: Info do runner
+      - name: Pull da nova imagem do Docker Hub
         run: |
-          echo "Runner target: pt-02"
-          hostname
-          whoami
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/deploy-petinder:backend-v1
 
-      - name: Liberar porta 8080 e 3306 no firewall (ufw) - só se aplicável
-        run: sudo ufw allow 8080/tcp && sudo ufw allow 3306/tcp || true
-
-      - name: Checkout repository (required to access compose file)
-        uses: actions/checkout@v3
-
-      - name: Login no Docker Hub no host de deploy
+      - name: Parar e remover container antigo (se existir)
         run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          sudo docker stop petinder-backend || true
+          sudo docker rm petinder-backend || true
 
-      - name: Pull image do Docker Hub
-        run: sudo docker pull "${{ env.IMAGE }}"
-
-      - name: Stop e remove container existente (caso haja)
+      - name: Subir novo container backend
         run: |
-          TARGET_NAME="deploy-back"
-          TARGET_IMAGE="${{ env.IMAGE }}"
-          sudo docker ps -a --filter "name=$TARGET_NAME" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
-          sudo docker ps -a --filter "ancestor=$TARGET_IMAGE" --format '{{.ID}}' | xargs -r sudo docker rm -f || true
-          sudo docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v img="$TARGET_IMAGE" '$0 ~ img {print $2}' | xargs -r sudo docker rmi -f || true
-
-      - name: Criar env file seguro, validar RabbitMQ e rodar container usando --env-file
-        run: |
-          set -euo pipefail
-          ENV_FILE="$RUNNER_TEMP/petinder.env"
-          mkdir -p "$RUNNER_TEMP"
-          cat > "$ENV_FILE" <<'EOF'
-          SPRING_PROFILES_ACTIVE=prod
-          AWS_ACCESS_KEY_ID=${{ secrets.SEU_ACCESS_ID }}
-          AWS_SECRET_ACCESS_KEY=${{ secrets.SEU_SECRET_KEY }}
-          AWS_SESSION_TOKEN=${{ secrets.SEU_SESSION_TOKEN }}
-          SENHA_PETINDER_EMAIL=${{ secrets.SENHA_PETINDER_EMAIL }}
-          EOF
-          sudo sed -i 's/\r$//' "$ENV_FILE" || true
-          sudo chmod 600 "$ENV_FILE"
-
-          # Small Linux-friendly RabbitMQ TCP check (tries nc first, then /dev/tcp)
-          RABBIT_PROPERTIES_FILE="$(pwd)/src/main/resources/application.properties"
-          RABBIT_HOST=""
-          RABBIT_PORT=""
-          if [ -f "$RABBIT_PROPERTIES_FILE" ]; then
-            RABBIT_HOST=$(grep -E '^spring.rabbitmq.host=' "$RABBIT_PROPERTIES_FILE" | sed 's/^spring.rabbitmq.host=//' | tr -d '\r' || true)
-            RABBIT_PORT=$(grep -E '^spring.rabbitmq.port=' "$RABBIT_PROPERTIES_FILE" | sed 's/^spring.rabbitmq.port=//' | tr -d '\r' || true)
-          fi
-          RABBIT_HOST=${RABBIT_HOST:-localhost}
-          RABBIT_PORT=${RABBIT_PORT:-5672}
-          echo "RabbitMQ endpoint read from properties: $RABBIT_HOST:$RABBIT_PORT"
-
-          retries=5
-          for i in $(seq 1 $retries); do
-            echo "Checking RabbitMQ connectivity (attempt $i/$retries) to $RABBIT_HOST:$RABBIT_PORT..."
-            if command -v nc >/dev/null 2>&1; then
-              if nc -z -w3 "$RABBIT_HOST" "$RABBIT_PORT" >/dev/null 2>&1; then
-                echo "OK: nc connected to $RABBIT_HOST:$RABBIT_PORT"
-                reachable=1
-                break
-              fi
-            else
-              # fallback to /dev/tcp (bash builtin)
-              if bash -c "cat < /dev/tcp/$RABBIT_HOST/$RABBIT_PORT" >/dev/null 2>&1; then
-                echo "OK: /dev/tcp connected to $RABBIT_HOST:$RABBIT_PORT"
-                reachable=1
-                break
-              fi
-            fi
-            sleep 2
-          done
-
-          if [ -z "${reachable+x}" ]; then
-            echo "ERROR: RabbitMQ not reachable at $RABBIT_HOST:$RABBIT_PORT after $retries attempts. Aborting deploy."
-            exit 1
-          fi
-
-          # Run the application container (RabbitMQ settings read from application.properties)
-          sudo docker run -d --name deploy-back \
-            --add-host=host.docker.internal:host-gateway \
-            --restart unless-stopped \
-            --env-file "$ENV_FILE" \
+          sudo docker run -d \
+            --name petinder-backend \
+            --restart=always \
             -p 8080:8080 \
-            "${{ env.IMAGE }}"
+            -e DB_URL="${{ secrets.DB_URL }}" \
+            -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+            -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            -e SENHA_PETINDER_EMAIL="${{ secrets.SENHA_PETINDER_EMAIL }}" \
+            -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+            -e AWS_SESSION_TOKEN="${{ secrets.AWS_SESSION_TOKEN }}" \
+            -e AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET_NOME }}" \
+            -e RABBITMQ_HOST="${{ secrets.RABBITMQ_HOST }}" \
+            -e REDIS_HOST="${{ secrets.REDIS_HOST }}" \
+            ${{ secrets.DOCKERHUB_USERNAME }}/deploy-petinder:backend-v1
 
-          if command -v shred >/dev/null 2>&1; then
-            sudo shred -u "$ENV_FILE" || sudo rm -f "$ENV_FILE"
-          else
-            sudo rm -f "$ENV_FILE"
-          fi
-
-      - name: Show last container logs (sanity)
-        run: sudo docker logs --tail 200 deploy-back || true
+      - name: Mostrar containers rodando
+        run: sudo docker ps -a
