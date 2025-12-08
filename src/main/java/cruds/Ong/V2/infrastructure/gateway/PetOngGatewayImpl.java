@@ -30,7 +30,7 @@ public class PetOngGatewayImpl implements PetOngGateway {
 
     @Override
     public Page<PetOngInfo> listarPetsPorOng(UUID ongId, Pageable pageable) {
-        Page<PetEntity> petsPage = petRepository.findByOngId(ongId, pageable);
+        Page<PetEntity> petsPage = petRepository.findByOngIdWithTags(ongId, pageable);
 
         return petsPage.map(pet -> {
             List<String> statusList = petStatusRepository.findByPetId(pet.getId())
