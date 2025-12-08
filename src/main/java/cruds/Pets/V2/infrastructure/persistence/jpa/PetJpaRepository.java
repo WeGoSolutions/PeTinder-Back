@@ -19,6 +19,9 @@ public interface PetJpaRepository extends JpaRepository<PetEntity, UUID> {
     
     Page<PetEntity> findByOngId(UUID ongId, Pageable pageable);
 
+    @Query("SELECT DISTINCT p FROM PetEntity p LEFT JOIN FETCH p.tags WHERE p.ongId = :ongId")
+    Page<PetEntity> findByOngIdWithTags(@Param("ongId") UUID ongId, Pageable pageable);
+
     @Query("SELECT p FROM PetEntity p WHERE p.isAdotado = false OR p.isAdotado IS NULL")
     List<PetEntity> findByIsAdotadoFalseOrIsAdotadoIsNull();
 
