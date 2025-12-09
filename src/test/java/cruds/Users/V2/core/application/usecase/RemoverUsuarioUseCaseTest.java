@@ -1,5 +1,6 @@
 package cruds.Users.V2.core.application.usecase;
 
+import cruds.Pets.V2.core.application.usecase.RemoverPorUsuarioUseCase;
 import cruds.Users.V2.core.adapter.UsuarioGateway;
 import cruds.Users.V2.core.application.exception.UsuarioException;
 import cruds.Users.V2.core.domain.Usuario;
@@ -23,13 +24,16 @@ class RemoverUsuarioUseCaseTest {
     @Mock
     private UsuarioGateway usuarioGateway;
 
+    @Mock
+    private RemoverPorUsuarioUseCase removerPorUsuarioUseCase;
+
     private RemoverUsuarioUseCase removerUsuarioUseCase;
 
     private UUID usuarioId;
 
     @BeforeEach
     void setUp() {
-        removerUsuarioUseCase = new RemoverUsuarioUseCase(usuarioGateway);
+        removerUsuarioUseCase = new RemoverUsuarioUseCase(usuarioGateway, removerPorUsuarioUseCase);
         usuarioId = UUID.randomUUID();
     }
 
@@ -46,8 +50,9 @@ class RemoverUsuarioUseCaseTest {
                 null,
                 true
         );
-        
+
         when(usuarioGateway.buscarPorId(usuarioId)).thenReturn(Optional.of(usuarioExistente));
+        doNothing().when(removerPorUsuarioUseCase).removerPorId(usuarioId);
         doNothing().when(usuarioGateway).remover(usuarioId);
 
         // Act
@@ -55,6 +60,7 @@ class RemoverUsuarioUseCaseTest {
 
         // Assert
         verify(usuarioGateway).buscarPorId(usuarioId);
+        verify(removerPorUsuarioUseCase).removerPorId(usuarioId);
         verify(usuarioGateway).remover(usuarioId);
     }
 
@@ -72,6 +78,9 @@ class RemoverUsuarioUseCaseTest {
         );
 
         assertTrue(exception.getMessage().contains(idInexistente.toString()));
-        verify(usuarioGateway, never()).remover(any(UUID.class));
+
+        verify(usuarioGateway).buscarPorId(idInexistente);
+        verify(removerPorUsuarioUseCase, never()).removerPorId(any());
+        verify(usuarioGateway, never()).remover(any());
     }
 }

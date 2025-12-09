@@ -92,6 +92,10 @@ public class PetStatusGatewayImpl implements PetStatusGateway {
     }
 
     @Override
+    @Transactional
+    public void removerPorUsuario(UUID userId) {repository.deleteByUserId(userId);}
+
+    @Override
     public boolean existePorPetEUsuario(UUID petId, UUID userId) {
         return repository.existsByPetIdAndUserId(petId, userId);
     }
