@@ -29,6 +29,8 @@ public interface PetStatusGateway {
     
     void removerPorPet(UUID petId);
 
+    void removerPorUsuario(UUID userId);
+
     boolean existePorPetEUsuario(UUID petId, UUID userId);
 
     List<UUID> buscarPetsNaoInteragidosPorUsuario(UUID userId);

@@ -1,5 +1,6 @@
 package cruds.Users.V2.infrastructure.config;
 
+import cruds.Pets.V2.core.application.usecase.RemoverPorUsuarioUseCase;
 import cruds.Users.V2.core.adapter.*;
 import cruds.Users.V2.core.application.usecase.*;
 import org.springframework.context.annotation.Bean;
@@ -55,9 +56,13 @@ public class UsuarioConfig {
     }
 
     @Bean
-    public RemoverUsuarioUseCase removerUsuarioUseCase(UsuarioGateway usuarioGateway) {
-        return new RemoverUsuarioUseCase(usuarioGateway);
+    public RemoverUsuarioUseCase removerUsuarioUseCase(
+            UsuarioGateway usuarioGateway,
+            RemoverPorUsuarioUseCase removerPorUsuarioUseCase
+    ) {
+        return new RemoverUsuarioUseCase(usuarioGateway, removerPorUsuarioUseCase);
     }
+
 
     @Bean
     public ValidarEmailUseCase validarEmailUseCase(UsuarioGateway usuarioGateway) {
