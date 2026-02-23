@@ -23,4 +23,6 @@ public interface ImagemPetJpaRepository extends JpaRepository<ImagemPetEntity, U
     void deleteByKeyS3(String keyS3);
 
     List<ImagemPetEntity> findByPetId(UUID petId);
+
+    void deleteByPetIdAndKeyS3In(UUID petId, List<String> keys);
 }

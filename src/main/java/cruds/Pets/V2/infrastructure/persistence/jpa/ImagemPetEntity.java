@@ -1,8 +1,11 @@
 package cruds.Pets.V2.infrastructure.persistence.jpa;
 
 import jakarta.persistence.*;
+import lombok.Builder;
+
 import java.util.UUID;
 
+@Builder
 @Entity
 @Table(name = "imagem_pet")
 public class ImagemPetEntity {
