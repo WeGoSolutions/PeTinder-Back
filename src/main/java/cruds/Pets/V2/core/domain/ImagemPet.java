@@ -3,7 +3,7 @@ package cruds.Pets.V2.core.domain;
 import java.util.UUID;
 
 public class ImagemPet {
-    
+
     private UUID id;
 
     private String nomeArquivo;
@@ -20,6 +20,12 @@ public class ImagemPet {
     
     public ImagemPet(String nomeArquivo, byte[] dados) {
         this(null, nomeArquivo, dados, null);
+    }
+
+    public ImagemPet(UUID id, String nomeArquivo, byte[] dados) {
+        this.id = id;
+        this.nomeArquivo = nomeArquivo;
+        this.dados = dados;
     }
 
     public ImagemPet(){}
@@ -39,4 +45,7 @@ public class ImagemPet {
     public void setNomeArquivo(String nomeArquivo) { this.nomeArquivo = nomeArquivo; }
     public void setDados(byte[] dados) { this.dados = dados; }
     public void setKeyS3(String keyS3) { this.keyS3 = keyS3; }
+
+    public void setKey(String key) {
+    }
 }

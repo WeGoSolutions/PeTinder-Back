@@ -89,4 +89,7 @@ public class S3StoragePetAdapter implements ArmazenamentoImagemPetGateway {
         }
     }
 
+    @Override
+    public void removerPorKey(String key){}
+
 }
