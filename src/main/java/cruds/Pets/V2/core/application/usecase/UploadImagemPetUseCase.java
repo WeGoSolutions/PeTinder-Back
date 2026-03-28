@@ -52,10 +52,10 @@ public class UploadImagemPetUseCase {
             ImagemPet imagemParaS3 = new ImagemPet(null, nomeArquivo, dados, null);
             String key = armazenamentoImagemPetGateway.salvarImagem(imagemParaS3, petId);
 
-            ImagemPet imagemParaBanco = new ImagemPet(UUID.randomUUID(), nomeArquivo, null, key);
-            imagemPetGateway.salvar(imagemParaBanco, petId);
+            ImagemPet imagemParaBanco = imagemParaS3;
+            imagemParaBanco.setKeyS3(key);
 
-            imagensSalvas.add(imagemParaBanco);
+            imagemPetGateway.salvar(imagemParaBanco, petId);
         }
 
 

@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,29 +65,38 @@ public class CriarPetWebDTO {
     private List<String> nomesArquivos;
 
     public List<byte[]> getImagensBytes() {
+
         if (imagensBase64 == null || imagensBase64.isEmpty()) {
             throw new IllegalArgumentException("Nenhuma imagem Base64 fornecida");
         }
 
         return imagensBase64.stream()
                 .map(base64 -> {
+
                     try {
                         if (base64 == null || base64.isBlank()) {
                             throw new IllegalArgumentException("Imagem Base64 vazia");
                         }
 
-                        String cleanBase64 = base64
-                                .replaceFirst("^data:image/[^;]+;base64,", "")
-                                .replaceAll("\\s+", "");
+                        String cleanBase64 = base64.trim();
 
-                        byte[] bytes = java.util.Base64.getDecoder().decode(cleanBase64);
+                        if (cleanBase64.contains(",")) {
+                            cleanBase64 = cleanBase64.substring(cleanBase64.indexOf(",") + 1);
+                        }
 
-                        if (bytes == null || bytes.length == 0) {
-                            throw new IllegalArgumentException("Falha ao decodificar imagem Base64");
+                        cleanBase64 = cleanBase64.replaceAll("\\s+", "");
+
+
+                            byte[] bytes = Base64.getDecoder().decode(cleanBase64);
+
+                        if (bytes == null || bytes.length < 10) {
+                            throw new IllegalArgumentException("Imagem inválida ou corrompida (bytes muito pequenos)");
                         }
 
                         return bytes;
+
                     } catch (Exception e) {
+                        e.printStackTrace(); // ajuda MUITO agora
                         throw new IllegalArgumentException("Formato de imagem Base64 inválido", e);
                     }
                 })
