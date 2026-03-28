@@ -78,31 +78,20 @@ public class CriarPetWebDTO {
                             throw new IllegalArgumentException("Imagem Base64 vazia");
                         }
 
-                        // 🔹 Remove espaços e quebras
                         String cleanBase64 = base64.trim();
 
-                        // 🔹 Remove prefixo (caso exista)
                         if (cleanBase64.contains(",")) {
                             cleanBase64 = cleanBase64.substring(cleanBase64.indexOf(",") + 1);
                         }
 
                         cleanBase64 = cleanBase64.replaceAll("\\s+", "");
 
-                        // 🔹 DEBUG (pode remover depois)
-                        System.out.println("Base64 (início): " +
-                                cleanBase64.substring(0, Math.min(30, cleanBase64.length()))
-                        );
 
-                        // 🔹 Decode
-                        byte[] bytes = Base64.getDecoder().decode(cleanBase64);
+                            byte[] bytes = Base64.getDecoder().decode(cleanBase64);
 
-                        // 🔹 Validação forte
                         if (bytes == null || bytes.length < 10) {
                             throw new IllegalArgumentException("Imagem inválida ou corrompida (bytes muito pequenos)");
                         }
-
-                        // 🔹 DEBUG tamanho
-                        System.out.println("Imagem convertida com sucesso. Tamanho: " + bytes.length + " bytes");
 
                         return bytes;
 
