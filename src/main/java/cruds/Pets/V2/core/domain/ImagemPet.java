@@ -33,19 +33,18 @@ public class ImagemPet {
     public boolean temDados() {
         return dados != null && dados.length > 0;
     }
-    
+
     // Getters
     public UUID getId() { return id; }
     public String getNomeArquivo() { return nomeArquivo; }
     public byte[] getDados() { return dados; }
     public String getKeyS3() { return keyS3; }
+    public String getKey() { return keyS3; }
 
     // Setters necessários para persistência
     public void setId(UUID id) { this.id = id; }
     public void setNomeArquivo(String nomeArquivo) { this.nomeArquivo = nomeArquivo; }
     public void setDados(byte[] dados) { this.dados = dados; }
     public void setKeyS3(String keyS3) { this.keyS3 = keyS3; }
-
-    public void setKey(String key) {
-    }
+    public void setKey(String key) {this.keyS3 = key;}
 }
