@@ -27,8 +27,9 @@ public class MensagemPendenteResponseWebDTO {
     public static MensagemPendenteResponseWebDTO fromMensagem(
             MensagemPendenteGateway.MensagemPendente mensagem) {
 
-        String auxiliar = "data:image/jpeg;base64," +
-                Base64.getEncoder().encodeToString(mensagem.getUserImage());
+        String auxiliar = mensagem.getUserImage() != null
+                ? "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(mensagem.getUserImage())
+                : null;
 
         return MensagemPendenteResponseWebDTO.builder()
             .petId(mensagem.getPetId())
