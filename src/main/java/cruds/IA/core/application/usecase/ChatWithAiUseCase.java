@@ -5,6 +5,7 @@ import cruds.IA.core.domain.ChatContent;
 import cruds.IA.core.domain.ChatMessage;
 import cruds.IA.core.domain.gateway.AiChatGateway;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChatWithAiUseCase {
@@ -22,22 +23,24 @@ public class ChatWithAiUseCase {
 
     public String chat(String conversationId, String message) {
 
+        List<ChatMessage> history = new ArrayList<>(
+                memoryService.getHistory(conversationId)
+        );
+
         ChatMessage userMessage = new ChatMessage(
                 "user",
                 List.of(new ChatContent("text", message))
         );
 
-        memoryService.addMessage(conversationId, userMessage);
-
-        List<ChatMessage> history = memoryService.getHistory(conversationId);
+        history.add(userMessage);
 
         String response = aiChatGateway.chat(history);
-
-        memoryService.addMessage(
-                conversationId,
-                new ChatMessage("assistant",
-                        List.of(new ChatContent("text", response)))
+        memoryService.addMessage(conversationId, userMessage);
+        ChatMessage assistantMessage = new ChatMessage(
+                "assistant",
+                List.of(new ChatContent("text", response))
         );
+        memoryService.addMessage(conversationId, assistantMessage);
 
         return response;
     }
