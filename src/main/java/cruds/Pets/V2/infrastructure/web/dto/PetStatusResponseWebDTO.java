@@ -17,6 +17,7 @@ public class PetStatusResponseWebDTO {
     private UUID petId;
     private String petNome;
     private UUID usuarioId;
+    private UUID ongId;
     private String status;
     private String imageUrl;
 
@@ -26,6 +27,7 @@ public class PetStatusResponseWebDTO {
         dto.petId = petStatus.getPetId();
         dto.petNome = pet != null ? pet.getNome() : null;
         dto.usuarioId = petStatus.getUserId();
+        dto.ongId = pet != null ? pet.getOngId() : null;
         dto.status = petStatus.getStatus().name();
 
         if (pet != null) {
