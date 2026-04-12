@@ -63,64 +63,9 @@ public class GeminiAiClient {
         - Linguagem simples
         - Respostas claras e úteis
         - Sempre priorizar o bem-estar animal
+        
+        Responda em no maximo 2 paragrafos, dando prioridade para respostas rapidas e eficientes
     """;
-
-
-    public String sendMessage(String message) {
-
-        String body = """
-        {
-          "model": "gpt-4.1-mini",
-          "input": [
-            {
-              "role": "system",
-              "content": "%s"
-            },
-            {
-              "role": "user",
-              "content": "%s"
-            }
-          ]
-        }
-        """.formatted(SYSTEM_PROMPT ,message);
-
-        return webClient.post()
-                .uri("/v1/responses")
-                .bodyValue(body)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-    }
-
-    public String chatWithImage(String message, String imageUrl) {
-
-        String body = """
-    {
-      "model": "gpt-4.1-mini",
-      "input": [
-        {
-          "role": "user",
-          "content": [
-            {"type": "input_text", "text": "%s"},
-            {"type": "input_image", "image_url": "%s"}
-          ]
-        },
-        {
-          "role": "system",
-          "content": "%s"
-        }
-      ]
-    }
-    """.formatted(SYSTEM_PROMPT, message, imageUrl);
-
-        return webClient.post()
-                .uri("/v1/responses")
-                .bodyValue(body)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-    }
-
 
     public String chat(List<ChatMessage> history) {
 
@@ -160,6 +105,11 @@ public class GeminiAiClient {
             }
 
             Map<String, Object> request = Map.of(
+                    "systemInstruction", Map.of(
+                            "parts", List.of(
+                                    Map.of("text", SYSTEM_PROMPT)
+                            )
+                    ),
                     "contents", contents
             );
 
