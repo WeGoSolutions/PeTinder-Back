@@ -1,10 +1,11 @@
 package cruds.config.token;
 
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.apache.catalina.Executor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -12,8 +13,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -25,6 +26,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Configuration
 @EnableWebSecurity
@@ -63,25 +66,50 @@ public class SecurityConfiguracao {
     };
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(CsrfConfigurer::disable)
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            AutenticacaoProvider autenticacaoProvider,
+            AutenticacaoFilter jwtFilter
+    ) throws Exception {
+
+        http
+                .csrf(CsrfConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(URLS_PERMITIDAS).permitAll()
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilterBean(), UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authenticationProvider(autenticacaoProvider) // ✅ injeção correta
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // ✅ injeção correta
                 .cors(Customizer.withDefaults());
 
         return http.build();
     }
 
+    @Configuration
+    @EnableAsync
+    public class AsyncConfig {
+
+        @Bean(name = "taskExecutor")
+        public ExecutorService taskExecutor() {
+            return Executors.newFixedThreadPool(5);
+        }
+    }
+
     @Bean
-    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder =
+    public AuthenticationManager authManager(
+            HttpSecurity http,
+            AutenticacaoProvider autenticacaoProvider
+    ) throws Exception {
+
+        AuthenticationManagerBuilder builder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.authenticationProvider(new AutenticacaoProvider(autenticacaoService, passwordEncoder()));
-        return authenticationManagerBuilder.build();
+
+        builder.authenticationProvider(autenticacaoProvider);
+
+        return builder.build();
     }
 
     @Bean
@@ -90,13 +118,18 @@ public class SecurityConfiguracao {
     }
 
     @Bean
-    public AutenticacaoFilter jwtAuthenticationFilterBean() {
-        return new AutenticacaoFilter(autenticacaoService, jwtAuthenticationUtilBean());
+    public AutenticacaoFilter jwtAuthenticationFilterBean(GerenciadorTokenJwt jwt) {
+        return new AutenticacaoFilter(autenticacaoService, jwt);
     }
 
     @Bean
     public GerenciadorTokenJwt jwtAuthenticationUtilBean() {
         return new GerenciadorTokenJwt();
+    }
+
+    @Bean
+    public AutenticacaoProvider autenticacaoProvider(PasswordEncoder passwordEncoder) {
+        return new AutenticacaoProvider(autenticacaoService, passwordEncoder);
     }
 
     @Bean
@@ -117,7 +150,9 @@ public class SecurityConfiguracao {
                         HttpMethod.DELETE.name(),
                         HttpMethod.OPTIONS.name(),
                         HttpMethod.HEAD.name(),
-                        HttpMethod.TRACE.name()));
+                        HttpMethod.TRACE.name()
+                )
+        );
 
         configuracao.setExposedHeaders(List.of(HttpHeaders.CONTENT_DISPOSITION));
 

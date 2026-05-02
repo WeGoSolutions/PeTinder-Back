@@ -14,16 +14,32 @@ public class SpringAutenticacaoAdapter implements AutenticacaoGateway {
     private final GerenciadorTokenJwt gerenciadorTokenJwt;
 
     public SpringAutenticacaoAdapter(AuthenticationManager authenticationManager,
-                                   GerenciadorTokenJwt gerenciadorTokenJwt) {
+                                     GerenciadorTokenJwt gerenciadorTokenJwt) {
         this.authenticationManager = authenticationManager;
         this.gerenciadorTokenJwt = gerenciadorTokenJwt;
+    }
+
+    @Override
+    public String autenticarEGerarToken(String email, String senha) {
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, senha)
+            );
+
+            return gerenciadorTokenJwt.generateToken(auth);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw new RuntimeException("Erro real: " + e.getClass().getSimpleName());
+        }
     }
 
     @Override
     public boolean autenticar(String email, String senha) {
         try {
             Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, senha)
+                    new UsernamePasswordAuthenticationToken(email, senha)
             );
             return auth.isAuthenticated();
         } catch (Exception e) {
@@ -31,20 +47,19 @@ public class SpringAutenticacaoAdapter implements AutenticacaoGateway {
         }
     }
 
-    @Override
-    public String gerarToken(String email) {
-        Authentication auth = new UsernamePasswordAuthenticationToken(email, null);
-        return gerenciadorTokenJwt.generateToken(auth);
-    }
 
     @Override
     public boolean validarToken(String token) {
         try {
             String email = gerenciadorTokenJwt.getUsernameFromToken(token);
+
             org.springframework.security.core.userdetails.User userDetails =
-                new org.springframework.security.core.userdetails.User(
-                    email, "", java.util.Collections.emptyList());
+                    new org.springframework.security.core.userdetails.User(
+                            email, "", java.util.Collections.emptyList()
+                    );
+
             return gerenciadorTokenJwt.validateToken(token, userDetails);
+
         } catch (Exception e) {
             return false;
         }
@@ -52,6 +67,10 @@ public class SpringAutenticacaoAdapter implements AutenticacaoGateway {
 
     @Override
     public String extrairEmailDoToken(String token) {
-        return gerenciadorTokenJwt.getUsernameFromToken(token);
+        try {
+            return gerenciadorTokenJwt.getUsernameFromToken(token);
+        } catch (Exception e) {
+            throw new RuntimeException("Token inválido");
+        }
     }
 }

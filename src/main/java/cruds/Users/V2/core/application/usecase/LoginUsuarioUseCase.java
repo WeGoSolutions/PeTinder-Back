@@ -8,30 +8,34 @@ import cruds.Users.V2.core.application.exception.UsuarioException;
 import cruds.Users.V2.core.domain.Usuario;
 
 public class LoginUsuarioUseCase {
-    
+
     private final UsuarioGateway usuarioGateway;
     private final CriptografiaGateway criptografiaGateway;
     private final AutenticacaoGateway autenticacaoGateway;
 
     public LoginUsuarioUseCase(UsuarioGateway usuarioGateway,
-                              CriptografiaGateway criptografiaGateway,
-                              AutenticacaoGateway autenticacaoGateway) {
+                               CriptografiaGateway criptografiaGateway,
+                               AutenticacaoGateway autenticacaoGateway) {
         this.usuarioGateway = usuarioGateway;
         this.criptografiaGateway = criptografiaGateway;
         this.autenticacaoGateway = autenticacaoGateway;
     }
 
     public LoginResult logar(LoginUsuarioCommand command) {
+
         Usuario usuario = usuarioGateway.buscarPorEmail(command.getEmail())
-            .orElseThrow(() -> new UsuarioException.CredenciaisInvalidasException(
-                "Credenciais inválidas"
-            ));
+                .orElseThrow(() -> new UsuarioException.CredenciaisInvalidasException(
+                        "Credenciais inválidas"
+                ));
 
         if (!criptografiaGateway.verificarSenha(command.getSenha(), usuario.getSenha())) {
             throw new UsuarioException.CredenciaisInvalidasException("Credenciais inválidas");
         }
 
-        String token = autenticacaoGateway.gerarToken(usuario.getEmail());
+        String token = autenticacaoGateway.autenticarEGerarToken(
+                usuario.getEmail(),
+                command.getSenha()
+        );
 
         return new LoginResult(usuario, token);
     }
@@ -45,7 +49,12 @@ public class LoginUsuarioUseCase {
             this.token = token;
         }
 
-        public Usuario getUsuario() { return usuario; }
-        public String getToken() { return token; }
+        public Usuario getUsuario() {
+            return usuario;
+        }
+
+        public String getToken() {
+            return token;
+        }
     }
 }
