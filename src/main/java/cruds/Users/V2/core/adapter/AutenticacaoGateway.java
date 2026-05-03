@@ -4,7 +4,7 @@ public interface AutenticacaoGateway {
 
     boolean autenticar(String email, String senha);
 
-    String gerarToken(String email);
+    String autenticarEGerarToken(String email, String Senha);
 
     boolean validarToken(String token);
 
