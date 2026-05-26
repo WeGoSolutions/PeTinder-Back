@@ -25,14 +25,20 @@ public class AutenticacaoServiceV2Adapter implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) {
-        Optional<UsuarioEntity> usuario = Optional.of(usuarioJpaRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado")));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<UsuarioEntity> usuarioOpt = usuarioJpaRepository.findByEmail(username);
 
-        return new org.springframework.security.core.userdetails.User(
-                usuario.get().getEmail(),
-                usuario.get().getSenha(),
-                Collections.emptyList()
-        );
+        if (usuarioOpt.isEmpty()) {
+            throw new UsernameNotFoundException(String.format("usuario: %s nao encontrado", username));
+        }
+
+        UsuarioEntity usuario = usuarioOpt.get();
+        
+        // Return Spring Security UserDetails
+        return User.builder()
+                .username(usuario.getEmail())
+                .password(usuario.getSenha())
+                .authorities(Collections.emptyList())
+                .build();
     }
 }

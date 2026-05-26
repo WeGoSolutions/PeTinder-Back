@@ -17,12 +17,12 @@ public class PetPendenciaResponseWebDTO {
     private UUID id;
     private String imageUrl;
 
-    public static PetPendenciaResponseWebDTO fromDomain(PetDashboard pet, String imagemBase64) {
+    public static PetPendenciaResponseWebDTO fromDomain(PetDashboard pet, String imageUrl) {
         return new PetPendenciaResponseWebDTO(
-            pet.getNome(),
-            pet.obterPendencias(),
-            pet.getId(),
-                imagemBase64
+                pet.getNome(),
+                pet.obterPendencias(),
+                pet.getId(),
+                imageUrl
         );
     }
 }
