@@ -6,12 +6,12 @@ import cruds.Dashboard.V2.core.application.usecase.ObterRankingPetsUseCase;
 import cruds.Dashboard.V2.infrastructure.web.dto.DashboardEstatisticasResponseWebDTO;
 import cruds.Dashboard.V2.infrastructure.web.dto.PetPendenciaResponseWebDTO;
 import cruds.Dashboard.V2.infrastructure.web.dto.PetRankingResponseWebDTO;
-import cruds.Pets.V2.core.application.usecase.BuscarImagemPetPrincipalUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,16 +26,13 @@ public class DashboardController {
     private final ObterRankingPetsUseCase obterRankingPetsUseCase;
     private final ListarPendenciasPetsUseCase listarPendenciasPetsUseCase;
     private final ObterEstatisticasPetsUseCase obterEstatisticasPetsUseCase;
-    private final BuscarImagemPetPrincipalUseCase buscarImagemPrincipalPetService;
 
     public DashboardController(ObterRankingPetsUseCase obterRankingPetsUseCase,
                                ListarPendenciasPetsUseCase listarPendenciasPetsUseCase,
-                               ObterEstatisticasPetsUseCase obterEstatisticasPetsUseCase,
-                               BuscarImagemPetPrincipalUseCase buscarImagemPetPrincipalUseCase) {
+                               ObterEstatisticasPetsUseCase obterEstatisticasPetsUseCase) {
         this.obterRankingPetsUseCase = obterRankingPetsUseCase;
         this.listarPendenciasPetsUseCase = listarPendenciasPetsUseCase;
         this.obterEstatisticasPetsUseCase = obterEstatisticasPetsUseCase;
-        this.buscarImagemPrincipalPetService = buscarImagemPetPrincipalUseCase;
     }
 
     @Operation(summary = "Lista pets mais curtidos da ONG")
@@ -52,10 +49,16 @@ public class DashboardController {
     @GetMapping("/pendencias/{ongId}")
     public ResponseEntity<List<PetPendenciaResponseWebDTO>> listarPendenciasPetsDaOng(@PathVariable UUID ongId) {
         var pets = listarPendenciasPetsUseCase.listarPendencias(ongId);
+
+        String baseUri = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .build()
+                .toUriString();
+
         var response = pets.stream()
                 .map(pet -> {
-                    String imagemBase64 = buscarImagemPrincipalPetService.buscarImagemPrincipal(pet.getId());
-                    return PetPendenciaResponseWebDTO.fromDomain(pet, imagemBase64);
+                    String imageUrl = baseUri + "/api/pets/" + pet.getId() + "/imagens/0";
+                    return PetPendenciaResponseWebDTO.fromDomain(pet, imageUrl);
                 })
                 .collect(Collectors.toList());
         return ResponseEntity.ok(response);
