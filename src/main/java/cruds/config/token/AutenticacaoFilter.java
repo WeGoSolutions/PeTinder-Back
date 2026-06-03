@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -62,18 +63,22 @@ public class AutenticacaoFilter extends OncePerRequestFilter {
     }
 
     private void addUsernameInContext(HttpServletRequest request, String username, String jwtToken) {
+        try {
+            UserDetails userDetails = autenticacaoService.loadUserByUsername(username);
 
-        UserDetails userDetails = autenticacaoService.loadUserByUsername(username);
+            if (jwtTokenManager.validateToken(jwtToken, userDetails)) {
 
-        if (jwtTokenManager.validateToken(jwtToken, userDetails)) {
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
 
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
+                usernamePasswordAuthenticationToken
+                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            usernamePasswordAuthenticationToken
-                    .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            }
+        } catch (UsernameNotFoundException exception) {
+            LOGGER.info("[FALHA AUTENTICACAO] - Usuário do token não encontrado: {}", username);
+            SecurityContextHolder.clearContext();
         }
     }
 }

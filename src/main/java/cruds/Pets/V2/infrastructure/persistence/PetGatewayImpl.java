@@ -3,6 +3,7 @@ package cruds.Pets.V2.infrastructure.persistence;
 import cruds.Pets.V2.core.adapter.ImagemPetGateway;
 import cruds.Pets.V2.core.adapter.PetGateway;
 import cruds.Pets.V2.core.domain.Pet;
+import cruds.Pets.V2.core.domain.PetStatusEnum;
 import cruds.Pets.V2.infrastructure.persistence.jpa.ImagemPetJpaRepository;
 import cruds.Pets.V2.infrastructure.persistence.jpa.PetJpaRepository;
 import cruds.Pets.V2.infrastructure.persistence.jpa.PetStatusJpaRepository;
@@ -10,6 +11,7 @@ import cruds.Pets.V2.infrastructure.persistence.jpa.mapper.PetMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,7 +41,7 @@ public class PetGatewayImpl implements PetGateway {
     public Pet salvar(Pet pet) {
         var entity = PetMapper.toEntity(pet);
         var savedEntity = petJpaRepository.save(entity);
-        return PetMapper.toDomain(savedEntity);
+        return aplicarCurtidasReais(PetMapper.toDomain(savedEntity));
     }
 
     @Override
@@ -47,14 +49,14 @@ public class PetGatewayImpl implements PetGateway {
     public Pet atualizar(Pet pet) {
         var entity = PetMapper.toEntity(pet);
         var updatedEntity = petJpaRepository.save(entity);
-        return PetMapper.toDomain(updatedEntity);
+        return aplicarCurtidasReais(PetMapper.toDomain(updatedEntity));
     }
 
     @Override
     public Optional<Pet> buscarPorId(UUID id) {
         return petJpaRepository.findById(id)
                 .map(entity -> {
-                    Pet pet = PetMapper.toDomain(entity);
+                    Pet pet = aplicarCurtidasReais(PetMapper.toDomain(entity));
                     List<String> keys = imagemPetJpaRepository.findKeysByPetId(id);
 
                     if (keys != null && !keys.isEmpty()) {
@@ -70,7 +72,7 @@ public class PetGatewayImpl implements PetGateway {
         return petJpaRepository.findAll()
                 .stream()
                 .map(entity -> {
-                    Pet pet = PetMapper.toDomain(entity);
+                    Pet pet = aplicarCurtidasReais(PetMapper.toDomain(entity));
                     List<String> keys = imagemPetJpaRepository.findKeysByPetId(pet.getId());
                     if (keys != null && !keys.isEmpty()) {
                         pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId(), keys));
@@ -82,10 +84,10 @@ public class PetGatewayImpl implements PetGateway {
 
     @Override
     public List<Pet> listarPorOng(UUID ongId) {
-        return petJpaRepository.findByOngIdOrderByCurtidasDesc(ongId)
+        List<Pet> pets = petJpaRepository.findByOngIdOrderByCurtidasDesc(ongId)
                 .stream()
                 .map(entity -> {
-                    Pet pet = PetMapper.toDomain(entity);
+                    Pet pet = aplicarCurtidasReais(PetMapper.toDomain(entity));
                     List<String> keys = imagemPetJpaRepository.findKeysByPetId(pet.getId());
                     if (keys != null && !keys.isEmpty()) {
                         pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId(), keys));
@@ -93,6 +95,10 @@ public class PetGatewayImpl implements PetGateway {
                     return pet;
                 })
                 .collect(Collectors.toList());
+
+        pets.sort(Comparator.comparingInt((Pet pet) -> pet.getCurtidas() != null ? pet.getCurtidas() : 0).reversed());
+
+        return pets;
     }
 
     @Override
@@ -100,7 +106,7 @@ public class PetGatewayImpl implements PetGateway {
         return petJpaRepository.findByIsAdotadoFalseOrIsAdotadoIsNull()
                 .stream()
                 .map(entity -> {
-                    Pet pet = PetMapper.toDomain(entity);
+                    Pet pet = aplicarCurtidasReais(PetMapper.toDomain(entity));
                     List<String> keys = imagemPetJpaRepository.findKeysByPetId(pet.getId());
                     if (keys != null && !keys.isEmpty()) {
                         pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId(), keys));
@@ -118,7 +124,7 @@ public class PetGatewayImpl implements PetGateway {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(entity -> {
-                    Pet pet = PetMapper.toDomain(entity);
+                    Pet pet = aplicarCurtidasReais(PetMapper.toDomain(entity));
                     List<String> keys = imagemPetJpaRepository.findKeysByPetId(pet.getId());
                     if (keys != null && !keys.isEmpty()) {
                         pet.setImagens(imagemPetGateway.buscarPorPetId(pet.getId(), keys));
@@ -126,6 +132,16 @@ public class PetGatewayImpl implements PetGateway {
                     return pet;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private Pet aplicarCurtidasReais(Pet pet) {
+        if (pet == null || pet.getId() == null) {
+            return pet;
+        }
+
+        long totalLikes = petStatusRepository.countByPetIdAndStatus(pet.getId(), PetStatusEnum.LIKED);
+        pet.setCurtidas(Math.toIntExact(totalLikes));
+        return pet;
     }
 
     @Override

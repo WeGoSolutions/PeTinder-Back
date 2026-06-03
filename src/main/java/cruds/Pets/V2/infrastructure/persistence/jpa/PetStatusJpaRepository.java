@@ -29,6 +29,8 @@ public interface PetStatusJpaRepository extends JpaRepository<PetStatusEntity, U
     
     @Query("SELECT ps FROM PetStatusEntity ps WHERE ps.status = 'LIKED'")
     List<PetStatusEntity> findAllLikedStatusPets();
+
+       long countByPetIdAndStatus(UUID petId, PetStatusEnum status);
     
     @Query("SELECT ps FROM PetStatusEntity ps WHERE ps.userId = :userId AND ps.status = 'LIKED'")
     List<PetStatusEntity> findLikedStatusPetsByUserId(@Param("userId") UUID userId);
