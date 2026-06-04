@@ -1,7 +1,6 @@
 package cruds.Dashboard.V2.core.application.usecase;
 
 import cruds.Dashboard.V2.core.adapter.PetDashboardGateway;
-import cruds.Dashboard.V2.core.application.exception.DashboardException;
 import cruds.Dashboard.V2.core.domain.PetDashboard;
 
 import java.util.List;
@@ -17,15 +16,9 @@ public class ListarPendenciasPetsUseCase {
     }
 
     public List<PetDashboard> listarPendencias(UUID ongId) {
-        List<PetDashboard> pets = petDashboardGateway.listarPetsPorOngId(ongId);
-
-        if (pets.isEmpty()) {
-            throw new DashboardException.NenhumPetEncontradoException(
-                "Nenhum pet encontrado para a ONG com ID: " + ongId
-            );
-        }
-
-        return pets.stream()
+        // ONG sem pets = lista vazia (nao 404). So retornamos os pets que de fato
+        // tem pendencias; nenhum pet -> [] e o dashboard mostra vazio.
+        return petDashboardGateway.listarPetsPorOngId(ongId).stream()
                 .filter(PetDashboard::temPendencias)
                 .collect(Collectors.toList());
     }

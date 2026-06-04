@@ -1,7 +1,6 @@
 package cruds.Dashboard.V2.core.application.usecase;
 
 import cruds.Dashboard.V2.core.adapter.PetDashboardGateway;
-import cruds.Dashboard.V2.core.application.exception.DashboardException;
 import cruds.Dashboard.V2.core.domain.PetDashboard;
 
 import java.util.List;
@@ -16,15 +15,10 @@ public class ObterRankingPetsUseCase {
     }
 
     public List<PetDashboard> obterRanking(UUID ongId) {
-        List<PetDashboard> pets = petDashboardGateway.listarPetsPorOngIdOrderByCurtidas(ongId);
-
-        if (pets.isEmpty()) {
-            throw new DashboardException.NenhumPetEncontradoException(
-                "Nenhum pet encontrado para a ONG com ID: " + ongId
-            );
-        }
-
-        return pets;
+        // Uma ONG sem pets e um estado VALIDO (lista vazia), nao um erro 404.
+        // Retornar [] deixa o dashboard renderizar vazio normalmente, em vez de
+        // o backend responder 404 (que o frontend ja tratava, mas e semantica errada).
+        return petDashboardGateway.listarPetsPorOngIdOrderByCurtidas(ongId);
     }
 }
 
