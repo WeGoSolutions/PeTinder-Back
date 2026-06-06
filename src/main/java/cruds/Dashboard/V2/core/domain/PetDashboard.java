@@ -65,4 +65,6 @@ public class PetDashboard {
     public Boolean getIsVacinado() { return isVacinado; }
     public Boolean getIsAdopted() { return isAdopted; }
     public Integer getCurtidas() { return curtidas; }
+
+    public void setCurtidas(Integer curtidas) { this.curtidas = curtidas; }
 }
